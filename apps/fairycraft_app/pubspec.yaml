@@ -1,0 +1,38 @@
+﻿name: fairycraft_app
+description: FairyCraft main Flutter application.
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.11.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+  intl: ^0.20.0
+  http: ^1.2.2
+  flutter_tts: ^4.2.3
+  android_intent_plus: ^5.3.1
+  speech_to_text: ^7.3.0
+  go_router: ^14.6.2
+  firebase_core: ^4.3.0
+  firebase_auth: ^6.1.3
+  cloud_firestore: ^6.1.1
+  firebase_app_check: ^0.4.1+3
+  firebase_storage: ^13.0.5
+  flutter_facebook_auth: ^7.1.5
+  cached_network_image: ^3.4.1
+  provider: ^6.1.5+1
+  shared_preferences: ^2.3.3
+  url_launcher: ^6.3.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
