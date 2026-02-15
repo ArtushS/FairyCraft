@@ -26,3 +26,9 @@ linter:
 
 # Additional information about this file can be found at
 # https://dart.dev/guides/language/analysis-options
+
+analyzer:
+  errors:
+    # Project contains many dangling library doc comments (info-level).
+    # Treat them as ignored to reduce noise in the Problems panel.
+    dangling_library_doc_comments: ignore
