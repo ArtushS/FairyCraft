@@ -35,10 +35,9 @@ class _TtsControlsWidgetState extends State<TtsControlsWidget> {
     if (chunkMatch != null) {
       final current = int.tryParse(chunkMatch.group(1) ?? '') ?? 0;
       final total = int.tryParse(chunkMatch.group(2) ?? '') ?? 0;
-      return AppLocalizations.of(context)!.ttsPreparingAudioChunks(
-        current,
-        total,
-      );
+      return AppLocalizations.of(
+        context,
+      )!.ttsPreparingAudioChunks(current, total);
     }
     if (raw == 'Playing...') {
       return strings.playingLabel;
@@ -375,13 +374,23 @@ class _DropdownField<T> extends StatelessWidget {
         const SizedBox(height: 8),
         DropdownButtonFormField<T>(
           key: ValueKey<String>('tts-dropdown-$label-$value'),
+          isExpanded: true,
           initialValue: items.containsKey(value) ? value : null,
           hint: hint == null ? null : Text(hint!),
           items: items.entries
               .map(
                 (entry) => DropdownMenuItem<T>(
                   value: entry.key,
-                  child: Text(entry.value),
+                  child: Row(
+                    children: <Widget>[
+                      Expanded(
+                        child: Text(
+                          entry.value,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               )
               .toList(growable: false),

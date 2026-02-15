@@ -29,11 +29,11 @@ class StoryService {
     required SettingsController settingsController,
     required RequestContext requestContext,
     http.Client? client,
-  })  : _config = config,
-        _authService = authService,
-        _settingsController = settingsController,
-        _requestContext = requestContext,
-        _client = client ?? http.Client();
+  }) : _config = config,
+       _authService = authService,
+       _settingsController = settingsController,
+       _requestContext = requestContext,
+       _client = client ?? http.Client();
 
   final AppConfig _config;
   final AuthService _authService;
@@ -41,7 +41,8 @@ class StoryService {
   final RequestContext _requestContext;
   final http.Client _client;
 
-  final Map<String, Future<StoryResponsePayload>> _inFlight = <String, Future<StoryResponsePayload>>{};
+  final Map<String, Future<StoryResponsePayload>> _inFlight =
+      <String, Future<StoryResponsePayload>>{};
   final Map<String, DateTime> _cooldowns = <String, DateTime>{};
 
   Future<StoryRecord> generateStory({
@@ -105,9 +106,14 @@ class StoryService {
       );
     }
 
-    final updatedChapters = response.chapters ?? <StoryChapter>[...story.chapters, response.chapter!];
+    final updatedChapters =
+        response.chapters ??
+        <StoryChapter>[...story.chapters, response.chapter!];
 
-    return story.copyWith(chapters: updatedChapters, lastImagePrompt: response.imagePrompt);
+    return story.copyWith(
+      chapters: updatedChapters,
+      lastImagePrompt: response.imagePrompt,
+    );
   }
 
   Future<StoryResponsePayload> illustrateStory({
@@ -147,7 +153,9 @@ class StoryService {
     return future;
   }
 
-  Future<StoryResponsePayload> _sendWithRetry(StoryRequestPayload payload) async {
+  Future<StoryResponsePayload> _sendWithRetry(
+    StoryRequestPayload payload,
+  ) async {
     if (_config.useMockStories) {
       return _mockResponse(payload);
     }
@@ -167,7 +175,11 @@ class StoryService {
       }
     }
 
-    throw lastException ?? StoryServiceException('request_failed', 'Unable to contact story agent.');
+    throw lastException ??
+        StoryServiceException(
+          'request_failed',
+          'Unable to contact story agent.',
+        );
   }
 
   Future<StoryResponsePayload> _sendHttp(StoryRequestPayload payload) async {
@@ -203,18 +215,27 @@ class StoryService {
     try {
       data = jsonDecode(response.body) as Map<String, dynamic>;
     } catch (_) {
-      throw StoryServiceException('invalid_response', 'Story agent returned invalid JSON.');
+      throw StoryServiceException(
+        'invalid_response',
+        'Story agent returned invalid JSON.',
+      );
     }
 
     final parsed = StoryResponsePayload.fromJson(data);
 
     if (response.statusCode == 429) {
       _cooldowns[payload.action] = DateTime.now();
-      throw StoryServiceException(parsed.error ?? 'rate_limited', parsed.safeMessage ?? 'Too many requests.');
+      throw StoryServiceException(
+        parsed.error ?? 'rate_limited',
+        parsed.safeMessage ?? 'Too many requests.',
+      );
     }
 
     if (response.statusCode >= 400 || !parsed.ok) {
-      throw StoryServiceException(parsed.error ?? 'request_failed', parsed.safeMessage ?? 'Request failed.');
+      throw StoryServiceException(
+        parsed.error ?? 'request_failed',
+        parsed.safeMessage ?? 'Request failed.',
+      );
     }
 
     return parsed;
@@ -238,10 +259,11 @@ class StoryService {
   }
 
   Future<Map<String, String>> _buildHeaders() async {
-    final headers = <String, String>{
-      'Content-Type': 'application/json',
-      'X-Firebase-Locale': _settingsController.defaultLanguageCode,
-    };
+    final headers = <String, String>{'Content-Type': 'application/json'};
+    final defaultLang = _settingsController.defaultLanguageCode.trim();
+    if (defaultLang.isNotEmpty) {
+      headers['X-Firebase-Locale'] = defaultLang;
+    }
     headers.addAll(_requestContext.headers());
 
     final token = await _authService.getIdToken();
@@ -261,18 +283,25 @@ class StoryService {
     return headers;
   }
 
-  Future<StoryResponsePayload> _mockResponse(StoryRequestPayload payload) async {
+  Future<StoryResponsePayload> _mockResponse(
+    StoryRequestPayload payload,
+  ) async {
     await Future<void>.delayed(const Duration(milliseconds: 150));
     final requestId = _newRequestId();
 
     if (payload.action == 'generate') {
-      final hero = payload.hero?.trim().isNotEmpty == true ? payload.hero!.trim() : 'Luna';
-      final location = payload.location?.trim().isNotEmpty == true ? payload.location!.trim() : 'Glow Forest';
+      final hero = payload.hero?.trim().isNotEmpty == true
+          ? payload.hero!.trim()
+          : 'Luna';
+      final location = payload.location?.trim().isNotEmpty == true
+          ? payload.location!.trim()
+          : 'Glow Forest';
       final title = 'FairyCraft: $hero in $location';
       final chapter = StoryChapter(
         index: 1,
         title: 'A Bright Start',
-        text: '$hero begins a gentle adventure in $location, choosing kindness and curiosity at every turn.',
+        text:
+            '$hero begins a gentle adventure in $location, choosing kindness and curiosity at every turn.',
         choices: <StoryChoice>[
           StoryChoice(id: 'explore_path', label: 'Explore the sparkling path'),
           StoryChoice(id: 'meet_friend', label: 'Meet a new forest friend'),
@@ -285,7 +314,9 @@ class StoryService {
         storyId: _newStoryId(),
         title: title,
         chapter: chapter,
-        imagePrompt: payload.imageEnabled ? 'Mock illustration prompt for $title' : null,
+        imagePrompt: payload.imageEnabled
+            ? 'Mock illustration prompt for $title'
+            : null,
         imageDisabled: payload.imageEnabled,
       );
     }
@@ -294,7 +325,8 @@ class StoryService {
       final chapter = StoryChapter(
         index: 2,
         title: 'Next Step',
-        text: 'The friends follow ${payload.choiceId ?? 'their choice'} and solve a puzzle together safely.',
+        text:
+            'The friends follow ${payload.choiceId ?? 'their choice'} and solve a puzzle together safely.',
         choices: <StoryChoice>[
           StoryChoice(id: 'share_map', label: 'Share a map'),
           StoryChoice(id: 'rest_and_plan', label: 'Rest and make a plan'),

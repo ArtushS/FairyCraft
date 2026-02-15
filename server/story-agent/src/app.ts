@@ -154,9 +154,9 @@ export const createApp = (options?: CreateAppOptions) => {
     try {
       const payload = forcedAction
         ? {
-            ...(req.body ?? {}),
-            action: forcedAction,
-          }
+          ...(req.body ?? {}),
+          action: forcedAction,
+        }
         : req.body;
 
       const parsed = storyRequestSchema.safeParse(payload);
@@ -614,6 +614,72 @@ export const createApp = (options?: CreateAppOptions) => {
         error: 'stt_proxy_unavailable',
         safeMessage: 'Speech recognition service is temporarily unavailable.',
       });
+    }
+  });
+
+  // Voicemaker TTS proxy endpoints
+  app.post('/v1/tts/voicemaker', async (req: Request, res: Response) => {
+    if (!services.config.voicemakerApiKey.trim()) {
+      res.status(503).json({ ok: false, error: 'tts_unavailable', safeMessage: 'TTS service is not configured.' });
+      return;
+    }
+
+    try {
+      const upstream = await fetch('https://developer.voicemaker.in/api/v1/voice/convert', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${services.config.voicemakerApiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(req.body ?? {}),
+      });
+
+      // Mirror upstream status and some headers
+      const contentType = upstream.headers.get('content-type') ?? 'application/json';
+      res.status(upstream.status);
+      res.set('Content-Type', contentType);
+
+      // Stream bytes if audio
+      const buffer = await upstream.arrayBuffer();
+      const body = Buffer.from(buffer);
+      res.send(body);
+    } catch (error) {
+      res.status(502).json({ ok: false, error: 'tts_upstream_failed', safeMessage: 'TTS provider is temporarily unavailable.' });
+    }
+  });
+
+  app.post('/v1/tts/voicemaker/voices', async (req: Request, res: Response) => {
+    if (!services.config.voicemakerApiKey.trim()) {
+      res.status(503).json({ ok: false, error: 'tts_unavailable', safeMessage: 'TTS service is not configured.' });
+      return;
+    }
+
+    try {
+      const upstream = await fetch('https://developer.voicemaker.in/api/v1/voice/list', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${services.config.voicemakerApiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(req.body ?? {}),
+      });
+
+      const text = await upstream.text();
+      let parsed: unknown = {};
+      try {
+        parsed = text.trim().length > 0 ? JSON.parse(text) : {};
+      } catch (_) {
+        parsed = {};
+      }
+
+      if (!upstream.ok) {
+        res.status(502).json({ ok: false, error: 'tts_upstream_failed', safeMessage: 'Failed to load voices.' });
+        return;
+      }
+
+      res.status(200).json(parsed);
+    } catch (error) {
+      res.status(502).json({ ok: false, error: 'tts_upstream_failed', safeMessage: 'TTS provider is temporarily unavailable.' });
     }
   });
 

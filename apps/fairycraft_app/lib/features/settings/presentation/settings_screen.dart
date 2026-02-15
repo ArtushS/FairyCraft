@@ -112,6 +112,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
       setState(() {
         _voices = voices;
       });
+    } catch (error) {
+      // If voices fail to load (missing proxy, network, etc.), default to empty list
+      if (!mounted) return;
+      setState(() {
+        _voices = const <TtsVoice>[];
+      });
     } finally {
       if (mounted) {
         setState(() {
