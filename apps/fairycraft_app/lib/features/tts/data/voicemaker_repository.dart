@@ -22,12 +22,19 @@ class VoicemakerRepository {
     required String preferredGender,
     required String qualityPreset,
   }) async {
-    final voices = await _client.listVoices(languageCode: languageCode);
-    final byGender = _filterByGender(
-      voices: voices,
-      preferredGender: preferredGender,
-    );
-    return _filterByQuality(byGender, qualityPreset);
+    try {
+      final voices = await _client.listVoices(languageCode: languageCode);
+      final byGender = _filterByGender(
+        voices: voices,
+        preferredGender: preferredGender,
+      );
+      return _filterByQuality(byGender, qualityPreset);
+    } catch (_) {
+      // If the TTS backend is misconfigured (missing proxy URL or API key),
+      // don't crash the UI — return an empty list and let callers show a
+      // friendly "no voices available" message.
+      return const <TtsVoice>[];
+    }
   }
 
   TtsVoice? pickDefaultVoice(List<TtsVoice> voices) {
