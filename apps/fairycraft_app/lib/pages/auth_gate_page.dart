@@ -1,18 +1,60 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
-class AuthGatePage extends StatelessWidget {
+import '../auth/auth_controller.dart';
+
+class AuthGatePage extends StatefulWidget {
   const AuthGatePage({super.key});
 
   @override
+  State<AuthGatePage> createState() => _AuthGatePageState();
+}
+
+class _AuthGatePageState extends State<AuthGatePage> {
+  bool _showRetry = false;
+
+  @override
+  void initState() {
+    super.initState();
+    Future<void>.delayed(const Duration(seconds: 8), () {
+      if (!mounted) {
+        return;
+      }
+
+      final auth = context.read<AuthController>();
+      if (auth.status == AuthStatus.loading ||
+          auth.status == AuthStatus.unknown) {
+        setState(() {
+          _showRetry = true;
+        });
+      }
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return const Scaffold(
+    return Scaffold(
       body: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
-            CircularProgressIndicator(),
-            SizedBox(height: 16),
-            Text('Checking session...'),
+            const CircularProgressIndicator(),
+            const SizedBox(height: 16),
+            const Text('Checking session...'),
+            if (_showRetry) ...<Widget>[
+              const SizedBox(height: 12),
+              const Text('Session check is taking longer than expected.'),
+              const SizedBox(height: 12),
+              OutlinedButton(
+                onPressed: () {
+                  setState(() {
+                    _showRetry = false;
+                  });
+                  context.read<AuthController>().start();
+                },
+                child: const Text('Retry'),
+              ),
+            ],
           ],
         ),
       ),

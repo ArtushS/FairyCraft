@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "640487678578",
+    "project_id": "fairycraft-prod",
+    "storage_bucket": "fairycraft-prod.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:640487678578:android:a6eed98f01c506a8ec18eb",
+        "android_client_info": {
+          "package_name": "com.fairycraft.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCn_11LJmm7M6Rs4WCdfsbuOjOkK6qwBBc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

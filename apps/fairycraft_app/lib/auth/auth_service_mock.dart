@@ -1,21 +1,24 @@
-﻿import 'dart:async';
+import 'dart:async';
 import 'dart:math';
 
 import 'auth_service.dart';
 
 class AuthServiceMock implements AuthService {
-  AuthServiceMock() {
-    _controller.add(null);
-  }
+  AuthServiceMock();
 
-  final StreamController<AuthUser?> _controller = StreamController<AuthUser?>.broadcast();
+  final StreamController<AuthUser?> _controller =
+      StreamController<AuthUser?>.broadcast();
   AuthUser? _current;
 
   @override
   AuthUser? get currentUser => _current;
 
   @override
-  Stream<AuthUser?> authStateChanges() => _controller.stream;
+  Stream<AuthUser?> authStateChanges() async* {
+    // Always emit current state first for session gates that wait on first event.
+    yield _current;
+    yield* _controller.stream;
+  }
 
   @override
   Future<void> changePassword(String newPassword) async {
@@ -31,7 +34,10 @@ class AuthServiceMock implements AuthService {
   Future<void> linkProvider(String providerId) async {}
 
   @override
-  Future<void> registerWithEmailPassword({required String email, required String password}) async {
+  Future<void> registerWithEmailPassword({
+    required String email,
+    required String password,
+  }) async {
     final uid = 'mock_${email.hashCode.abs()}_${Random().nextInt(9999)}';
     _current = AuthUser(uid: uid, email: email);
     _controller.add(_current);
@@ -41,7 +47,10 @@ class AuthServiceMock implements AuthService {
   Future<void> sendPasswordResetEmail(String email) async {}
 
   @override
-  Future<void> signInWithEmailPassword({required String email, required String password}) async {
+  Future<void> signInWithEmailPassword({
+    required String email,
+    required String password,
+  }) async {
     final uid = 'mock_${email.hashCode.abs()}';
     _current = AuthUser(uid: uid, email: email);
     _controller.add(_current);

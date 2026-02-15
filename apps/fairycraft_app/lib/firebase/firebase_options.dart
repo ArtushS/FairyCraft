@@ -1,74 +1,39 @@
-﻿import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 
-// Placeholder Firebase options for local compilation.
-// Replace by running `flutterfire configure` for FairyCraft.
+import 'firebase_options_dev.dart' as dev_options;
+import 'firebase_options_prod.dart' as prod_options;
+
+// Selects dev/prod Firebase options at compile time using --dart-define=FLAVOR=dev|prod
+const _flavor = String.fromEnvironment('FLAVOR', defaultValue: 'dev');
+
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
-        return android;
+        return _flavor == 'prod'
+            ? prod_options.DefaultFirebaseOptions.android
+            : dev_options.DefaultFirebaseOptions.android;
       case TargetPlatform.iOS:
-        return ios;
+        return _flavor == 'prod'
+            ? prod_options.DefaultFirebaseOptions.ios
+            : dev_options.DefaultFirebaseOptions.ios;
       case TargetPlatform.macOS:
-        return macos;
+        return _flavor == 'prod'
+            ? prod_options.DefaultFirebaseOptions.macos
+            : dev_options.DefaultFirebaseOptions.macos;
       case TargetPlatform.windows:
-        return windows;
+        return _flavor == 'prod'
+            ? prod_options.DefaultFirebaseOptions.windows
+            : dev_options.DefaultFirebaseOptions.windows;
       case TargetPlatform.linux:
-        return linux;
+        return _flavor == 'prod'
+            ? prod_options.DefaultFirebaseOptions.linux
+            : dev_options.DefaultFirebaseOptions.linux;
       default:
-        return web;
+        return _flavor == 'prod'
+            ? prod_options.DefaultFirebaseOptions.web
+            : dev_options.DefaultFirebaseOptions.web;
     }
   }
-
-  static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'placeholder-api-key',
-    appId: '1:000000000000:web:0000000000000000',
-    messagingSenderId: '000000000000',
-    projectId: 'fairycraft-placeholder',
-    authDomain: 'fairycraft-placeholder.firebaseapp.com',
-    storageBucket: 'fairycraft-placeholder.appspot.com',
-  );
-
-  static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'placeholder-api-key',
-    appId: '1:000000000000:android:0000000000000000',
-    messagingSenderId: '000000000000',
-    projectId: 'fairycraft-placeholder',
-    storageBucket: 'fairycraft-placeholder.appspot.com',
-  );
-
-  static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'placeholder-api-key',
-    appId: '1:000000000000:ios:0000000000000000',
-    messagingSenderId: '000000000000',
-    projectId: 'fairycraft-placeholder',
-    storageBucket: 'fairycraft-placeholder.appspot.com',
-    iosBundleId: 'com.fairycraft.app',
-  );
-
-  static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'placeholder-api-key',
-    appId: '1:000000000000:ios:0000000000000001',
-    messagingSenderId: '000000000000',
-    projectId: 'fairycraft-placeholder',
-    storageBucket: 'fairycraft-placeholder.appspot.com',
-    iosBundleId: 'com.fairycraft.app',
-  );
-
-  static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'placeholder-api-key',
-    appId: '1:000000000000:web:0000000000000001',
-    messagingSenderId: '000000000000',
-    projectId: 'fairycraft-placeholder',
-    storageBucket: 'fairycraft-placeholder.appspot.com',
-  );
-
-  static const FirebaseOptions linux = FirebaseOptions(
-    apiKey: 'placeholder-api-key',
-    appId: '1:000000000000:web:0000000000000002',
-    messagingSenderId: '000000000000',
-    projectId: 'fairycraft-placeholder',
-    storageBucket: 'fairycraft-placeholder.appspot.com',
-  );
 }

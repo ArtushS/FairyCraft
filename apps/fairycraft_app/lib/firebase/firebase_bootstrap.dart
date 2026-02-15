@@ -1,10 +1,12 @@
-﻿import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 
 import '../app/config.dart';
 import 'firebase_options.dart';
+
+const _flavor = String.fromEnvironment('FLAVOR', defaultValue: 'dev');
 
 class FirebaseBootstrap {
   FirebaseBootstrap({
@@ -19,38 +21,40 @@ class FirebaseBootstrap {
 
   static Future<FirebaseBootstrap> init(AppConfig config) async {
     try {
-      await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
 
       try {
-        FirebaseFirestore.instance.settings = const Settings(persistenceEnabled: true);
+        FirebaseFirestore.instance.settings = const Settings(
+          persistenceEnabled: true,
+        );
       } catch (_) {
         // Persistence is best-effort and should not crash app startup.
       }
 
       var appCheckAttempted = false;
-      try {
-        appCheckAttempted = true;
-        if (defaultTargetPlatform == TargetPlatform.android) {
+      if (config.appCheckRequired &&
+          defaultTargetPlatform == TargetPlatform.android) {
+        try {
+          appCheckAttempted = true;
+          final isProdFlavor = _flavor.trim().toLowerCase() == 'prod';
           await FirebaseAppCheck.instance.activate(
-            providerAndroid:
-                kDebugMode ? const AndroidDebugProvider() : const AndroidPlayIntegrityProvider(),
+            providerAndroid: isProdFlavor
+                ? const AndroidPlayIntegrityProvider()
+                : const AndroidDebugProvider(),
           );
-        } else if (defaultTargetPlatform == TargetPlatform.iOS) {
-          await FirebaseAppCheck.instance.activate(
-            providerApple: kDebugMode
-                ? const AppleDebugProvider()
-                : const AppleAppAttestWithDeviceCheckFallbackProvider(),
-          );
-        } else {
-          await FirebaseAppCheck.instance.activate();
+        } catch (_) {
+          // App Check issues should not crash app startup.
         }
-      } catch (_) {
-        // App Check issues should not crash app startup.
+      } else if (config.appCheckRequired &&
+          defaultTargetPlatform == TargetPlatform.iOS) {
+        // TODO: configure iOS App Check once iOS Firebase wiring is enabled on macOS.
       }
 
       return FirebaseBootstrap(
         firebaseReady: true,
-        appCheckAttempted: appCheckAttempted || config.appCheckRequired,
+        appCheckAttempted: appCheckAttempted,
       );
     } catch (error) {
       return FirebaseBootstrap(
@@ -61,5 +65,3 @@ class FirebaseBootstrap {
     }
   }
 }
-
-

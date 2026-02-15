@@ -1,8 +1,9 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../settings/settings_controller.dart';
+import '../shared/services/storage_asset_service.dart';
 import '../story/catalog_repository.dart';
 import '../story/shared_preferences_story_repository.dart';
 import '../story/story_service.dart';
@@ -27,8 +28,28 @@ class _StorySetupPageState extends State<StorySetupPage> {
   String? _storyType;
 
   final TextEditingController _ideaController = TextEditingController();
+  late final List<String> _heroPreviewFiles;
+  late final List<String> _locationPreviewFiles;
+  late final List<String> _stylePreviewFiles;
   bool _loading = false;
   String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _heroPreviewFiles = List<String>.generate(
+      8,
+      (_) => StorageAssetService.randomHero(),
+    );
+    _locationPreviewFiles = List<String>.generate(
+      8,
+      (_) => StorageAssetService.randomLocation(),
+    );
+    _stylePreviewFiles = List<String>.generate(
+      8,
+      (_) => StorageAssetService.randomStyle(),
+    );
+  }
 
   @override
   void didChangeDependencies() {
@@ -63,7 +84,9 @@ class _StorySetupPageState extends State<StorySetupPage> {
         hero: _hero,
         location: _location,
         storyType: _storyType,
-        idea: _ideaController.text.trim().isEmpty ? null : _ideaController.text.trim(),
+        idea: _ideaController.text.trim().isEmpty
+            ? null
+            : _ideaController.text.trim(),
         imageEnabled: _imageEnabled,
       );
 
@@ -108,7 +131,12 @@ class _StorySetupPageState extends State<StorySetupPage> {
                 initialValue: _storyLang,
                 decoration: const InputDecoration(labelText: 'Language'),
                 items: const <String>['en', 'ru', 'hy']
-                    .map((lang) => DropdownMenuItem<String>(value: lang, child: Text(lang)))
+                    .map(
+                      (lang) => DropdownMenuItem<String>(
+                        value: lang,
+                        child: Text(lang),
+                      ),
+                    )
                     .toList(growable: false),
                 onChanged: (value) {
                   if (value != null) {
@@ -123,7 +151,12 @@ class _StorySetupPageState extends State<StorySetupPage> {
                 initialValue: _ageGroup,
                 decoration: const InputDecoration(labelText: 'Age group'),
                 items: const <String>['3_5', '6_8', '9_12']
-                    .map((value) => DropdownMenuItem<String>(value: value, child: Text(value)))
+                    .map(
+                      (value) => DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      ),
+                    )
                     .toList(growable: false),
                 onChanged: (value) {
                   if (value != null) {
@@ -138,7 +171,12 @@ class _StorySetupPageState extends State<StorySetupPage> {
                 initialValue: _storyLength,
                 decoration: const InputDecoration(labelText: 'Length'),
                 items: const <String>['short', 'medium', 'long']
-                    .map((value) => DropdownMenuItem<String>(value: value, child: Text(value)))
+                    .map(
+                      (value) => DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      ),
+                    )
                     .toList(growable: false),
                 onChanged: (value) {
                   if (value != null) {
@@ -170,6 +208,24 @@ class _StorySetupPageState extends State<StorySetupPage> {
                   });
                 },
               ),
+              const SizedBox(height: 8),
+              _StorageIconCarousel(
+                title: 'Hero icons',
+                files: _heroPreviewFiles,
+                resolveUrl: StorageAssetService.heroUrl,
+              ),
+              const SizedBox(height: 8),
+              _StorageIconCarousel(
+                title: 'Location icons',
+                files: _locationPreviewFiles,
+                resolveUrl: StorageAssetService.locationUrl,
+              ),
+              const SizedBox(height: 8),
+              _StorageIconCarousel(
+                title: 'Style icons',
+                files: _stylePreviewFiles,
+                resolveUrl: StorageAssetService.styleUrl,
+              ),
               const SizedBox(height: 12),
               if (catalog == null)
                 const LinearProgressIndicator()
@@ -178,7 +234,12 @@ class _StorySetupPageState extends State<StorySetupPage> {
                   initialValue: _hero,
                   decoration: const InputDecoration(labelText: 'Hero'),
                   items: catalog.heroes
-                      .map((value) => DropdownMenuItem<String>(value: value, child: Text(value)))
+                      .map(
+                        (value) => DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                        ),
+                      )
                       .toList(growable: false),
                   onChanged: (value) {
                     setState(() {
@@ -191,7 +252,12 @@ class _StorySetupPageState extends State<StorySetupPage> {
                   initialValue: _location,
                   decoration: const InputDecoration(labelText: 'Location'),
                   items: catalog.locations
-                      .map((value) => DropdownMenuItem<String>(value: value, child: Text(value)))
+                      .map(
+                        (value) => DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                        ),
+                      )
                       .toList(growable: false),
                   onChanged: (value) {
                     setState(() {
@@ -204,7 +270,12 @@ class _StorySetupPageState extends State<StorySetupPage> {
                   initialValue: _storyType,
                   decoration: const InputDecoration(labelText: 'Story type'),
                   items: catalog.storyTypes
-                      .map((value) => DropdownMenuItem<String>(value: value, child: Text(value)))
+                      .map(
+                        (value) => DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                        ),
+                      )
                       .toList(growable: false),
                   onChanged: (value) {
                     setState(() {
@@ -254,7 +325,9 @@ class _StorySetupPageState extends State<StorySetupPage> {
               const SizedBox(height: 16),
               FilledButton(
                 onPressed: _loading || catalog == null ? null : _startStory,
-                child: _loading ? const CircularProgressIndicator() : const Text('Start'),
+                child: _loading
+                    ? const CircularProgressIndicator()
+                    : const Text('Start'),
               ),
             ],
           ),
@@ -264,4 +337,96 @@ class _StorySetupPageState extends State<StorySetupPage> {
   }
 }
 
+class _StorageIconCarousel extends StatelessWidget {
+  const _StorageIconCarousel({
+    required this.title,
+    required this.files,
+    required this.resolveUrl,
+  });
 
+  final String title;
+  final List<String> files;
+  final Future<String> Function(String file) resolveUrl;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Text(title, style: Theme.of(context).textTheme.titleSmall),
+        const SizedBox(height: 8),
+        SizedBox(
+          height: 120,
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            itemCount: files.length,
+            separatorBuilder: (context, index) => const SizedBox(width: 8),
+            itemBuilder: (context, index) {
+              return _StorageIconTile(imageUrlFuture: resolveUrl(files[index]));
+            },
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _StorageIconTile extends StatelessWidget {
+  const _StorageIconTile({required this.imageUrlFuture});
+
+  final Future<String> imageUrlFuture;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 120,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Theme.of(context).dividerColor),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(8),
+          child: FutureBuilder<String>(
+            future: imageUrlFuture,
+            builder: (context, snapshot) {
+              if (snapshot.hasData && snapshot.data != null) {
+                return Image.network(
+                  snapshot.data!,
+                  fit: BoxFit.contain,
+                  errorBuilder: (context, error, stackTrace) => const Center(
+                    child: Icon(Icons.image_not_supported_outlined),
+                  ),
+                );
+              }
+
+              return FutureBuilder<String>(
+                future: StorageAssetService.placeholderUrl(),
+                builder: (context, placeholderSnap) {
+                  if (placeholderSnap.hasData && placeholderSnap.data != null) {
+                    return Image.network(
+                      placeholderSnap.data!,
+                      fit: BoxFit.contain,
+                      errorBuilder: (context, error, stackTrace) =>
+                          const Center(
+                            child: Icon(Icons.image_not_supported_outlined),
+                          ),
+                    );
+                  }
+
+                  return const Center(
+                    child: SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                  );
+                },
+              );
+            },
+          ),
+        ),
+      ),
+    );
+  }
+}

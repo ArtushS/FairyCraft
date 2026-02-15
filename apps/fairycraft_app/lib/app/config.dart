@@ -1,5 +1,3 @@
-﻿import 'package:flutter/foundation.dart';
-
 class AppConfig {
   const AppConfig({
     required this.storyAgentUrl,
@@ -21,10 +19,24 @@ class AppConfig {
         'USE_MOCK_STORIES',
         defaultValue: true,
       ),
-      appCheckRequired: bool.fromEnvironment(
-        'APPCHECK_REQUIRED',
-        defaultValue: kReleaseMode,
-      ),
+      appCheckRequired: _appCheckEnabledFromEnvironment(),
     );
+  }
+
+  static bool _appCheckEnabledFromEnvironment() {
+    const appCheckMode = String.fromEnvironment(
+      'APP_CHECK',
+      defaultValue: 'off',
+    );
+    final normalizedMode = appCheckMode.trim().toLowerCase();
+    if (normalizedMode == 'on') {
+      return true;
+    }
+    if (normalizedMode == 'off') {
+      return false;
+    }
+
+    // Backward-compatible fallback for older CI flags.
+    return const bool.fromEnvironment('APPCHECK_REQUIRED', defaultValue: false);
   }
 }
