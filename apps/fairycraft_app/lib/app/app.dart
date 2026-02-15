@@ -24,6 +24,9 @@ import '../story/image_generation_service.dart';
 import '../story/shared_preferences_story_repository.dart';
 import '../story/story_preferences_controller.dart';
 import '../story/story_service.dart';
+import '../story_setup/story_setup_icon_cache_store.dart';
+import '../story_setup/story_setup_icon_firestore_service.dart';
+import '../story_setup/story_setup_icon_repository.dart';
 import '../voice/voice_input_controller.dart';
 import 'config.dart';
 import 'router.dart';
@@ -77,6 +80,19 @@ class FairyCraftApp extends StatelessWidget {
         ),
         Provider<SharedPreferencesStoryRepository>.value(
           value: storyRepository,
+        ),
+        Provider<StorySetupIconCacheStore>(
+          create: (_) => StorySetupIconCacheStore(),
+        ),
+        Provider<StorySetupIconFirestoreService>(
+          create: (_) => StorySetupIconFirestoreService(),
+        ),
+        Provider<StorySetupIconRepository>(
+          create: (context) => StorySetupIconRepository(
+            firestoreService: context.read<StorySetupIconFirestoreService>(),
+            cacheStore: context.read<StorySetupIconCacheStore>(),
+            httpClient: context.read<http.Client>(),
+          ),
         ),
         Provider<StoryCatalogRepository>(
           create: (_) => StubStoryCatalogRepository(),
