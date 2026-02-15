@@ -1,11 +1,12 @@
-﻿import 'dart:async';
+import 'dart:async';
 
 import 'package:firebase_auth/firebase_auth.dart';
 
 import 'auth_service.dart';
 
 class AuthServiceFirebase implements AuthService {
-  AuthServiceFirebase({FirebaseAuth? firebaseAuth}) : _auth = firebaseAuth ?? FirebaseAuth.instance;
+  AuthServiceFirebase({FirebaseAuth? firebaseAuth})
+    : _auth = firebaseAuth ?? FirebaseAuth.instance;
 
   final FirebaseAuth _auth;
 
@@ -17,7 +18,12 @@ class AuthServiceFirebase implements AuthService {
     if (user == null) {
       return null;
     }
-    return AuthUser(uid: user.uid, email: user.email, isAnonymous: user.isAnonymous);
+    return AuthUser(
+      uid: user.uid,
+      email: user.email,
+      isAnonymous: user.isAnonymous,
+      providerIds: _providerIds(user),
+    );
   }
 
   @override
@@ -35,7 +41,12 @@ class AuthServiceFirebase implements AuthService {
       if (user == null) {
         return null;
       }
-      return AuthUser(uid: user.uid, email: user.email, isAnonymous: user.isAnonymous);
+      return AuthUser(
+        uid: user.uid,
+        email: user.email,
+        isAnonymous: user.isAnonymous,
+        providerIds: _providerIds(user),
+      );
     }).asBroadcastStream();
   }
 
@@ -51,8 +62,31 @@ class AuthServiceFirebase implements AuthService {
   }
 
   @override
-  Future<void> registerWithEmailPassword({required String email, required String password}) async {
-    await _auth.createUserWithEmailAndPassword(email: email, password: password);
+  Future<void> unlinkProvider(String providerId) async {
+    final user = _auth.currentUser;
+    if (user == null) {
+      return;
+    }
+
+    try {
+      await user.unlink(providerId);
+    } on FirebaseAuthException catch (error) {
+      if (error.code == 'no-such-provider') {
+        return;
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> registerWithEmailPassword({
+    required String email,
+    required String password,
+  }) async {
+    await _auth.createUserWithEmailAndPassword(
+      email: email,
+      password: password,
+    );
   }
 
   @override
@@ -61,7 +95,10 @@ class AuthServiceFirebase implements AuthService {
   }
 
   @override
-  Future<void> signInWithEmailPassword({required String email, required String password}) async {
+  Future<void> signInWithEmailPassword({
+    required String email,
+    required String password,
+  }) async {
     await _auth.signInWithEmailAndPassword(email: email, password: password);
   }
 
@@ -72,4 +109,13 @@ class AuthServiceFirebase implements AuthService {
 
   @override
   void dispose() {}
+
+  List<String> _providerIds(User user) {
+    final ids = user.providerData
+        .map((item) => item.providerId)
+        .toSet()
+        .toList();
+    ids.sort();
+    return ids;
+  }
 }

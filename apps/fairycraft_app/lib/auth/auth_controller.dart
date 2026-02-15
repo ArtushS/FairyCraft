@@ -153,6 +153,18 @@ class AuthController extends ChangeNotifier {
     }
   }
 
+  Future<void> unlinkProvider(String providerId) async {
+    _lastError = null;
+    notifyListeners();
+    try {
+      await _authService.unlinkProvider(providerId);
+    } catch (error) {
+      _lastError = error.toString();
+      notifyListeners();
+      rethrow;
+    }
+  }
+
   Future<void> signOut() async {
     await _authService.signOut();
   }

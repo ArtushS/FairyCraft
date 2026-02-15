@@ -1,22 +1,25 @@
-﻿import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+import 'package:flutter/material.dart';
+
+import '../app/nav.dart';
+import '../l10n/l10n.dart';
 
 class ResetSentPage extends StatelessWidget {
   const ResetSentPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Scaffold(
-      appBar: AppBar(title: const Text('Reset sent')),
+      appBar: AppBar(title: Text(l10n.authResetSentTitle)),
       body: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
-            const Text('If the email exists, reset instructions were sent.'),
+            Text(l10n.authResetSentBody),
             const SizedBox(height: 12),
             FilledButton(
-              onPressed: () => context.go('/login'),
-              child: const Text('Back to login'),
+              onPressed: () => Nav.backOrLogin(context),
+              child: Text(l10n.commonBackToLogin),
             ),
           ],
         ),

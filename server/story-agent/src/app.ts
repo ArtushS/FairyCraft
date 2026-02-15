@@ -2,6 +2,7 @@
 
 import express, { type Request, type Response } from 'express';
 import rateLimit from 'express-rate-limit';
+import multer from 'multer';
 
 import { loadConfig, type AppConfig } from './config';
 import { storyRequestSchema } from './schemas';
@@ -95,6 +96,10 @@ const createServices = (options?: CreateAppOptions): AppServices => {
 export const createApp = (options?: CreateAppOptions) => {
   const services = createServices(options);
   const app = express();
+  const sttUpload = multer({
+    storage: multer.memoryStorage(),
+    limits: { fileSize: 12 * 1024 * 1024 },
+  });
 
   app.disable('x-powered-by');
   app.use(express.json({ limit: '1mb' }));
@@ -493,6 +498,123 @@ export const createApp = (options?: CreateAppOptions) => {
 
   app.post('/v1/story/illustrate', async (req, res) => {
     await handleAction(req, res, 'illustrate');
+  });
+
+  app.post('/v1/stt/transcribe', sttUpload.single('file'), async (req: Request, res: Response) => {
+    const requestLanguage =
+      typeof req.body?.language === 'string' && req.body.language.trim().length > 0
+        ? req.body.language.trim()
+        : 'auto';
+    const responseFormat =
+      typeof req.body?.responseFormat === 'string' && req.body.responseFormat.trim().length > 0
+        ? req.body.responseFormat.trim()
+        : 'json';
+    const model =
+      typeof req.body?.model === 'string' && req.body.model.trim().length > 0
+        ? req.body.model.trim()
+        : 'stt-flagship-v1';
+
+    if (!services.ipCounter.consume(`stt:${req.ip}`, services.config.sttRateLimitPerMin)) {
+      res.status(429).json({
+        ok: false,
+        error: 'rate_limited',
+        safeMessage: 'Too many STT requests. Please retry later.',
+      });
+      return;
+    }
+
+    if (!services.config.voicemakerApiKey.trim()) {
+      res.status(503).json({
+        ok: false,
+        error: 'stt_unavailable',
+        safeMessage: 'Speech recognition service is not configured.',
+      });
+      return;
+    }
+
+    if (!req.file || req.file.size <= 0) {
+      res.status(400).json({
+        ok: false,
+        error: 'audio_required',
+        safeMessage: 'Audio file is required.',
+      });
+      return;
+    }
+
+    try {
+      const formData = new FormData();
+      formData.append('model', model);
+      formData.append('language', requestLanguage);
+      formData.append('responseFormat', responseFormat);
+      formData.append('includeSubtitle', 'false');
+      formData.append('tagAudioEvents', 'false');
+      formData.append(
+        'file',
+        new Blob([new Uint8Array(req.file.buffer)], {
+          type: req.file.mimetype || 'audio/wav',
+        }),
+        req.file.originalname || 'recording.wav',
+      );
+
+      const upstreamResponse = await fetch('https://developer.voicemaker.in/api/v1/speech-to-text', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${services.config.voicemakerApiKey}`,
+        },
+        body: formData,
+      });
+
+      const rawText = await upstreamResponse.text();
+      let parsed: Record<string, unknown> = {};
+      try {
+        parsed = rawText.trim().length > 0 ? (JSON.parse(rawText) as Record<string, unknown>) : {};
+      } catch (_error) {
+        parsed = {};
+      }
+
+      if (!upstreamResponse.ok) {
+        const message =
+          typeof parsed.message === 'string'
+            ? parsed.message
+            : typeof parsed.error === 'string'
+              ? parsed.error
+              : 'Speech recognition request failed.';
+        res.status(502).json({
+          ok: false,
+          error: 'stt_upstream_failed',
+          safeMessage: message,
+        });
+        return;
+      }
+
+      const success = parsed.success === true;
+      const isProcessing = parsed.isProcessing === true;
+      const data =
+        typeof parsed.data === 'object' && parsed.data !== null
+          ? (parsed.data as Record<string, unknown>)
+          : {};
+      const generatedText =
+        typeof data.generatedText === 'string' ? data.generatedText.trim() : '';
+      const detectedLanguage =
+        typeof data.language === 'string' ? data.language : requestLanguage;
+
+      res.status(200).json({
+        ok: success,
+        isProcessing,
+        text: generatedText,
+        language: detectedLanguage,
+        charge: data.charge,
+        usedChars: parsed.usedChars,
+        remainChars: parsed.remainChars,
+        ...(services.config.isProduction ? {} : { raw: parsed }),
+      });
+    } catch (_error) {
+      res.status(503).json({
+        ok: false,
+        error: 'stt_proxy_unavailable',
+        safeMessage: 'Speech recognition service is temporarily unavailable.',
+      });
+    }
   });
 
   return { app, services };

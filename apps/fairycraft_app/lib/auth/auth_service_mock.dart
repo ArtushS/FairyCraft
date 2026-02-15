@@ -31,7 +31,36 @@ class AuthServiceMock implements AuthService {
   Future<String?> getIdToken() async => null;
 
   @override
-  Future<void> linkProvider(String providerId) async {}
+  Future<void> linkProvider(String providerId) async {
+    final current = _current;
+    if (current == null) {
+      return;
+    }
+    final next = current.providerIds.toSet()..add(providerId);
+    _current = AuthUser(
+      uid: current.uid,
+      email: current.email,
+      isAnonymous: current.isAnonymous,
+      providerIds: next.toList()..sort(),
+    );
+    _controller.add(_current);
+  }
+
+  @override
+  Future<void> unlinkProvider(String providerId) async {
+    final current = _current;
+    if (current == null) {
+      return;
+    }
+    final next = current.providerIds.where((id) => id != providerId).toList();
+    _current = AuthUser(
+      uid: current.uid,
+      email: current.email,
+      isAnonymous: current.isAnonymous,
+      providerIds: next,
+    );
+    _controller.add(_current);
+  }
 
   @override
   Future<void> registerWithEmailPassword({
@@ -39,7 +68,11 @@ class AuthServiceMock implements AuthService {
     required String password,
   }) async {
     final uid = 'mock_${email.hashCode.abs()}_${Random().nextInt(9999)}';
-    _current = AuthUser(uid: uid, email: email);
+    _current = AuthUser(
+      uid: uid,
+      email: email,
+      providerIds: const <String>['password'],
+    );
     _controller.add(_current);
   }
 
@@ -52,7 +85,11 @@ class AuthServiceMock implements AuthService {
     required String password,
   }) async {
     final uid = 'mock_${email.hashCode.abs()}';
-    _current = AuthUser(uid: uid, email: email);
+    _current = AuthUser(
+      uid: uid,
+      email: email,
+      providerIds: const <String>['password'],
+    );
     _controller.add(_current);
   }
 

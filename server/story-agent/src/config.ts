@@ -39,6 +39,8 @@ export interface AppConfig {
   serviceName: string;
   serviceRevision: string;
   configurationName: string;
+  voicemakerApiKey: string;
+  sttRateLimitPerMin: number;
 }
 
 export const loadConfig = (): AppConfig => {
@@ -65,5 +67,7 @@ export const loadConfig = (): AppConfig => {
     serviceName: process.env.K_SERVICE ?? 'story-agent',
     serviceRevision: process.env.K_REVISION ?? 'local',
     configurationName: process.env.K_CONFIGURATION ?? 'local',
+    voicemakerApiKey: process.env.VOICEMAKER_API_KEY ?? '',
+    sttRateLimitPerMin: parseNumber(process.env.STT_RATE_LIMIT_PER_MIN, 30),
   };
 };

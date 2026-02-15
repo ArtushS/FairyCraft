@@ -9,6 +9,7 @@ import 'package:http/http.dart' as http;
 import '../app/config.dart';
 import '../auth/auth_service.dart';
 import '../settings/settings_controller.dart';
+import '../shared/network/request_context.dart';
 import 'models.dart';
 
 class StoryServiceException implements Exception {
@@ -26,15 +27,18 @@ class StoryService {
     required AppConfig config,
     required AuthService authService,
     required SettingsController settingsController,
+    required RequestContext requestContext,
     http.Client? client,
   })  : _config = config,
         _authService = authService,
         _settingsController = settingsController,
+        _requestContext = requestContext,
         _client = client ?? http.Client();
 
   final AppConfig _config;
   final AuthService _authService;
   final SettingsController _settingsController;
+  final RequestContext _requestContext;
   final http.Client _client;
 
   final Map<String, Future<StoryResponsePayload>> _inFlight = <String, Future<StoryResponsePayload>>{};
@@ -171,7 +175,10 @@ class StoryService {
     final body = payload.toJson(requestId);
 
     if (kDebugMode) {
-      debugPrint('[fairycraft:wire] action=${payload.action} requestId=$requestId storyId=${payload.storyId ?? '-'}');
+      debugPrint(
+        '[fairycraft:wire] action=${payload.action} requestId=$requestId '
+        'storyId=${payload.storyId ?? '-'} lang=${_requestContext.localeCode}',
+      );
     }
 
     final uri = _resolveActionUri(payload.action);
@@ -235,6 +242,7 @@ class StoryService {
       'Content-Type': 'application/json',
       'X-Firebase-Locale': _settingsController.defaultLanguageCode,
     };
+    headers.addAll(_requestContext.headers());
 
     final token = await _authService.getIdToken();
     if (token != null && token.isNotEmpty) {

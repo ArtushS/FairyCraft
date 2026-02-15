@@ -161,6 +161,7 @@ class StoryRequestPayload {
       'requestId': requestId,
       'action': action,
       'storyLang': storyLang,
+      'language': storyLang,
       if (ageGroup != null) 'ageGroup': ageGroup,
       if (storyLength != null) 'storyLength': storyLength,
       if (creativityLevel != null) 'creativityLevel': creativityLevel,

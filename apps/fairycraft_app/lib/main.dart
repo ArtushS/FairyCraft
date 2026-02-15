@@ -4,6 +4,7 @@ import 'app/app.dart';
 import 'app/config.dart';
 import 'firebase/firebase_bootstrap.dart';
 import 'settings/settings_controller.dart';
+import 'story/story_preferences_controller.dart';
 import 'story/shared_preferences_story_repository.dart';
 
 Future<void> main() async {
@@ -12,6 +13,7 @@ Future<void> main() async {
   final config = AppConfig.fromEnvironment();
   final firebaseBootstrap = await FirebaseBootstrap.init(config);
   final settingsController = await SettingsController.load();
+  final storyPreferencesController = await StoryPreferencesController.load();
   final storyRepository = await SharedPreferencesStoryRepository.create();
 
   runApp(
@@ -19,6 +21,7 @@ Future<void> main() async {
       config: config,
       firebaseBootstrap: firebaseBootstrap,
       settingsController: settingsController,
+      storyPreferencesController: storyPreferencesController,
       storyRepository: storyRepository,
     ),
   );

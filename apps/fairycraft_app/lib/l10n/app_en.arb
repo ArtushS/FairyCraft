@@ -1,0 +1,438 @@
+﻿{
+  "@@locale": "en",
+  "appName": "FairyCraft",
+  "commonAccount": "Account",
+  "commonSettings": "Settings",
+  "commonEmail": "Email",
+  "commonPassword": "Password",
+  "commonBackToLogin": "Back to login",
+  "commonRetry": "Retry",
+  "commonContinue": "Continue",
+  "commonDone": "Done",
+  "commonSkip": "Skip",
+  "commonNotAvailable": "Not available",
+  "commonLink": "Link",
+  "commonUnlink": "Unlink",
+  "commonStop": "Stop",
+  "commonUpdate": "Update",
+
+  "homeTagline": "A calm place to create bedtime stories together.",
+  "homeCreateStoryTitle": "Create Story",
+  "homeCreateStorySubtitle": "Start a new adventure in one tap.",
+  "homeMyStoriesTitle": "My Stories",
+  "homeMyStoriesSubtitle": "Continue reading saved chapters.",
+  "homeStoryPreferences": "Story Preferences",
+  "homeAccountTooltip": "Account",
+  "homeSettingsTooltip": "Settings",
+
+  "authLoginTitle": "FairyCraft Login",
+  "authLoginButton": "Login",
+  "authCreateAccountButton": "Create account",
+  "authForgotPasswordButton": "Forgot password",
+  "authLoginFailed": "Login failed: {error}",
+  "@authLoginFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "authRegisterTitle": "Create FairyCraft Account",
+  "authRegisterButton": "Register",
+  "authRegisterFailed": "Registration failed: {error}",
+  "@authRegisterFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "authResetPasswordTitle": "Reset password",
+  "authSendResetEmailButton": "Send reset email",
+  "authResetEmailFailed": "Unable to send reset email: {error}",
+  "@authResetEmailFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "authResetSentTitle": "Reset sent",
+  "authResetSentBody": "If the email exists, reset instructions were sent.",
+  "authCheckingSession": "Checking session...",
+  "authSessionSlow": "Session check is taking longer than expected.",
+  "authChangePasswordTitle": "Change password",
+  "authNewPasswordLabel": "New password",
+  "authPasswordUpdated": "Password updated.",
+  "authPasswordChangeFailed": "Failed: {error}",
+  "@authPasswordChangeFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "authProviderLinkTitle": "Provider link",
+  "authLinkGoogleStub": "Link Google (stub)",
+  "authLinkFacebookStub": "Link Facebook (stub)",
+  "authProviderLinkRequested": "{provider} link request completed (stub for now).",
+  "@authProviderLinkRequested": {
+    "placeholders": {
+      "provider": {
+        "type": "String"
+      }
+    }
+  },
+  "authProviderLinkFailed": "Failed: {error}",
+  "@authProviderLinkFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+
+  "accountTitle": "Account",
+  "accountEmailLabel": "Email",
+  "accountLinkedProviders": "Linked providers",
+  "accountGoogle": "Google",
+  "accountFacebook": "Facebook",
+  "accountEmailPassword": "Email & Password",
+  "accountLogout": "Log out",
+  "accountProviderUnlinked": "{provider} was unlinked.",
+  "@accountProviderUnlinked": {
+    "placeholders": {
+      "provider": {
+        "type": "String"
+      }
+    }
+  },
+  "accountProviderLinkRequested": "{provider} link requested.",
+  "@accountProviderLinkRequested": {
+    "placeholders": {
+      "provider": {
+        "type": "String"
+      }
+    }
+  },
+  "accountProviderUpdateFailed": "Could not update provider. Please try again.",
+
+  "myStoriesTitle": "My stories",
+  "myStoriesEmpty": "No stories yet.",
+  "myStoriesChaptersCount": "Chapters: {count}",
+  "@myStoriesChaptersCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+
+  "onboardingWelcomeTitle": "Welcome",
+  "onboardingHeroTitle": "What is your hero called?",
+  "onboardingHeroDescription": "The hero name appears across your stories and can be changed any time.",
+  "onboardingHeroNameLabel": "Hero name",
+  "onboardingHeroNameHint": "Luna, Aram, Mia...",
+  "onboardingAgeTitle": "What age stories fit best?",
+  "onboardingAgeDescription": "We use this to keep vocabulary and pacing comfortable.",
+  "onboardingAgeYears": "{age} years",
+  "@onboardingAgeYears": {
+    "placeholders": {
+      "age": {
+        "type": "int"
+      }
+    }
+  },
+  "onboardingFamilyTitle": "Who is in your family?",
+  "onboardingFamilyDescription": "Family mode helps include familiar characters in stories.",
+  "onboardingUseFamilyMode": "Use family mode",
+  "onboardingIllustrationsTitle": "Illustrations and creativity",
+  "onboardingIllustrationsDescription": "Choose whether stories include images and how imaginative they feel.",
+  "onboardingAutoIllustrations": "Auto-illustrations",
+  "onboardingCreativityPercent": "Creativity {percent}%",
+  "@onboardingCreativityPercent": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+
+  "familyMom": "Mom",
+  "familyDad": "Dad",
+  "familySister": "Sister",
+  "familyBrother": "Brother",
+  "familyGrandma": "Grandma",
+  "familyGrandpa": "Grandpa",
+
+  "storyPreferencesTitle": "Story Preferences",
+  "storyPreferencesCreativeControlTitle": "Creative control center",
+  "storyPreferencesCreativeControlDescription": "These preferences are saved automatically and used every time you create a story.",
+  "storyPreferencesCharacterSection": "Character",
+  "storyPreferencesHeroNameLabel": "Hero name",
+  "storyPreferencesHeroNameHint": "Luna, Aram, Mila...",
+  "storyPreferencesAgeSection": "Age",
+  "storyPreferencesAgeYears": "{age} years",
+  "@storyPreferencesAgeYears": {
+    "placeholders": {
+      "age": {
+        "type": "int"
+      }
+    }
+  },
+  "storyPreferencesLengthSection": "Length",
+  "storyPreferencesLengthShort": "Short",
+  "storyPreferencesLengthMedium": "Medium",
+  "storyPreferencesLengthLong": "Long",
+  "storyPreferencesComplexitySection": "Complexity",
+  "storyPreferencesComplexitySimple": "Simple",
+  "storyPreferencesComplexityMedium": "Medium",
+  "storyPreferencesComplexityComplex": "Complex",
+  "storyPreferencesInteractivitySection": "Interactivity",
+  "storyPreferencesInteractiveChoices": "Use interactive choices",
+  "storyPreferencesFamilySection": "Family",
+  "storyPreferencesIncludeFamilyMembers": "Include family members in stories",
+  "storyPreferencesIllustrationsSection": "Illustrations",
+  "storyPreferencesAddIllustrations": "Add illustrations automatically",
+  "storyPreferencesCreativitySection": "Creativity",
+  "storyPreferencesCreativityPercent": "{percent}%",
+  "@storyPreferencesCreativityPercent": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "storyPreferencesResetButton": "Reset Story Preferences",
+
+  "storySetupTitle": "Create Story",
+  "storySetupPreferencesTooltip": "Story Preferences",
+  "storySetupIdeaTitle": "Tell us your story idea",
+  "storySetupIdeaHint": "Type your idea or use voice...",
+  "storySetupFamilyMode": "Family mode",
+  "storySetupFamilyModeSubtitle": "Include family members in plot and characters.",
+  "storySetupHeroSection": "Hero",
+  "storySetupLocationSection": "Location",
+  "storySetupStyleSection": "Style",
+  "storySetupGenerateButton": "Generate",
+  "storySetupErrorNetwork": "Could not reach the story service. Please check connection and try again.",
+  "storySetupErrorGeneric": "Story creation was not completed. Please try again.",
+
+  "storyReaderNoStorySelected": "No story selected.",
+  "storyReaderNoChapter": "No chapter available yet.",
+  "storyReaderProgressTitle": "Story progress",
+  "storyReaderComplete": "Story complete",
+  "storyReaderChapter": "Chapter {index}",
+  "@storyReaderChapter": {
+    "placeholders": {
+      "index": {
+        "type": "int"
+      }
+    }
+  },
+  "storyReaderWhatNext": "What happens next?",
+  "storyReaderTheEnd": "The End",
+  "storyReaderCompleteDescription": "This adventure is complete. You can start a new story anytime.",
+  "storyReaderIllustrations": "Illustrations",
+  "storyReaderPromptHint": "Describe the picture you want to see...",
+  "storyReaderGenerateImage": "Generate image",
+  "storyReaderVoiceInput": "Voice input",
+  "storyReaderUseRecognizedText": "Use recognized text",
+  "storyReaderLastPrompt": "Last prompt: {prompt}",
+  "@storyReaderLastPrompt": {
+    "placeholders": {
+      "prompt": {
+        "type": "String"
+      }
+    }
+  },
+  "storyReaderErrorNetwork": "Connection is unstable. Please try again.",
+  "storyReaderErrorGeneric": "Something went wrong. Please try again.",
+
+  "debugFirebaseTitle": "Firebase debug",
+  "debugFirebaseReady": "Firebase ready: {value}",
+  "@debugFirebaseReady": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "debugAppCheckAttempted": "AppCheck attempted: {value}",
+  "@debugAppCheckAttempted": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "debugBootstrapError": "Bootstrap error: {value}",
+  "@debugBootstrapError": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "debugAuthService": "Auth service: {value}",
+  "@debugAuthService": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+
+  "voiceHelpTitle": "Voice help",
+  "voiceHelpDescription": "Use microphone to capture ideas for story setup or prompts.",
+  "voiceHelpListening": "Listening: {value}",
+  "@voiceHelpListening": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "voiceHelpLastText": "Last text: {value}",
+  "@voiceHelpLastText": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "voiceHelpStartListening": "Start listening",
+  "voiceHelpStop": "Stop",
+
+  "settingsTitle": "Settings",
+  "settingsGeneralAccessibilityHeader": "General / Accessibility",
+  "settingsReduceMotionTitle": "Reduce motion",
+  "settingsReduceMotionSubtitle": "Turn off to minimize transitions and movement effects.",
+  "settingsLanguageHeader": "Language",
+  "settingsLanguageTitle": "Language",
+  "settingsVoiceInputHelpTitle": "Voice input help",
+  "settingsVoiceInputLanguageTitle": "Voice input language",
+  "settingsVoiceInputLanguageAuto": "Auto",
+  "settingsVoiceInputLanguageApp": "App language",
+  "settingsVoiceInputLanguageEnglish": "English",
+  "settingsVoiceInputLanguageRussian": "Russian",
+  "settingsVoiceInputLanguageArmenian": "Armenian",
+  "settingsDefaultNarrationVoiceTitle": "Default narration voice",
+  "settingsDefaultNarrationVoiceComingSoon": "Coming soon",
+  "settingsAudioHeader": "Audio",
+  "settingsVoiceNarrationTitle": "Voice narration",
+  "settingsDefaultNarrationVoiceSystemTitle": "Default narration voice",
+  "settingsDefaultNarrationVoiceSystemSubtitle": "System default selector",
+  "settingsVolumeTitle": "Volume",
+  "settingsSpeedTitle": "Speed",
+  "settingsIntensityTitle": "Intensity",
+  "settingsTestVoiceButton": "Test voice",
+  "settingsChooseVoiceSheetTitle": "Choose narration voice",
+  "settingsNoVoicesAvailable": "No available voices for this language.",
+  "settingsLoadingVoices": "Loading voices...",
+  "settingsLanguageScreenTitle": "Language",
+  "settingsLanguageEnglish": "English",
+  "settingsLanguageRussian": "Russian",
+  "settingsLanguageArmenian": "Armenian",
+  "settingsVoiceHelpScreenTitle": "Voice input help",
+  "settingsVoiceHelpDescription": "Use voice input to quickly capture ideas for stories.",
+  "settingsVoiceHelpPointOne": "Speak clearly and keep the device near you.",
+  "settingsVoiceHelpPointTwo": "Armenian, Russian, and English input are supported.",
+  "settingsVoiceHelpPointThree": "You can edit recognized text before generating.",
+  "settingsTestVoicePhrase": "Hello! This is how your narration voice sounds.",
+  "settingsSystemDefaultLabel": "System default",
+  "settingsTtsLanguageModeTitle": "Narration language",
+  "settingsTtsLanguageModeAuto": "Auto detect",
+  "settingsTtsLanguageModeFollowApp": "Follow app language",
+  "settingsTtsLanguageModeEnglish": "English (US)",
+  "settingsTtsLanguageModeRussian": "Russian",
+  "settingsTtsLanguageModeArmenian": "Armenian",
+  "settingsVoiceGenderTitle": "Preferred voice gender",
+  "settingsVoiceGenderAny": "Any",
+  "settingsVoiceGenderFemale": "Female",
+  "settingsVoiceGenderMale": "Male",
+  "settingsVoiceQualityTitle": "Voice quality preset",
+  "settingsVoiceQualityDefault": "Default",
+  "settingsVoiceQualityExpressive": "ProPlus Expressive",
+  "settingsVoiceQualityHighRes": "ProPlus High-Res",
+  "settingsVoiceQualityTurbo": "ProPlus Turbo",
+  "settingsVoiceQualityPro2": "Pro2",
+  "settingsVoiceQualityPro1": "Pro1",
+
+  "ttsListenButton": "Listen",
+  "ttsNarrationTitle": "Narration",
+  "ttsVoiceGenderLabel": "Voice gender",
+  "ttsVoiceLabel": "Voice",
+  "ttsLanguageModeLabel": "Language mode",
+  "ttsQualityPresetLabel": "Quality",
+  "ttsVolumeLabel": "Volume",
+  "ttsSpeedLabel": "Speed",
+  "ttsIntensityLabel": "Intensity",
+  "ttsPlayLabel": "Play",
+  "ttsPauseLabel": "Pause",
+  "ttsResumeLabel": "Resume",
+  "ttsStopLabel": "Stop",
+  "ttsPreparingAudioLabel": "Preparing audio...",
+  "ttsPreparingAudioChunks": "Preparing audio... ({current}/{total} chunks)",
+  "@ttsPreparingAudioChunks": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "ttsPlayingLabel": "Playing...",
+  "ttsPausedLabel": "Paused",
+  "ttsCompletedLabel": "Completed",
+  "ttsErrorNoVoices": "No voices available for the selected filters.",
+  "ttsGenderAny": "Any",
+  "ttsGenderFemale": "Female",
+  "ttsGenderMale": "Male",
+  "ttsLanguageAuto": "Auto",
+  "ttsLanguageFollowApp": "Follow app language",
+  "ttsLanguageEnglish": "English (US)",
+  "ttsLanguageRussian": "Russian",
+  "ttsLanguageArmenian": "Armenian",
+  "ttsQualityDefault": "Default",
+  "ttsQualityExpressive": "ProPlus Expressive",
+  "ttsQualityHighRes": "ProPlus High-Res",
+  "ttsQualityTurbo": "ProPlus Turbo",
+  "ttsQualityPro2": "Pro2",
+  "ttsQualityPro1": "Pro1",
+  "ttsNarrationDisabled": "Narration is disabled in Settings.",
+  "ttsErrorNarrationEmpty": "Narration text is empty.",
+  "ttsErrorNoVoicesForLanguage": "No voices available for this language.",
+  "ttsErrorSelectVoice": "Unable to select a narration voice.",
+  "ttsErrorNoAudioChunks": "No audio chunks were generated.",
+  "ttsErrorNetwork": "Network connection is unstable. Please try again.",
+  "ttsErrorStart": "Unable to start narration right now. Please try again.",
+
+  "sttRecordingTapToStop": "Recording... Tap to stop",
+  "sttProcessingVoice": "Processing voice...",
+  "sttTapMicToUseVoice": "Tap mic to use voice input",
+  "sttDetectedLanguage": "Detected language: {language}",
+  "@sttDetectedLanguage": {
+    "placeholders": {
+      "language": {
+        "type": "String"
+      }
+    }
+  },
+  "sttStartRecordingTooltip": "Start recording",
+  "sttStopRecordingTooltip": "Stop recording",
+  "sttErrorPermissionRequired": "Microphone permission is required for voice input.",
+  "sttErrorUnableStartRecording": "Unable to start recording right now.",
+  "sttErrorAudioNotCreated": "Recorded audio file was not created.",
+  "sttErrorAudioNotFound": "Recorded audio file was not found.",
+  "sttErrorProcessingInProgress": "Transcription in progress. Please try a shorter sample.",
+  "sttErrorNetwork": "Network connection is unstable. Please try again.",
+  "sttErrorFailed": "Voice transcription failed. Please try again.",
+  "sttErrorKeyMissing": "VOICEMAKER_API_KEY is missing. Start with --dart-define=VOICEMAKER_API_KEY=<key>.",
+  "sttErrorProxyMissing": "STT proxy URL is missing. Use --dart-define=STT_PROXY_URL=<backend_url>.",
+  "sttErrorProxyInvalid": "STT proxy URL is invalid.",
+
+  "storyRequestLogLangHeader": "Request language"
+}

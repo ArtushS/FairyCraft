@@ -1,12 +1,14 @@
 ﻿import { z } from 'zod';
 
 export const actionSchema = z.enum(['generate', 'continue', 'illustrate']);
+const storyLanguageSchema = z.enum(['ru', 'en', 'hy']);
 
 export const storyRequestSchema = z
   .object({
     requestId: z.string().min(1).max(128).optional(),
     action: actionSchema,
-    storyLang: z.enum(['ru', 'en', 'hy']),
+    storyLang: storyLanguageSchema.optional(),
+    language: storyLanguageSchema.optional(),
     ageGroup: z.enum(['3_5', '6_8', '9_12']).optional(),
     storyLength: z.enum(['short', 'medium', 'long']).optional(),
     creativityLevel: z.number().min(0).max(1).optional(),
@@ -35,7 +37,14 @@ export const storyRequestSchema = z
       .strict()
       .optional(),
   })
-  .strict();
+  .strict()
+  .transform((request) => {
+    const { language, ...rest } = request;
+    return {
+      ...rest,
+      storyLang: request.storyLang ?? language ?? 'en',
+    };
+  });
 
 export const runtimePolicySchema = z
   .object({

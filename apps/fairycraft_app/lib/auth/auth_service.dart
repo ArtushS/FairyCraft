@@ -1,11 +1,17 @@
-﻿import 'dart:async';
+import 'dart:async';
 
 class AuthUser {
-  AuthUser({required this.uid, required this.email, this.isAnonymous = false});
+  AuthUser({
+    required this.uid,
+    required this.email,
+    this.isAnonymous = false,
+    this.providerIds = const <String>[],
+  });
 
   final String uid;
   final String? email;
   final bool isAnonymous;
+  final List<String> providerIds;
 }
 
 abstract class AuthService {
@@ -13,9 +19,15 @@ abstract class AuthService {
 
   Stream<AuthUser?> authStateChanges();
 
-  Future<void> signInWithEmailPassword({required String email, required String password});
+  Future<void> signInWithEmailPassword({
+    required String email,
+    required String password,
+  });
 
-  Future<void> registerWithEmailPassword({required String email, required String password});
+  Future<void> registerWithEmailPassword({
+    required String email,
+    required String password,
+  });
 
   Future<void> sendPasswordResetEmail(String email);
 
@@ -24,6 +36,8 @@ abstract class AuthService {
   Future<void> signOut();
 
   Future<void> linkProvider(String providerId);
+
+  Future<void> unlinkProvider(String providerId);
 
   Future<String?> getIdToken();
 

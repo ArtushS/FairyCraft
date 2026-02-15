@@ -1,8 +1,9 @@
-﻿import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../app/nav.dart';
 import '../auth/auth_controller.dart';
+import '../l10n/l10n.dart';
 
 class ForgotPasswordPage extends StatefulWidget {
   const ForgotPasswordPage({super.key});
@@ -29,13 +30,15 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
     });
 
     try {
-      await context.read<AuthController>().sendPasswordResetEmail(_emailController.text.trim());
+      await context.read<AuthController>().sendPasswordResetEmail(
+        _emailController.text.trim(),
+      );
       if (mounted) {
-        context.go('/reset-sent');
+        Nav.toResetSent(context);
       }
     } catch (error) {
       setState(() {
-        _error = 'Unable to send reset email: $error';
+        _error = context.l10n.authResetEmailFailed(error.toString());
       });
     } finally {
       if (mounted) {
@@ -48,8 +51,9 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Scaffold(
-      appBar: AppBar(title: const Text('Reset password')),
+      appBar: AppBar(title: Text(l10n.authResetPasswordTitle)),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -57,14 +61,17 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
             TextField(
               controller: _emailController,
               keyboardType: TextInputType.emailAddress,
-              decoration: const InputDecoration(labelText: 'Email'),
+              decoration: InputDecoration(labelText: l10n.commonEmail),
             ),
             const SizedBox(height: 16),
-            if (_error != null) Text(_error!, style: const TextStyle(color: Colors.red)),
+            if (_error != null)
+              Text(_error!, style: const TextStyle(color: Colors.red)),
             const SizedBox(height: 12),
             FilledButton(
               onPressed: _submitting ? null : _submit,
-              child: _submitting ? const CircularProgressIndicator() : const Text('Send reset email'),
+              child: _submitting
+                  ? const CircularProgressIndicator()
+                  : Text(l10n.authSendResetEmailButton),
             ),
           ],
         ),

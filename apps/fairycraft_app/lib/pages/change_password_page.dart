@@ -2,6 +2,7 @@
 import 'package:provider/provider.dart';
 
 import '../auth/auth_controller.dart';
+import '../l10n/l10n.dart';
 
 class ChangePasswordPage extends StatefulWidget {
   const ChangePasswordPage({super.key});
@@ -28,13 +29,15 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
     });
 
     try {
-      await context.read<AuthController>().changePassword(_passwordController.text);
+      await context.read<AuthController>().changePassword(
+        _passwordController.text,
+      );
       setState(() {
-        _message = 'Password updated.';
+        _message = context.l10n.authPasswordUpdated;
       });
     } catch (error) {
       setState(() {
-        _message = 'Failed: $error';
+        _message = context.l10n.authPasswordChangeFailed(error.toString());
       });
     } finally {
       if (mounted) {
@@ -47,8 +50,9 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Scaffold(
-      appBar: AppBar(title: const Text('Change password')),
+      appBar: AppBar(title: Text(l10n.authChangePasswordTitle)),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -56,12 +60,14 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
             TextField(
               controller: _passwordController,
               obscureText: true,
-              decoration: const InputDecoration(labelText: 'New password'),
+              decoration: InputDecoration(labelText: l10n.authNewPasswordLabel),
             ),
             const SizedBox(height: 16),
             FilledButton(
               onPressed: _submitting ? null : _submit,
-              child: _submitting ? const CircularProgressIndicator() : const Text('Update'),
+              child: _submitting
+                  ? const CircularProgressIndicator()
+                  : Text(l10n.commonUpdate),
             ),
             if (_message != null) ...<Widget>[
               const SizedBox(height: 12),

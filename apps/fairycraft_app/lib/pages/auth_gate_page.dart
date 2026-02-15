@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../auth/auth_controller.dart';
+import '../l10n/l10n.dart';
 
 class AuthGatePage extends StatefulWidget {
   const AuthGatePage({super.key});
@@ -33,6 +34,7 @@ class _AuthGatePageState extends State<AuthGatePage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Scaffold(
       body: Center(
         child: Column(
@@ -40,10 +42,10 @@ class _AuthGatePageState extends State<AuthGatePage> {
           children: <Widget>[
             const CircularProgressIndicator(),
             const SizedBox(height: 16),
-            const Text('Checking session...'),
+            Text(l10n.authCheckingSession),
             if (_showRetry) ...<Widget>[
               const SizedBox(height: 12),
-              const Text('Session check is taking longer than expected.'),
+              Text(l10n.authSessionSlow),
               const SizedBox(height: 12),
               OutlinedButton(
                 onPressed: () {
@@ -52,7 +54,7 @@ class _AuthGatePageState extends State<AuthGatePage> {
                   });
                   context.read<AuthController>().start();
                 },
-                child: const Text('Retry'),
+                child: Text(l10n.commonRetry),
               ),
             ],
           ],

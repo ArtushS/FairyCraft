@@ -1,8 +1,9 @@
-﻿import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../app/nav.dart';
 import '../auth/auth_controller.dart';
+import '../l10n/l10n.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -37,7 +38,7 @@ class _RegisterPageState extends State<RegisterPage> {
       );
     } catch (error) {
       setState(() {
-        _error = 'Registration failed: $error';
+        _error = context.l10n.authRegisterFailed(error.toString());
       });
     } finally {
       if (mounted) {
@@ -50,8 +51,9 @@ class _RegisterPageState extends State<RegisterPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Scaffold(
-      appBar: AppBar(title: const Text('Create FairyCraft Account')),
+      appBar: AppBar(title: Text(l10n.authRegisterTitle)),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -59,23 +61,26 @@ class _RegisterPageState extends State<RegisterPage> {
             TextField(
               controller: _emailController,
               keyboardType: TextInputType.emailAddress,
-              decoration: const InputDecoration(labelText: 'Email'),
+              decoration: InputDecoration(labelText: l10n.commonEmail),
             ),
             TextField(
               controller: _passwordController,
               obscureText: true,
-              decoration: const InputDecoration(labelText: 'Password'),
+              decoration: InputDecoration(labelText: l10n.commonPassword),
             ),
             const SizedBox(height: 16),
-            if (_error != null) Text(_error!, style: const TextStyle(color: Colors.red)),
+            if (_error != null)
+              Text(_error!, style: const TextStyle(color: Colors.red)),
             const SizedBox(height: 12),
             FilledButton(
               onPressed: _submitting ? null : _submit,
-              child: _submitting ? const CircularProgressIndicator() : const Text('Register'),
+              child: _submitting
+                  ? const CircularProgressIndicator()
+                  : Text(l10n.authRegisterButton),
             ),
             TextButton(
-              onPressed: () => context.go('/login'),
-              child: const Text('Back to login'),
+              onPressed: () => Nav.backOrLogin(context),
+              child: Text(l10n.commonBackToLogin),
             ),
           ],
         ),

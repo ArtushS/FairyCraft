@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import '../app/nav.dart';
+import '../features/stt/presentation/voice_input_field.dart';
+import '../l10n/app_localizations.dart';
+import '../l10n/l10n.dart';
 import '../settings/settings_controller.dart';
 import '../shared/services/storage_asset_service.dart';
-import '../story/catalog_repository.dart';
+import '../shared/ui/fairycraft_theme.dart';
 import '../story/shared_preferences_story_repository.dart';
+import '../story/story_preferences_controller.dart';
 import '../story/story_service.dart';
-import '../voice/voice_input_controller.dart';
 
 class StorySetupPage extends StatefulWidget {
   const StorySetupPage({super.key});
@@ -17,47 +20,21 @@ class StorySetupPage extends StatefulWidget {
 }
 
 class _StorySetupPageState extends State<StorySetupPage> {
-  String _storyLang = 'en';
-  String _ageGroup = '6_8';
-  String _storyLength = 'medium';
-  double _creativity = 0.6;
-  bool _imageEnabled = true;
-
-  String? _hero;
-  String? _location;
-  String? _storyType;
-
   final TextEditingController _ideaController = TextEditingController();
-  late final List<String> _heroPreviewFiles;
-  late final List<String> _locationPreviewFiles;
-  late final List<String> _stylePreviewFiles;
-  bool _loading = false;
-  String? _error;
+
+  late String _selectedHeroFile;
+  late String _selectedLocationFile;
+  late String _selectedStyleFile;
+
+  bool _submitting = false;
+  String? _errorMessage;
 
   @override
   void initState() {
     super.initState();
-    _heroPreviewFiles = List<String>.generate(
-      8,
-      (_) => StorageAssetService.randomHero(),
-    );
-    _locationPreviewFiles = List<String>.generate(
-      8,
-      (_) => StorageAssetService.randomLocation(),
-    );
-    _stylePreviewFiles = List<String>.generate(
-      8,
-      (_) => StorageAssetService.randomStyle(),
-    );
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (_hero == null) {
-      final settings = context.read<SettingsController>();
-      _storyLang = settings.defaultLanguageCode;
-    }
+    _selectedHeroFile = StorageAssetService.randomHero();
+    _selectedLocationFile = StorageAssetService.randomLocation();
+    _selectedStyleFile = StorageAssetService.randomStyle();
   }
 
   @override
@@ -66,367 +43,270 @@ class _StorySetupPageState extends State<StorySetupPage> {
     super.dispose();
   }
 
-  Future<void> _startStory() async {
+  Future<void> _generateStory() async {
+    final l10n = context.l10n;
     setState(() {
-      _loading = true;
-      _error = null;
+      _submitting = true;
+      _errorMessage = null;
     });
 
-    try {
-      final storyService = context.read<StoryService>();
-      final repository = context.read<SharedPreferencesStoryRepository>();
+    final prefs = context.read<StoryPreferencesController>();
+    final settings = context.read<SettingsController>();
+    final storyService = context.read<StoryService>();
+    final repository = context.read<SharedPreferencesStoryRepository>();
 
+    try {
       final story = await storyService.generateStory(
-        storyLang: _storyLang,
-        ageGroup: _ageGroup,
-        storyLength: _storyLength,
-        creativityLevel: _creativity,
-        hero: _hero,
-        location: _location,
-        storyType: _storyType,
+        storyLang: settings.defaultLanguageCode,
+        ageGroup: prefs.ageGroupCode,
+        storyLength: prefs.storyLengthCode,
+        creativityLevel: prefs.creativity,
+        hero: prefs.heroName.isNotEmpty
+            ? prefs.heroName
+            : _labelFromFile(_selectedHeroFile),
+        location: _labelFromFile(_selectedLocationFile),
+        storyType: _labelFromFile(_selectedStyleFile),
         idea: _ideaController.text.trim().isEmpty
             ? null
             : _ideaController.text.trim(),
-        imageEnabled: _imageEnabled,
+        imageEnabled: prefs.autoIllustrations,
       );
 
       await repository.saveStory(story);
       if (mounted) {
-        context.go('/story-reader', extra: story);
+        Nav.toStoryReader(context, story);
       }
     } catch (error) {
       setState(() {
-        _error = error.toString();
+        _errorMessage = _friendlyError(error.toString(), l10n);
       });
     } finally {
       if (mounted) {
         setState(() {
-          _loading = false;
+          _submitting = false;
         });
       }
     }
   }
 
+  String _labelFromFile(String file) {
+    return file.replaceAll('.png', '').replaceAll('_', ' ').trim();
+  }
+
+  String _friendlyError(String raw, AppLocalizations l10n) {
+    final normalized = raw.toLowerCase();
+    if (normalized.contains('network') || normalized.contains('socket')) {
+      return l10n.storySetupErrorNetwork;
+    }
+    return l10n.storySetupErrorGeneric;
+  }
+
   @override
   Widget build(BuildContext context) {
-    final voice = context.watch<VoiceInputController>();
+    final l10n = context.l10n;
+    final prefs = context.watch<StoryPreferencesController>();
 
-    return FutureBuilder<StoryCatalog>(
-      future: context.read<StoryCatalogRepository>().loadCatalog(),
-      builder: (context, snapshot) {
-        final catalog = snapshot.data;
-
-        if (catalog != null) {
-          _hero ??= catalog.heroes.first;
-          _location ??= catalog.locations.first;
-          _storyType ??= catalog.storyTypes.first;
-        }
-
-        return Scaffold(
-          appBar: AppBar(title: const Text('Story setup')),
-          body: ListView(
-            padding: const EdgeInsets.all(16),
-            children: <Widget>[
-              DropdownButtonFormField<String>(
-                initialValue: _storyLang,
-                decoration: const InputDecoration(labelText: 'Language'),
-                items: const <String>['en', 'ru', 'hy']
-                    .map(
-                      (lang) => DropdownMenuItem<String>(
-                        value: lang,
-                        child: Text(lang),
-                      ),
-                    )
-                    .toList(growable: false),
-                onChanged: (value) {
-                  if (value != null) {
-                    setState(() {
-                      _storyLang = value;
-                    });
-                  }
-                },
-              ),
-              const SizedBox(height: 12),
-              DropdownButtonFormField<String>(
-                initialValue: _ageGroup,
-                decoration: const InputDecoration(labelText: 'Age group'),
-                items: const <String>['3_5', '6_8', '9_12']
-                    .map(
-                      (value) => DropdownMenuItem<String>(
-                        value: value,
-                        child: Text(value),
-                      ),
-                    )
-                    .toList(growable: false),
-                onChanged: (value) {
-                  if (value != null) {
-                    setState(() {
-                      _ageGroup = value;
-                    });
-                  }
-                },
-              ),
-              const SizedBox(height: 12),
-              DropdownButtonFormField<String>(
-                initialValue: _storyLength,
-                decoration: const InputDecoration(labelText: 'Length'),
-                items: const <String>['short', 'medium', 'long']
-                    .map(
-                      (value) => DropdownMenuItem<String>(
-                        value: value,
-                        child: Text(value),
-                      ),
-                    )
-                    .toList(growable: false),
-                onChanged: (value) {
-                  if (value != null) {
-                    setState(() {
-                      _storyLength = value;
-                    });
-                  }
-                },
-              ),
-              const SizedBox(height: 12),
-              Text('Creativity: ${_creativity.toStringAsFixed(2)}'),
-              Slider(
-                min: 0,
-                max: 1,
-                divisions: 10,
-                value: _creativity,
-                onChanged: (value) {
-                  setState(() {
-                    _creativity = value;
-                  });
-                },
-              ),
-              SwitchListTile(
-                value: _imageEnabled,
-                title: const Text('Enable illustration request'),
-                onChanged: (value) {
-                  setState(() {
-                    _imageEnabled = value;
-                  });
-                },
-              ),
-              const SizedBox(height: 8),
-              _StorageIconCarousel(
-                title: 'Hero icons',
-                files: _heroPreviewFiles,
-                resolveUrl: StorageAssetService.heroUrl,
-              ),
-              const SizedBox(height: 8),
-              _StorageIconCarousel(
-                title: 'Location icons',
-                files: _locationPreviewFiles,
-                resolveUrl: StorageAssetService.locationUrl,
-              ),
-              const SizedBox(height: 8),
-              _StorageIconCarousel(
-                title: 'Style icons',
-                files: _stylePreviewFiles,
-                resolveUrl: StorageAssetService.styleUrl,
-              ),
-              const SizedBox(height: 12),
-              if (catalog == null)
-                const LinearProgressIndicator()
-              else ...<Widget>[
-                DropdownButtonFormField<String>(
-                  initialValue: _hero,
-                  decoration: const InputDecoration(labelText: 'Hero'),
-                  items: catalog.heroes
-                      .map(
-                        (value) => DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(value),
-                        ),
-                      )
-                      .toList(growable: false),
-                  onChanged: (value) {
-                    setState(() {
-                      _hero = value;
-                    });
-                  },
-                ),
-                const SizedBox(height: 12),
-                DropdownButtonFormField<String>(
-                  initialValue: _location,
-                  decoration: const InputDecoration(labelText: 'Location'),
-                  items: catalog.locations
-                      .map(
-                        (value) => DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(value),
-                        ),
-                      )
-                      .toList(growable: false),
-                  onChanged: (value) {
-                    setState(() {
-                      _location = value;
-                    });
-                  },
-                ),
-                const SizedBox(height: 12),
-                DropdownButtonFormField<String>(
-                  initialValue: _storyType,
-                  decoration: const InputDecoration(labelText: 'Story type'),
-                  items: catalog.storyTypes
-                      .map(
-                        (value) => DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(value),
-                        ),
-                      )
-                      .toList(growable: false),
-                  onChanged: (value) {
-                    setState(() {
-                      _storyType = value;
-                    });
-                  },
-                ),
-              ],
-              const SizedBox(height: 12),
-              TextField(
-                controller: _ideaController,
-                minLines: 2,
-                maxLines: 4,
-                decoration: const InputDecoration(
-                  labelText: 'Idea (optional)',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              const SizedBox(height: 8),
-              Wrap(
-                spacing: 8,
-                children: <Widget>[
-                  OutlinedButton(
-                    onPressed: voice.isListening
-                        ? null
-                        : () async {
-                            await voice.startListening();
-                          },
-                    child: const Text('Voice input'),
-                  ),
-                  OutlinedButton(
-                    onPressed: voice.isListening
-                        ? () async {
-                            await voice.stopListening();
-                            _ideaController.text = voice.lastText;
-                            setState(() {});
-                          }
-                        : null,
-                    child: const Text('Use recognized text'),
-                  ),
-                ],
-              ),
-              if (_error != null) ...<Widget>[
-                const SizedBox(height: 12),
-                Text(_error!, style: const TextStyle(color: Colors.red)),
-              ],
-              const SizedBox(height: 16),
-              FilledButton(
-                onPressed: _loading || catalog == null ? null : _startStory,
-                child: _loading
-                    ? const CircularProgressIndicator()
-                    : const Text('Start'),
-              ),
-            ],
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(l10n.storySetupTitle),
+        actions: <Widget>[
+          IconButton(
+            onPressed: () => Nav.toStoryPreferences(context),
+            icon: const Icon(Icons.tune_rounded),
+            tooltip: l10n.storySetupPreferencesTooltip,
           ),
-        );
-      },
+        ],
+      ),
+      body: SafeArea(
+        child: ListView(
+          padding: FairyCraftSpacing.page,
+          children: <Widget>[
+            Text(
+              l10n.storySetupIdeaTitle,
+              style: Theme.of(context).textTheme.headlineMedium,
+            ),
+            const SizedBox(height: FairyCraftSpacing.element),
+            VoiceInputField(
+              controller: _ideaController,
+              hintText: l10n.storySetupIdeaHint,
+            ),
+            const SizedBox(height: FairyCraftSpacing.section),
+            Card(
+              child: SwitchListTile(
+                value: prefs.familyMode,
+                title: Text(l10n.storySetupFamilyMode),
+                subtitle: Text(l10n.storySetupFamilyModeSubtitle),
+                onChanged: prefs.setFamilyMode,
+              ),
+            ),
+            const SizedBox(height: FairyCraftSpacing.section),
+            _CarouselSelector(
+              title: l10n.storySetupHeroSection,
+              files: StorageAssetService.heroIcons,
+              selectedFile: _selectedHeroFile,
+              resolveUrl: StorageAssetService.heroUrl,
+              onSelected: (file) {
+                setState(() {
+                  _selectedHeroFile = file;
+                });
+              },
+            ),
+            const SizedBox(height: FairyCraftSpacing.section),
+            _CarouselSelector(
+              title: l10n.storySetupLocationSection,
+              files: StorageAssetService.locationIcons,
+              selectedFile: _selectedLocationFile,
+              resolveUrl: StorageAssetService.locationUrl,
+              onSelected: (file) {
+                setState(() {
+                  _selectedLocationFile = file;
+                });
+              },
+            ),
+            const SizedBox(height: FairyCraftSpacing.section),
+            _CarouselSelector(
+              title: l10n.storySetupStyleSection,
+              files: StorageAssetService.styleIcons,
+              selectedFile: _selectedStyleFile,
+              resolveUrl: StorageAssetService.styleUrl,
+              onSelected: (file) {
+                setState(() {
+                  _selectedStyleFile = file;
+                });
+              },
+            ),
+            const SizedBox(height: FairyCraftSpacing.section),
+            if (_errorMessage != null)
+              Text(
+                _errorMessage!,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: FairyCraftPalette.error,
+                ),
+              ),
+            const SizedBox(height: 92),
+          ],
+        ),
+      ),
+      bottomNavigationBar: SafeArea(
+        minimum: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+        child: FilledButton(
+          onPressed: _submitting ? null : _generateStory,
+          child: _submitting
+              ? const SizedBox(
+                  height: 22,
+                  width: 22,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : Text(l10n.storySetupGenerateButton),
+        ),
+      ),
     );
   }
 }
 
-class _StorageIconCarousel extends StatelessWidget {
-  const _StorageIconCarousel({
+class _CarouselSelector extends StatelessWidget {
+  const _CarouselSelector({
     required this.title,
     required this.files,
+    required this.selectedFile,
     required this.resolveUrl,
+    required this.onSelected,
   });
 
   final String title;
   final List<String> files;
+  final String selectedFile;
   final Future<String> Function(String file) resolveUrl;
+  final ValueChanged<String> onSelected;
+
+  String _labelFromFile(String file) {
+    return file.replaceAll('.png', '').replaceAll('_', ' ').trim();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        Text(title, style: Theme.of(context).textTheme.titleSmall),
-        const SizedBox(height: 8),
+        Text(title, style: Theme.of(context).textTheme.titleMedium),
+        const SizedBox(height: FairyCraftSpacing.element),
         SizedBox(
-          height: 120,
+          height: 142,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             itemCount: files.length,
-            separatorBuilder: (context, index) => const SizedBox(width: 8),
+            separatorBuilder: (context, index) =>
+                const SizedBox(width: FairyCraftSpacing.element),
             itemBuilder: (context, index) {
-              return _StorageIconTile(imageUrlFuture: resolveUrl(files[index]));
-            },
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _StorageIconTile extends StatelessWidget {
-  const _StorageIconTile({required this.imageUrlFuture});
-
-  final Future<String> imageUrlFuture;
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: 120,
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Theme.of(context).dividerColor),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(8),
-          child: FutureBuilder<String>(
-            future: imageUrlFuture,
-            builder: (context, snapshot) {
-              if (snapshot.hasData && snapshot.data != null) {
-                return Image.network(
-                  snapshot.data!,
-                  fit: BoxFit.contain,
-                  errorBuilder: (context, error, stackTrace) => const Center(
-                    child: Icon(Icons.image_not_supported_outlined),
-                  ),
-                );
-              }
-
-              return FutureBuilder<String>(
-                future: StorageAssetService.placeholderUrl(),
-                builder: (context, placeholderSnap) {
-                  if (placeholderSnap.hasData && placeholderSnap.data != null) {
-                    return Image.network(
-                      placeholderSnap.data!,
-                      fit: BoxFit.contain,
-                      errorBuilder: (context, error, stackTrace) =>
-                          const Center(
-                            child: Icon(Icons.image_not_supported_outlined),
-                          ),
-                    );
-                  }
-
-                  return const Center(
-                    child: SizedBox(
-                      height: 20,
-                      width: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2),
+              final file = files[index];
+              final selected = file == selectedFile;
+              return SizedBox(
+                width: 130,
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(18),
+                  onTap: () => onSelected(file),
+                  child: Card(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(18),
+                      side: BorderSide(
+                        color: selected
+                            ? FairyCraftPalette.secondary
+                            : FairyCraftPalette.outline,
+                        width: selected ? 2 : 1,
+                      ),
                     ),
-                  );
-                },
+                    child: Padding(
+                      padding: const EdgeInsets.all(10),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          Expanded(
+                            child: FutureBuilder<String>(
+                              future: resolveUrl(file),
+                              builder: (context, snapshot) {
+                                if (snapshot.hasData && snapshot.data != null) {
+                                  return Image.network(
+                                    snapshot.data!,
+                                    fit: BoxFit.contain,
+                                    errorBuilder:
+                                        (
+                                          context,
+                                          error,
+                                          stackTrace,
+                                        ) => const Icon(
+                                          Icons.image_not_supported_outlined,
+                                        ),
+                                  );
+                                }
+                                return const Center(
+                                  child: SizedBox(
+                                    height: 18,
+                                    width: 18,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            _labelFromFile(file),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: Theme.of(context).textTheme.bodyMedium,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
               );
             },
           ),
         ),
-      ),
+      ],
     );
   }
 }

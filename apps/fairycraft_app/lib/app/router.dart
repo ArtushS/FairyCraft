@@ -1,73 +1,129 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../auth/auth_controller.dart';
+import '../features/settings/presentation/language_selection_screen.dart';
+import '../features/settings/presentation/settings_screen.dart';
+import '../features/settings/presentation/voice_input_help_screen.dart';
 import '../pages/account_page.dart';
 import '../pages/auth_gate_page.dart';
-import '../pages/change_password_page.dart';
 import '../pages/debug_firebase_page.dart';
 import '../pages/forgot_password_page.dart';
 import '../pages/home_page.dart';
 import '../pages/login_page.dart';
 import '../pages/my_stories_page.dart';
 import '../pages/onboarding_page.dart';
-import '../pages/provider_link_page.dart';
 import '../pages/register_page.dart';
 import '../pages/reset_sent_page.dart';
-import '../pages/settings_page.dart';
 import '../pages/story_preferences_page.dart';
 import '../pages/story_reader_page.dart';
 import '../pages/story_setup_page.dart';
-import '../pages/voice_help_page.dart';
 import '../settings/settings_controller.dart';
 import '../story/models.dart';
+
+final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>(
+  debugLabel: 'rootNavigator',
+);
+
+class AppRoutePath {
+  const AppRoutePath._();
+
+  static const String authGate = '/auth';
+  static const String login = '/login';
+  static const String register = '/register';
+  static const String forgotPassword = '/forgot-password';
+  static const String resetSent = '/reset-sent';
+  static const String home = '/';
+  static const String onboarding = '/onboarding';
+  static const String setup = '/setup';
+  static const String storyReader = '/story-reader';
+  static const String myStories = '/my-stories';
+  static const String storyPreferences = '/story-preferences';
+  static const String account = '/account';
+  static const String settings = '/settings';
+  static const String settingsLanguage = '/settings/language';
+  static const String settingsVoiceHelp = '/settings/voice-help';
+  static const String debugFirebase = '/debug-firebase';
+}
+
+class AppRouteName {
+  const AppRouteName._();
+
+  static const String authGate = 'auth_gate';
+  static const String login = 'login';
+  static const String register = 'register';
+  static const String forgotPassword = 'forgot_password';
+  static const String resetSent = 'reset_sent';
+  static const String home = 'home';
+  static const String onboarding = 'onboarding';
+  static const String setup = 'setup';
+  static const String storyReader = 'story_reader';
+  static const String myStories = 'my_stories';
+  static const String storyPreferences = 'story_preferences';
+  static const String account = 'account';
+  static const String settings = 'settings';
+  static const String settingsLanguage = 'settings_language';
+  static const String settingsVoiceHelp = 'settings_voice_help';
+  static const String debugFirebase = 'debug_firebase';
+}
+
+MaterialPage<void> _materialPage(GoRouterState state, Widget child) {
+  return MaterialPage<void>(key: state.pageKey, child: child);
+}
+
+NoTransitionPage<void> _noTransitionPage(GoRouterState state, Widget child) {
+  return NoTransitionPage<void>(key: state.pageKey, child: child);
+}
 
 GoRouter createRouter({
   required AuthController authController,
   required SettingsController settingsController,
 }) {
-  const sessionGateRoute = '/auth';
-  const unauthRoutes = <String>{
-    '/login',
-    '/register',
-    '/forgot-password',
-    '/reset-sent',
+  const unauthPaths = <String>{
+    AppRoutePath.login,
+    AppRoutePath.register,
+    AppRoutePath.forgotPassword,
+    AppRoutePath.resetSent,
   };
 
   return GoRouter(
-    initialLocation: '/auth',
+    navigatorKey: _rootNavigatorKey,
+    initialLocation: AppRoutePath.authGate,
     refreshListenable: Listenable.merge(<Listenable>[
       authController,
       settingsController,
     ]),
     redirect: (context, state) {
       final location = state.uri.path;
-      final isUnauthRoute = unauthRoutes.contains(location);
+      final isUnauthRoute = unauthPaths.contains(location);
       String? target;
 
       if (authController.status == AuthStatus.unknown ||
           authController.status == AuthStatus.loading) {
-        target = location == sessionGateRoute ? null : sessionGateRoute;
+        target = location == AppRoutePath.authGate
+            ? null
+            : AppRoutePath.authGate;
       } else if (authController.status == AuthStatus.unauthenticated) {
-        if (location == sessionGateRoute) {
-          target = '/login';
+        if (location == AppRoutePath.authGate) {
+          target = AppRoutePath.login;
         } else {
-          target = isUnauthRoute ? null : '/login';
+          target = isUnauthRoute ? null : AppRoutePath.login;
         }
       } else if (authController.status == AuthStatus.authenticated &&
-          (location == sessionGateRoute || isUnauthRoute)) {
-        target = '/';
+          (location == AppRoutePath.authGate || isUnauthRoute)) {
+        target = AppRoutePath.home;
       } else if (authController.status == AuthStatus.authenticated &&
           !settingsController.onboardingCompleted &&
-          location == '/') {
-        target = '/onboarding';
+          location == AppRoutePath.home) {
+        target = AppRoutePath.onboarding;
       } else if (authController.status == AuthStatus.authenticated &&
           settingsController.onboardingCompleted &&
-          location == '/onboarding') {
-        target = '/';
+          location == AppRoutePath.onboarding) {
+        target = AppRoutePath.home;
       }
 
-      if (kDebugMode && (location == sessionGateRoute || target != null)) {
+      if (kDebugMode && (location == AppRoutePath.authGate || target != null)) {
         debugPrint(
           '[auth_router] status=${authController.status} '
           'location=$location target=${target ?? '-'}',
@@ -76,67 +132,102 @@ GoRouter createRouter({
       return target;
     },
     routes: <RouteBase>[
-      GoRoute(path: '/auth', builder: (context, state) => const AuthGatePage()),
-      GoRoute(path: '/login', builder: (context, state) => const LoginPage()),
       GoRoute(
-        path: '/register',
-        builder: (context, state) => const RegisterPage(),
+        path: AppRoutePath.authGate,
+        name: AppRouteName.authGate,
+        pageBuilder: (context, state) =>
+            _noTransitionPage(state, const AuthGatePage()),
       ),
       GoRoute(
-        path: '/forgot-password',
-        builder: (context, state) => const ForgotPasswordPage(),
+        path: AppRoutePath.login,
+        name: AppRouteName.login,
+        pageBuilder: (context, state) =>
+            _materialPage(state, const LoginPage()),
       ),
       GoRoute(
-        path: '/reset-sent',
-        builder: (context, state) => const ResetSentPage(),
+        path: AppRoutePath.register,
+        name: AppRouteName.register,
+        pageBuilder: (context, state) =>
+            _materialPage(state, const RegisterPage()),
       ),
       GoRoute(
-        path: '/account',
-        builder: (context, state) => const AccountPage(),
+        path: AppRoutePath.forgotPassword,
+        name: AppRouteName.forgotPassword,
+        pageBuilder: (context, state) =>
+            _materialPage(state, const ForgotPasswordPage()),
       ),
       GoRoute(
-        path: '/change-password',
-        builder: (context, state) => const ChangePasswordPage(),
+        path: AppRoutePath.resetSent,
+        name: AppRouteName.resetSent,
+        pageBuilder: (context, state) =>
+            _materialPage(state, const ResetSentPage()),
       ),
       GoRoute(
-        path: '/provider-link',
-        builder: (context, state) => const ProviderLinkPage(),
+        path: AppRoutePath.account,
+        name: AppRouteName.account,
+        pageBuilder: (context, state) =>
+            _materialPage(state, const AccountPage()),
       ),
       GoRoute(
-        path: '/onboarding',
-        builder: (context, state) => const OnboardingPage(),
-      ),
-      GoRoute(path: '/', builder: (context, state) => const HomePage()),
-      GoRoute(
-        path: '/story-preferences',
-        builder: (context, state) => const StoryPreferencesPage(),
+        path: AppRoutePath.onboarding,
+        name: AppRouteName.onboarding,
+        pageBuilder: (context, state) =>
+            _materialPage(state, const OnboardingPage()),
       ),
       GoRoute(
-        path: '/setup',
-        builder: (context, state) => const StorySetupPage(),
+        path: AppRoutePath.home,
+        name: AppRouteName.home,
+        pageBuilder: (context, state) => _materialPage(state, const HomePage()),
       ),
       GoRoute(
-        path: '/my-stories',
-        builder: (context, state) => const MyStoriesPage(),
+        path: AppRoutePath.storyPreferences,
+        name: AppRouteName.storyPreferences,
+        pageBuilder: (context, state) =>
+            _materialPage(state, const StoryPreferencesPage()),
       ),
       GoRoute(
-        path: '/settings',
-        builder: (context, state) => const SettingsPage(),
+        path: AppRoutePath.setup,
+        name: AppRouteName.setup,
+        pageBuilder: (context, state) =>
+            _materialPage(state, const StorySetupPage()),
       ),
       GoRoute(
-        path: '/voice-help',
-        builder: (context, state) => const VoiceHelpPage(),
+        path: AppRoutePath.myStories,
+        name: AppRouteName.myStories,
+        pageBuilder: (context, state) =>
+            _materialPage(state, const MyStoriesPage()),
       ),
       GoRoute(
-        path: '/debug-firebase',
-        builder: (context, state) => const DebugFirebasePage(),
+        path: AppRoutePath.settings,
+        name: AppRouteName.settings,
+        pageBuilder: (context, state) =>
+            _materialPage(state, const SettingsScreen()),
       ),
       GoRoute(
-        path: '/story-reader',
-        builder: (context, state) {
+        path: AppRoutePath.settingsLanguage,
+        name: AppRouteName.settingsLanguage,
+        pageBuilder: (context, state) =>
+            _materialPage(state, const LanguageSelectionScreen()),
+      ),
+      GoRoute(
+        path: AppRoutePath.settingsVoiceHelp,
+        name: AppRouteName.settingsVoiceHelp,
+        pageBuilder: (context, state) =>
+            _materialPage(state, const VoiceInputHelpScreen()),
+      ),
+      GoRoute(
+        path: AppRoutePath.debugFirebase,
+        name: AppRouteName.debugFirebase,
+        pageBuilder: (context, state) =>
+            _materialPage(state, const DebugFirebasePage()),
+      ),
+      GoRoute(
+        path: AppRoutePath.storyReader,
+        name: AppRouteName.storyReader,
+        pageBuilder: (context, state) {
           final extra = state.extra;
           final story = extra is StoryRecord ? extra : null;
-          return StoryReaderPage(initialStory: story);
+          return _materialPage(state, StoryReaderPage(initialStory: story));
         },
       ),
     ],
