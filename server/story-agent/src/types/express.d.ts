@@ -6,6 +6,7 @@ declare global {
       fairycraftAuth?: {
         uid: string;
         appCheckVerified: boolean;
+        isAdmin: boolean;
       };
     }
   }

@@ -18,6 +18,7 @@ export const createAuthMiddleware = (config: AppConfig): RequestHandler => {
   return async (req, res, next) => {
     let uid = 'anonymous';
     let appCheckVerified = false;
+    let isAdmin = false;
 
     const bearer = parseBearerToken(req.header('authorization'));
     if (config.authRequired && !bearer) {
@@ -29,6 +30,7 @@ export const createAuthMiddleware = (config: AppConfig): RequestHandler => {
       try {
         const decoded = await getAuthVerifier().verifyIdToken(bearer);
         uid = decoded.uid;
+        isAdmin = decoded.admin === true;
       } catch (error) {
         if (config.authRequired) {
           res.status(401).json({ ok: false, error: 'invalid_auth_token', safeMessage: 'Authentication token is invalid.' });
@@ -55,7 +57,7 @@ export const createAuthMiddleware = (config: AppConfig): RequestHandler => {
       }
     }
 
-    req.fairycraftAuth = { uid, appCheckVerified };
+    req.fairycraftAuth = { uid, appCheckVerified, isAdmin };
     next();
   };
 };

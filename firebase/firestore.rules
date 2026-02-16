@@ -22,6 +22,30 @@ service cloud.firestore {
       allow read, write: if isAdmin();
     }
 
+    match /admin_config/{document=**} {
+      allow read, write: if isAdmin();
+    }
+
+    match /policies_v1/{document=**} {
+      allow read, write: if isAdmin();
+    }
+
+    match /style_templates_v1/{document=**} {
+      allow read, write: if isAdmin();
+    }
+
+    match /subscription_tiers_v1/{document=**} {
+      allow read, write: if isAdmin();
+    }
+
+    match /generation_logs_v1/{document=**} {
+      allow read, write: if isAdmin();
+    }
+
+    match /test_runs_v1/{document=**} {
+      allow read, write: if isAdmin();
+    }
+
     match /usage_daily/{document=**} {
       allow read: if isAdmin();
       allow write: if false;
@@ -33,7 +57,7 @@ service cloud.firestore {
     }
 
     match /stories/{document=**} {
-      allow read: if isAdmin();
+      allow read: if isAdmin() || (signedIn() && resource.data.uid == request.auth.uid);
       allow write: if false;
     }
 

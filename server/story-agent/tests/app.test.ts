@@ -94,6 +94,50 @@ describe('story-agent', () => {
     expect(response.body.image?.disabled).toBe(true);
   });
 
+  it('POST /v1/admin/dry-run returns composed payload and decision', async () => {
+    const { app } = createApp({ config: baseConfig, store: new InMemoryStoryStore(defaultRuntimePolicy) });
+    const response = await request(app).post('/v1/admin/dry-run').send({
+      age: 8,
+      tier: 'free',
+      language: 'en',
+      storyIdea: 'A kind dragon helps children find a lost kite.',
+      heroType: 'boy',
+      heroAge: 8,
+      location: 'park',
+      genre: 'adventure',
+      length: 'short',
+      complexity: 'simple',
+      illustrationsEnabled: true,
+      familyMembers: { mom: 1, dad: 1 },
+      creativity: 'normal',
+      parentalControls: {
+        safeMode: true,
+        disableScaryContent: true,
+        requireParentConfirmationForOlder: true,
+      },
+    });
+
+    expect(response.status).toBe(200);
+    expect(response.body.ok).toBe(true);
+    expect(response.body.decision?.status).toBe('ok');
+    expect(response.body.composedPayload).toBeTruthy();
+  });
+
+  it('POST /v1/story/create is blocked by policy when banned content is present', async () => {
+    const { app } = createApp({ config: baseConfig, store: new InMemoryStoryStore(defaultRuntimePolicy) });
+    const response = await request(app).post('/v1/story/create').send({
+      action: 'generate',
+      requestId: 'blocked-1',
+      storyLang: 'en',
+      selection: { idea: 'A child plans a murder mystery with real blood.' },
+      image: { enabled: true },
+    });
+
+    expect(response.status).toBe(403);
+    expect(response.body.ok).toBe(false);
+    expect(response.body.error).toBe('policy_blocked');
+  });
+
   it('server generates auditId independent from client requestId', async () => {
     const store = new InMemoryStoryStore(defaultRuntimePolicy);
     const { app } = createApp({ config: baseConfig, store });

@@ -10,14 +10,31 @@ export const storyRequestSchema = z
     storyLang: storyLanguageSchema.optional(),
     language: storyLanguageSchema.optional(),
     ageGroup: z.enum(['3_5', '6_8', '9_12']).optional(),
+    age: z.number().int().min(1).max(18).optional(),
+    tier: z.string().min(1).max(32).optional(),
     storyLength: z.enum(['short', 'medium', 'long']).optional(),
     creativityLevel: z.number().min(0).max(1).optional(),
+    complexity: z.enum(['simple', 'normal']).optional(),
+    creativity: z.enum(['low', 'normal', 'high']).optional(),
     selection: z
       .object({
         hero: z.string().max(120).optional(),
         location: z.string().max(120).optional(),
         storyType: z.string().max(120).optional(),
         idea: z.string().max(4000).optional(),
+      })
+      .strict()
+      .optional(),
+    heroType: z.string().max(120).optional(),
+    heroAge: z.number().int().min(1).max(18).optional(),
+    location: z.string().max(120).optional(),
+    genre: z.string().max(120).optional(),
+    familyMembers: z.record(z.string(), z.number().int().min(0).max(10)).optional(),
+    parentalControls: z
+      .object({
+        safeMode: z.boolean().optional(),
+        disableScaryContent: z.boolean().optional(),
+        requireParentConfirmationForOlder: z.boolean().optional(),
       })
       .strict()
       .optional(),
@@ -30,6 +47,7 @@ export const storyRequestSchema = z
       .strict()
       .optional(),
     prompt: z.string().max(4000).optional(),
+    illustrationsEnabled: z.boolean().optional(),
     image: z
       .object({
         enabled: z.boolean(),
@@ -45,6 +63,31 @@ export const storyRequestSchema = z
       storyLang: request.storyLang ?? language ?? 'en',
     };
   });
+
+export const adminTestInputSchema = z
+  .object({
+    age: z.number().int().min(1).max(18),
+    tier: z.string().min(1).max(32),
+    language: storyLanguageSchema,
+    storyIdea: z.string().max(4000),
+    heroType: z.string().max(120),
+    heroAge: z.number().int().min(1).max(18),
+    location: z.string().max(120),
+    genre: z.string().max(120),
+    length: z.enum(['short', 'medium', 'long']),
+    complexity: z.enum(['simple', 'normal']),
+    illustrationsEnabled: z.boolean(),
+    familyMembers: z.record(z.string(), z.number().int().min(0).max(10)),
+    creativity: z.enum(['low', 'normal', 'high']),
+    parentalControls: z
+      .object({
+        safeMode: z.boolean(),
+        disableScaryContent: z.boolean(),
+        requireParentConfirmationForOlder: z.boolean(),
+      })
+      .strict(),
+  })
+  .strict();
 
 export const runtimePolicySchema = z
   .object({
