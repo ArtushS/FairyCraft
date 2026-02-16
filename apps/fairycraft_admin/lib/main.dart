@@ -1,4 +1,4 @@
-﻿import 'dart:convert';
+import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -8,7 +8,10 @@ import 'package:provider/provider.dart';
 
 import 'firebase_options.dart';
 
-const _useMockAdmin = bool.fromEnvironment('USE_MOCK_ADMIN', defaultValue: true);
+const _useMockAdmin = bool.fromEnvironment(
+  'USE_MOCK_ADMIN',
+  defaultValue: true,
+);
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -16,7 +19,9 @@ Future<void> main() async {
   var mockMode = _useMockAdmin;
   if (!mockMode) {
     try {
-      await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
     } catch (_) {
       mockMode = true;
     }
@@ -112,7 +117,10 @@ class AdminState extends ChangeNotifier {
       notifyListeners();
       return;
     }
-    await FirebaseAuth.instance.signInWithEmailAndPassword(email: email, password: password);
+    await FirebaseAuth.instance.signInWithEmailAndPassword(
+      email: email,
+      password: password,
+    );
   }
 
   Future<void> signOut() async {
@@ -129,7 +137,10 @@ class AdminState extends ChangeNotifier {
       notifyListeners();
       return;
     }
-    final doc = await FirebaseFirestore.instance.collection('admin_policy').doc('runtime').get();
+    final doc = await FirebaseFirestore.instance
+        .collection('admin_policy')
+        .doc('runtime')
+        .get();
     _policy = doc.data() ?? <String, dynamic>{};
     notifyListeners();
   }
@@ -137,7 +148,10 @@ class AdminState extends ChangeNotifier {
   Future<void> savePolicy(Map<String, dynamic> nextPolicy) async {
     _policy = nextPolicy;
     if (!mockMode) {
-      await FirebaseFirestore.instance.collection('admin_policy').doc('runtime').set(nextPolicy);
+      await FirebaseFirestore.instance
+          .collection('admin_policy')
+          .doc('runtime')
+          .set(nextPolicy);
     }
     notifyListeners();
   }
@@ -145,13 +159,21 @@ class AdminState extends ChangeNotifier {
   Future<void> loadUsage() async {
     if (mockMode) {
       _usageItems = <Map<String, dynamic>>[
-        <String, dynamic>{'id': 'mock_user_20260214', 'count': 4, 'uid': 'mock_user', 'date': '20260214'},
+        <String, dynamic>{
+          'id': 'mock_user_20260214',
+          'count': 4,
+          'uid': 'mock_user',
+          'date': '20260214',
+        },
       ];
       notifyListeners();
       return;
     }
 
-    final snapshot = await FirebaseFirestore.instance.collection('usage_daily').limit(100).get();
+    final snapshot = await FirebaseFirestore.instance
+        .collection('usage_daily')
+        .limit(100)
+        .get();
     _usageItems = snapshot.docs
         .map((doc) => <String, dynamic>{'id': doc.id, ...(doc.data())})
         .toList(growable: false);
@@ -173,7 +195,9 @@ class AdminRootPage extends StatelessWidget {
       length: 2,
       child: Scaffold(
         appBar: AppBar(
-          title: Text(state.mockMode ? 'FairyCraft Admin (Mock)' : 'FairyCraft Admin'),
+          title: Text(
+            state.mockMode ? 'FairyCraft Admin (Mock)' : 'FairyCraft Admin',
+          ),
           actions: <Widget>[
             TextButton(
               onPressed: () => context.read<AdminState>().signOut(),
@@ -187,12 +211,7 @@ class AdminRootPage extends StatelessWidget {
             ],
           ),
         ),
-        body: const TabBarView(
-          children: <Widget>[
-            PolicyTab(),
-            StatsTab(),
-          ],
-        ),
+        body: const TabBarView(children: <Widget>[PolicyTab(), StatsTab()]),
       ),
     );
   }
@@ -225,7 +244,10 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
     });
 
     try {
-      await context.read<AdminState>().signIn(_emailController.text.trim(), _passwordController.text);
+      await context.read<AdminState>().signIn(
+        _emailController.text.trim(),
+        _passwordController.text,
+      );
     } catch (error) {
       setState(() {
         _error = error.toString();
@@ -257,10 +279,13 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
               decoration: const InputDecoration(labelText: 'Password'),
             ),
             const SizedBox(height: 16),
-            if (_error != null) Text(_error!, style: const TextStyle(color: Colors.red)),
+            if (_error != null)
+              Text(_error!, style: const TextStyle(color: Colors.red)),
             FilledButton(
               onPressed: _submitting ? null : _submit,
-              child: _submitting ? const CircularProgressIndicator() : const Text('Sign in'),
+              child: _submitting
+                  ? const CircularProgressIndicator()
+                  : const Text('Sign in'),
             ),
             const SizedBox(height: 8),
             Text(
@@ -407,7 +432,9 @@ class _StatsTabState extends State<StatsTab> {
               final item = state.usageItems[index];
               return ListTile(
                 title: Text(item['id']?.toString() ?? '-'),
-                subtitle: Text('uid=${item['uid'] ?? '-'} count=${item['count'] ?? '-'} date=${item['date'] ?? '-'}'),
+                subtitle: Text(
+                  'uid=${item['uid'] ?? '-'} count=${item['count'] ?? '-'} date=${item['date'] ?? '-'}',
+                ),
               );
             },
           ),

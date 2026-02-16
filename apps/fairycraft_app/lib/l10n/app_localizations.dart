@@ -1615,19 +1615,19 @@ abstract class AppLocalizations {
   /// No description provided for @sttErrorKeyMissing.
   ///
   /// In en, this message translates to:
-  /// **'VOICEMAKER_API_KEY is missing. Start with --dart-define=VOICEMAKER_API_KEY=<key>.'**
+  /// **'Speech service is not configured on backend.'**
   String get sttErrorKeyMissing;
 
   /// No description provided for @sttErrorProxyMissing.
   ///
   /// In en, this message translates to:
-  /// **'STT proxy URL is missing. Use --dart-define=STT_PROXY_URL=<backend_url>.'**
+  /// **'Story Agent URL is missing. Use --dart-define=STORY_AGENT_URL=<backend_url>.'**
   String get sttErrorProxyMissing;
 
   /// No description provided for @sttErrorProxyInvalid.
   ///
   /// In en, this message translates to:
-  /// **'STT proxy URL is invalid.'**
+  /// **'Story Agent URL is invalid.'**
   String get sttErrorProxyInvalid;
 
   /// No description provided for @storyRequestLogLangHeader.

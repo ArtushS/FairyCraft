@@ -1,4 +1,5 @@
-﻿import { randomUUID } from 'node:crypto';
+import { randomUUID } from 'node:crypto';
+import type { IncomingMessage, Server as HttpServer } from 'node:http';
 
 import express, { type Request, type Response } from 'express';
 import rateLimit from 'express-rate-limit';
@@ -11,7 +12,13 @@ import { createAuthMiddleware } from './middleware/auth';
 import { defaultRuntimePolicy, PolicyService } from './services/policy';
 import { BoundedRateCounter } from './services/rateLimiter';
 import { FirestoreStoryStore, InMemoryStoryStore, type StoryStore } from './services/store';
+import {
+  PerUserConcurrencyLimiter,
+  VoicemakerHttpError,
+  VoicemakerService,
+} from './services/voicemaker';
 import type { RuntimePolicy, StoryAction, StoryRequest, StoryResponse, StorySession } from './types';
+import { attachTtsStreamProxy } from './ws/ttsStreamProxy';
 
 interface AppServices {
   config: AppConfig;
@@ -20,6 +27,8 @@ interface AppServices {
   engine: StoryEngine;
   ipCounter: BoundedRateCounter;
   uidCounter: BoundedRateCounter;
+  voicemakerService: VoicemakerService;
+  ttsConcurrencyLimiter: PerUserConcurrencyLimiter;
 }
 
 export interface CreateAppOptions {
@@ -59,6 +68,7 @@ const placeholderImage = (prompt?: string): StoryResponse['image'] => ({
 });
 
 const jsonSizeKb = (value: unknown): number => Buffer.byteLength(JSON.stringify(value ?? {}), 'utf8') / 1024;
+const MAX_PARALLEL_TTS_PER_USER = 3;
 
 const runWithTimeout = async <T>(promise: Promise<T>, timeoutMs: number): Promise<T> => {
   let timeout: NodeJS.Timeout | undefined;
@@ -90,6 +100,8 @@ const createServices = (options?: CreateAppOptions): AppServices => {
     policyService: new PolicyService(store, config.policyTtlMs),
     ipCounter: new BoundedRateCounter(config.rateEntryTtlMs, config.rateMapCap),
     uidCounter: new BoundedRateCounter(config.rateEntryTtlMs, config.rateMapCap),
+    voicemakerService: new VoicemakerService(config.voicemakerApiKey),
+    ttsConcurrencyLimiter: new PerUserConcurrencyLimiter(MAX_PARALLEL_TTS_PER_USER),
   };
 };
 
@@ -500,20 +512,35 @@ export const createApp = (options?: CreateAppOptions) => {
     await handleAction(req, res, 'illustrate');
   });
 
-  app.post('/v1/stt/transcribe', sttUpload.single('file'), async (req: Request, res: Response) => {
-    const requestLanguage =
-      typeof req.body?.language === 'string' && req.body.language.trim().length > 0
-        ? req.body.language.trim()
-        : 'auto';
-    const responseFormat =
-      typeof req.body?.responseFormat === 'string' && req.body.responseFormat.trim().length > 0
-        ? req.body.responseFormat.trim()
-        : 'json';
-    const model =
-      typeof req.body?.model === 'string' && req.body.model.trim().length > 0
-        ? req.body.model.trim()
-        : 'stt-flagship-v1';
+  const resolveRequestUserKey = (req: Request): string => {
+    const uid = req.fairycraftAuth?.uid?.trim();
+    if (uid) {
+      return `uid:${uid}`;
+    }
+    return `ip:${req.ip || 'unknown'}`;
+  };
 
+  const resolveUpgradeUserKey = (request: IncomingMessage): string => {
+    const claimedUser =
+      typeof request.headers['x-fairycraft-user'] === 'string'
+        ? request.headers['x-fairycraft-user'].trim()
+        : '';
+    if (claimedUser) {
+      return `uid:${claimedUser}`;
+    }
+
+    const forwardedHeader = request.headers['x-forwarded-for'];
+    const forwardedIp =
+      typeof forwardedHeader === 'string'
+        ? forwardedHeader.split(',')[0]?.trim()
+        : Array.isArray(forwardedHeader)
+          ? forwardedHeader[0]?.trim()
+          : '';
+    const socketIp = request.socket.remoteAddress?.trim() ?? '';
+    return `ip:${forwardedIp || socketIp || 'unknown'}`;
+  };
+
+  const handleStt = async (req: Request, res: Response): Promise<void> => {
     if (!services.ipCounter.consume(`stt:${req.ip}`, services.config.sttRateLimitPerMin)) {
       res.status(429).json({
         ok: false,
@@ -523,165 +550,206 @@ export const createApp = (options?: CreateAppOptions) => {
       return;
     }
 
-    if (!services.config.voicemakerApiKey.trim()) {
-      res.status(503).json({
-        ok: false,
-        error: 'stt_unavailable',
-        safeMessage: 'Speech recognition service is not configured.',
-      });
-      return;
-    }
-
-    if (!req.file || req.file.size <= 0) {
-      res.status(400).json({
-        ok: false,
-        error: 'audio_required',
-        safeMessage: 'Audio file is required.',
-      });
-      return;
-    }
-
     try {
-      const formData = new FormData();
-      formData.append('model', model);
-      formData.append('language', requestLanguage);
-      formData.append('responseFormat', responseFormat);
-      formData.append('includeSubtitle', 'false');
-      formData.append('tagAudioEvents', 'false');
-      formData.append(
-        'file',
-        new Blob([new Uint8Array(req.file.buffer)], {
-          type: req.file.mimetype || 'audio/wav',
-        }),
-        req.file.originalname || 'recording.wav',
+      const input = services.voicemakerService.normalizeSttRequest(req.body ?? {});
+      const response = await services.voicemakerService.transcribeAudio(req.file, input);
+
+      console.info(
+        `[voicemaker:stt] user=${resolveRequestUserKey(req)} usedChars=${response.usedChars ?? 0} status=${response.status}`,
       );
 
-      const upstreamResponse = await fetch('https://developer.voicemaker.in/api/v1/speech-to-text', {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${services.config.voicemakerApiKey}`,
-        },
-        body: formData,
+      res.status(200).json({
+        ok: response.status !== 'failed',
+        generatedText: response.generatedText,
+        status: response.status,
+        taskId: response.taskId,
+        detectedLanguage: response.detectedLanguage,
+        usedChars: response.usedChars,
+        remainChars: response.remainChars,
       });
-
-      const rawText = await upstreamResponse.text();
-      let parsed: Record<string, unknown> = {};
-      try {
-        parsed = rawText.trim().length > 0 ? (JSON.parse(rawText) as Record<string, unknown>) : {};
-      } catch (_error) {
-        parsed = {};
-      }
-
-      if (!upstreamResponse.ok) {
-        const message =
-          typeof parsed.message === 'string'
-            ? parsed.message
-            : typeof parsed.error === 'string'
-              ? parsed.error
-              : 'Speech recognition request failed.';
-        res.status(502).json({
+    } catch (error) {
+      if (error instanceof VoicemakerHttpError) {
+        res.status(error.statusCode).json({
           ok: false,
-          error: 'stt_upstream_failed',
-          safeMessage: message,
+          error: error.errorCode,
+          safeMessage: error.safeMessage,
         });
         return;
       }
 
-      const success = parsed.success === true;
-      const isProcessing = parsed.isProcessing === true;
-      const data =
-        typeof parsed.data === 'object' && parsed.data !== null
-          ? (parsed.data as Record<string, unknown>)
-          : {};
-      const generatedText =
-        typeof data.generatedText === 'string' ? data.generatedText.trim() : '';
-      const detectedLanguage =
-        typeof data.language === 'string' ? data.language : requestLanguage;
+      if (error instanceof Error && error.message === 'VOICEMAKER_API_KEY missing') {
+        res.status(503).json({
+          ok: false,
+          error: 'stt_unavailable',
+          safeMessage: 'Speech recognition service is not configured.',
+        });
+        return;
+      }
 
-      res.status(200).json({
-        ok: success,
-        isProcessing,
-        text: generatedText,
-        language: detectedLanguage,
-        charge: data.charge,
-        usedChars: parsed.usedChars,
-        remainChars: parsed.remainChars,
-        ...(services.config.isProduction ? {} : { raw: parsed }),
-      });
-    } catch (_error) {
       res.status(503).json({
         ok: false,
         error: 'stt_proxy_unavailable',
         safeMessage: 'Speech recognition service is temporarily unavailable.',
       });
     }
-  });
+  };
 
-  // Voicemaker TTS proxy endpoints
-  app.post('/v1/tts/voicemaker', async (req: Request, res: Response) => {
-    if (!services.config.voicemakerApiKey.trim()) {
-      res.status(503).json({ ok: false, error: 'tts_unavailable', safeMessage: 'TTS service is not configured.' });
+  const handleTts = async (req: Request, res: Response): Promise<void> => {
+    const userKey = resolveRequestUserKey(req);
+    if (!services.ttsConcurrencyLimiter.tryAcquire(userKey)) {
+      res.status(429).json({
+        ok: false,
+        error: 'tts_parallel_limit_reached',
+        safeMessage: 'Too many concurrent narration requests. Please wait for current audio generation to finish.',
+      });
       return;
     }
 
     try {
-      const upstream = await fetch('https://developer.voicemaker.in/api/v1/voice/convert', {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${services.config.voicemakerApiKey}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(req.body ?? {}),
-      });
+      const normalizedRequest = services.voicemakerService.normalizeTtsRequest(req.body ?? {});
+      const generated = await services.voicemakerService.generateTtsAudio(normalizedRequest);
+      const usedChars = generated.usedChars ?? normalizedRequest.text.length;
+      const remainChars = generated.remainChars;
+      console.info(`[voicemaker:tts] user=${userKey} usedChars=${usedChars}`);
 
-      // Mirror upstream status and some headers
-      const contentType = upstream.headers.get('content-type') ?? 'application/json';
-      res.status(upstream.status);
-      res.set('Content-Type', contentType);
-
-      // Stream bytes if audio
-      const buffer = await upstream.arrayBuffer();
-      const body = Buffer.from(buffer);
-      res.send(body);
-    } catch (error) {
-      res.status(502).json({ ok: false, error: 'tts_upstream_failed', safeMessage: 'TTS provider is temporarily unavailable.' });
-    }
-  });
-
-  app.post('/v1/tts/voicemaker/voices', async (req: Request, res: Response) => {
-    if (!services.config.voicemakerApiKey.trim()) {
-      res.status(503).json({ ok: false, error: 'tts_unavailable', safeMessage: 'TTS service is not configured.' });
-      return;
-    }
-
-    try {
-      const upstream = await fetch('https://developer.voicemaker.in/api/v1/voice/list', {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${services.config.voicemakerApiKey}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(req.body ?? {}),
-      });
-
-      const text = await upstream.text();
-      let parsed: unknown = {};
-      try {
-        parsed = text.trim().length > 0 ? JSON.parse(text) : {};
-      } catch (_) {
-        parsed = {};
-      }
-
-      if (!upstream.ok) {
-        res.status(502).json({ ok: false, error: 'tts_upstream_failed', safeMessage: 'Failed to load voices.' });
+      if (normalizedRequest.returnBase64) {
+        res.status(200).json({
+          ok: true,
+          audioBase64: generated.audioBuffer.toString('base64'),
+          mimeType: generated.mimeType,
+          usedChars,
+          remainChars,
+        });
         return;
       }
 
-      res.status(200).json(parsed);
+      res.status(200);
+      res.set('Content-Type', generated.mimeType || 'audio/mpeg');
+      res.set('Content-Length', String(generated.audioBuffer.length));
+      res.set('X-Used-Chars', String(usedChars));
+      if (remainChars != null) {
+        res.set('X-Remain-Chars', String(remainChars));
+      }
+      res.send(generated.audioBuffer);
     } catch (error) {
-      res.status(502).json({ ok: false, error: 'tts_upstream_failed', safeMessage: 'TTS provider is temporarily unavailable.' });
+      if (error instanceof VoicemakerHttpError) {
+        res.status(error.statusCode).json({
+          ok: false,
+          error: error.errorCode,
+          safeMessage: error.safeMessage,
+        });
+        return;
+      }
+
+      if (error instanceof Error && error.message === 'VOICEMAKER_API_KEY missing') {
+        res.status(503).json({
+          ok: false,
+          error: 'tts_unavailable',
+          safeMessage: 'TTS service is not configured.',
+        });
+        return;
+      }
+
+      res.status(503).json({
+        ok: false,
+        error: 'tts_proxy_unavailable',
+        safeMessage: 'TTS provider is temporarily unavailable.',
+      });
+    } finally {
+      services.ttsConcurrencyLimiter.release(userKey);
     }
+  };
+
+  const handleListVoices = async (languageCode: string, res: Response): Promise<void> => {
+    try {
+      const response = await services.voicemakerService.listVoices(languageCode);
+      res.status(200).json({
+        ok: true,
+        language: languageCode,
+        cached: response.cached,
+        voices: response.voices,
+      });
+    } catch (error) {
+      if (error instanceof VoicemakerHttpError) {
+        res.status(error.statusCode).json({
+          ok: false,
+          error: error.errorCode,
+          safeMessage: error.safeMessage,
+        });
+        return;
+      }
+
+      if (error instanceof Error && error.message === 'VOICEMAKER_API_KEY missing') {
+        res.status(503).json({
+          ok: false,
+          error: 'tts_unavailable',
+          safeMessage: 'TTS service is not configured.',
+        });
+        return;
+      }
+
+      console.error('[voicemaker:voices] unexpected error', error);
+      res.status(503).json({
+        ok: false,
+        error: 'tts_proxy_unavailable',
+        safeMessage: 'Failed to load voices.',
+      });
+    }
+  };
+
+  app.get('/v1/tts/stream', (_req: Request, res: Response) => {
+    res.status(426).json({
+      ok: false,
+      error: 'upgrade_required',
+      safeMessage: 'Use WebSocket protocol for this endpoint.',
+    });
   });
 
-  return { app, services };
+  app.post('/v1/stt', sttUpload.single('file'), async (req: Request, res: Response) => {
+    await handleStt(req, res);
+  });
+
+  app.post('/v1/stt/transcribe', sttUpload.single('file'), async (req: Request, res: Response) => {
+    await handleStt(req, res);
+  });
+
+  app.post('/v1/tts', async (req: Request, res: Response) => {
+    await handleTts(req, res);
+  });
+
+  app.post('/v1/tts/voicemaker', async (req: Request, res: Response) => {
+    await handleTts(req, res);
+  });
+
+  app.get('/v1/tts/voices', async (req: Request, res: Response) => {
+    const languageCode =
+      typeof req.query.language === 'string' && req.query.language.trim().length > 0
+        ? req.query.language.trim()
+        : 'en-US';
+    await handleListVoices(languageCode, res);
+  });
+
+  app.post('/v1/tts/voicemaker/voices', async (req: Request, res: Response) => {
+    const languageCode =
+      typeof req.body?.language === 'string' && req.body.language.trim().length > 0
+        ? req.body.language.trim()
+        : typeof req.body?.languageCode === 'string' && req.body.languageCode.trim().length > 0
+          ? req.body.languageCode.trim()
+          : 'en-US';
+    await handleListVoices(languageCode, res);
+  });
+
+  const attachVoicemakerTtsStreamProxy = (server: HttpServer): void => {
+    attachTtsStreamProxy({
+      server,
+      voicemakerService: services.voicemakerService,
+      limiter: services.ttsConcurrencyLimiter,
+      resolveUserKey: resolveUpgradeUserKey,
+      onError: (message, error) => {
+        console.error(`[voicemaker:stream] ${message}`, error);
+      },
+    });
+  };
+
+  return { app, services, attachVoicemakerTtsStreamProxy };
 };

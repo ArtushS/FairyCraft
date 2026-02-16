@@ -15,6 +15,8 @@ import '../features/tts/data/voicemaker_client.dart';
 import '../features/tts/data/voicemaker_repository.dart';
 import '../firebase/firebase_bootstrap.dart';
 import '../l10n/l10n.dart';
+import '../services/stt_service.dart';
+import '../services/tts_service.dart';
 import '../settings/settings_controller.dart';
 import '../settings/settings_scope.dart';
 import '../shared/network/request_context.dart';
@@ -110,19 +112,31 @@ class FairyCraftApp extends StatelessWidget {
               ImageGenerationService(context.read<StoryService>()),
         ),
         Provider<TtsCache>(create: (_) => TtsCache()),
-        Provider<VoicemakerClient>(
-          create: (context) => VoicemakerClient(
+        Provider<TtsService>(
+          create: (context) => TtsService(
             config: context.read<AppConfig>(),
             httpClient: context.read<http.Client>(),
             requestContext: context.read<RequestContext>(),
           ),
         ),
-        Provider<VoicemakerSttClient>(
-          create: (context) => VoicemakerSttClient(
+        Provider<VoicemakerClient>(
+          create: (context) => VoicemakerClient(
+            ttsService: context.read<TtsService>(),
+            httpClient: context.read<http.Client>(),
+            requestContext: context.read<RequestContext>(),
+          ),
+        ),
+        Provider<SttService>(
+          create: (context) => SttService(
             config: context.read<AppConfig>(),
             httpClient: context.read<http.Client>(),
             idTokenProvider: () => context.read<AuthService>().getIdToken(),
             requestContext: context.read<RequestContext>(),
+          ),
+        ),
+        Provider<VoicemakerSttClient>(
+          create: (context) => VoicemakerSttClient(
+            sttService: context.read<SttService>(),
           ),
         ),
         Provider<VoicemakerRepository>(

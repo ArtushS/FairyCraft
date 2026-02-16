@@ -108,6 +108,10 @@ class TtsRequest {
     return ((intensity - 1.0) * 10).round().clamp(-10, 10).toString();
   }
 
+  String get masterVolume {
+    return ((volume - 0.5) * 20).round().clamp(-10, 10).toString();
+  }
+
   Map<String, dynamic> toVoicemakerPayload() {
     return <String, dynamic>{
       'VoiceId': voiceId,
@@ -115,7 +119,7 @@ class TtsRequest {
       'Text': text,
       'OutputFormat': outputFormat,
       'SampleRate': sampleRate,
-      'MasterVolume': '0',
+      'MasterVolume': masterVolume,
       'MasterSpeed': masterSpeed,
       'MasterPitch': masterPitch,
     };

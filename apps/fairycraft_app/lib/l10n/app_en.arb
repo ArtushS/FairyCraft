@@ -1,4 +1,4 @@
-﻿{
+{
   "@@locale": "en",
   "appName": "FairyCraft",
   "commonAccount": "Account",
@@ -430,9 +430,10 @@
   "sttErrorProcessingInProgress": "Transcription in progress. Please try a shorter sample.",
   "sttErrorNetwork": "Network connection is unstable. Please try again.",
   "sttErrorFailed": "Voice transcription failed. Please try again.",
-  "sttErrorKeyMissing": "VOICEMAKER_API_KEY is missing. Start with --dart-define=VOICEMAKER_API_KEY=<key>.",
-  "sttErrorProxyMissing": "STT proxy URL is missing. Use --dart-define=STT_PROXY_URL=<backend_url>.",
-  "sttErrorProxyInvalid": "STT proxy URL is invalid.",
+  "sttErrorKeyMissing": "Speech service is not configured on backend.",
+  "sttErrorProxyMissing": "Story Agent URL is missing. Use --dart-define=STORY_AGENT_URL=<backend_url>.",
+  "sttErrorProxyInvalid": "Story Agent URL is invalid.",
 
   "storyRequestLogLangHeader": "Request language"
 }
+

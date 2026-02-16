@@ -845,14 +845,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get sttErrorKeyMissing =>
-      'VOICEMAKER_API_KEY is missing. Start with --dart-define=VOICEMAKER_API_KEY=<key>.';
+      'Speech service is not configured on backend.';
 
   @override
   String get sttErrorProxyMissing =>
-      'STT proxy URL is missing. Use --dart-define=STT_PROXY_URL=<backend_url>.';
+      'Story Agent URL is missing. Use --dart-define=STORY_AGENT_URL=<backend_url>.';
 
   @override
-  String get sttErrorProxyInvalid => 'STT proxy URL is invalid.';
+  String get sttErrorProxyInvalid => 'Story Agent URL is invalid.';
 
   @override
   String get storyRequestLogLangHeader => 'Request language';

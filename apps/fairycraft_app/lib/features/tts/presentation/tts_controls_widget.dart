@@ -63,6 +63,10 @@ class _TtsControlsWidgetState extends State<TtsControlsWidget> {
         return l10n.ttsErrorNoAudioChunks;
       case 'Network connection is unstable. Please try again.':
         return l10n.ttsErrorNetwork;
+      case 'Story Agent URL is missing. Use --dart-define=STORY_AGENT_URL=<backend_url>.':
+        return l10n.ttsErrorStart;
+      case 'Story Agent URL is invalid.':
+        return l10n.ttsErrorStart;
       case 'Unable to start narration right now. Please try again.':
         return l10n.ttsErrorStart;
       default:

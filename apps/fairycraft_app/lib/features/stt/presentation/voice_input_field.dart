@@ -85,11 +85,9 @@ class _VoiceInputFieldState extends State<VoiceInputField> {
         return l10n.sttErrorNetwork;
       case 'Voice transcription failed. Please try again.':
         return l10n.sttErrorFailed;
-      case 'VOICEMAKER_API_KEY is missing. Start with --dart-define=VOICEMAKER_API_KEY=<key>.':
-        return l10n.sttErrorKeyMissing;
-      case 'STT proxy URL is missing. Use --dart-define=STT_PROXY_URL=<backend_url>.':
+      case 'Story Agent URL is missing. Use --dart-define=STORY_AGENT_URL=<backend_url>.':
         return l10n.sttErrorProxyMissing;
-      case 'STT proxy URL is invalid.':
+      case 'Story Agent URL is invalid.':
         return l10n.sttErrorProxyInvalid;
       default:
         return raw;

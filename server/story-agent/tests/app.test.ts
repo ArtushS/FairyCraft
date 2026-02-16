@@ -23,6 +23,8 @@ const baseConfig: AppConfig = {
   serviceName: 'story-agent-test',
   serviceRevision: 'test-rev',
   configurationName: 'test-config',
+  voicemakerApiKey: '',
+  sttRateLimitPerMin: 30,
 };
 
 describe('story-agent', () => {
@@ -107,5 +109,46 @@ describe('story-agent', () => {
     expect(audits.length).toBeGreaterThan(0);
     expect(audits[0].clientRequestId).toBe(clientRequestId);
     expect(audits[0].auditId).not.toBe(clientRequestId);
+  });
+
+  it('POST /v1/tts validates empty text', async () => {
+    const { app } = createApp({ config: baseConfig, store: new InMemoryStoryStore(defaultRuntimePolicy) });
+    const response = await request(app).post('/v1/tts').send({
+      text: '   ',
+    });
+
+    expect(response.status).toBe(400);
+    expect(response.body.error).toBe('invalid_tts_request');
+  });
+
+  it('POST /v1/tts returns unavailable when voicemaker key is missing', async () => {
+    const { app } = createApp({ config: baseConfig, store: new InMemoryStoryStore(defaultRuntimePolicy) });
+    const response = await request(app).post('/v1/tts').send({
+      text: 'Hello world',
+      voiceId: 'ai3-Jony',
+      languageCode: 'en-US',
+      speed: 0,
+      pitch: 0,
+      volume: 0,
+    });
+
+    expect(response.status).toBe(503);
+    expect(response.body.error).toBe('tts_unavailable');
+  });
+
+  it('POST /v1/stt returns audio_required without file', async () => {
+    const { app } = createApp({ config: baseConfig, store: new InMemoryStoryStore(defaultRuntimePolicy) });
+    const response = await request(app).post('/v1/stt').field('language', 'auto');
+
+    expect(response.status).toBe(400);
+    expect(response.body.error).toBe('audio_required');
+  });
+
+  it('GET /v1/tts/voices returns unavailable when voicemaker key is missing', async () => {
+    const { app } = createApp({ config: baseConfig, store: new InMemoryStoryStore(defaultRuntimePolicy) });
+    const response = await request(app).get('/v1/tts/voices?language=en-US');
+
+    expect(response.status).toBe(503);
+    expect(response.body.error).toBe('tts_unavailable');
   });
 });
