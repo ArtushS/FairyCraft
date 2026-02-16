@@ -32,6 +32,7 @@ server/story-agent/.env.*
 **/android/app/google-services.json
 **/ios/Runner/GoogleService-Info.plist
 **/macos/Runner/GoogleService-Info.plist
+apps/fairycraft_admin/web/local_admin_uids.json
 
 # IDE
 .idea/
