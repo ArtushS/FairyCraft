@@ -102,7 +102,56 @@ Server validates these fields in `server/story-agent/src/schemas.ts` and maps th
 - GitHub Actions workflow: `.github/workflows/server-ci.yml`
 - Runs on changes in `server/story-agent/**`: `npm ci` + `npm test`
 
-## 7) Security notes
+## 7) Localization (app)
+
+- Flutter app localization files:
+  - `apps/fairycraft_app/lib/l10n/app_en.arb`
+  - `apps/fairycraft_app/lib/l10n/app_ru.arb`
+  - `apps/fairycraft_app/lib/l10n/app_hy.arb`
+- New UI text must be added to ARB keys and used from `context.l10n` (no hardcoded user-facing strings in app screens).
+- Regenerate localization classes after ARB updates:
+
+```powershell
+cd apps/fairycraft_app
+flutter gen-l10n
+```
+
+## 8) Policy Migration (`allowPersonalNames`)
+
+- Server default remains safe for legacy docs: if `contentRules.allowPersonalNames` is missing, it is treated as `true`.
+- Admin includes a dev-only maintenance action in Policies:
+  - `Backfill allowPersonalNames`
+  - Scans `policies_v1`, updates only documents missing `contentRules.allowPersonalNames`, and reports scanned/updated/skipped.
+- Recommended rollout:
+  1. Open Admin (dev), run backfill, verify summary.
+  2. Open Admin (prod), run backfill, verify summary.
+
+## 9) Admin Web Deploy (dev/prod)
+
+- Hosting is configured from repo root and must point to Flutter admin build output:
+  - `firebase.json` -> `hosting.public = "apps/fairycraft_admin/build/web"`
+
+### Deploy dev
+
+```powershell
+cd apps/fairycraft_admin
+flutter build web --dart-define=FLAVOR=dev --dart-define=USE_MOCK_ADMIN=false
+cd ../..
+firebase use fairycraft-dev
+firebase deploy --only hosting
+```
+
+### Deploy prod
+
+```powershell
+cd apps/fairycraft_admin
+flutter build web --dart-define=FLAVOR=prod --dart-define=USE_MOCK_ADMIN=false
+cd ../..
+firebase use fairycraft-prod
+firebase deploy --only hosting
+```
+
+## 10) Security notes
 
 - No real secrets are committed.
 - `.env*`, keystores, and Firebase config files are gitignored.
