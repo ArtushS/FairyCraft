@@ -43,6 +43,9 @@ export interface StoryRequest {
   location?: string;
   genre?: string;
   familyMembers?: Record<string, number>;
+  familyNames?: Record<string, string>;
+  brothers?: string[];
+  sisters?: string[];
   parentalControls?: {
     safeMode?: boolean;
     disableScaryContent?: boolean;
@@ -128,6 +131,9 @@ export interface AdminTestInput {
   complexity: 'simple' | 'normal' | string;
   illustrationsEnabled: boolean;
   familyMembers: Record<string, number>;
+  familyNames?: Record<string, string>;
+  brothers?: string[];
+  sisters?: string[];
   creativity: 'low' | 'normal' | 'high' | string;
   parentalControls: {
     safeMode: boolean;

@@ -71,14 +71,6 @@ const currentProvider = (config: AppConfig): 'gpt' | 'vertex' | 'mock' => {
   return config.geminiModel?.toLowerCase().includes('gpt') ? 'gpt' : 'vertex';
 };
 
-const trimForSummary = (value: string, maxLength = 120): string => {
-  const clean = value.trim();
-  if (clean.length <= maxLength) {
-    return clean;
-  }
-  return `${clean.slice(0, maxLength)}...`;
-};
-
 const storyLengthRank = (value: string | undefined): number => {
   if (value === 'long') {
     return 3;
@@ -351,6 +343,20 @@ export const createApp = (options?: CreateAppOptions) => {
       requestTier = adminInput.tier;
       requestLanguage = adminInput.language;
       requestAge = adminInput.age;
+      const normalizedBrothers =
+        adminInput.brothers?.map((name) => name.trim()).filter((name) => name.length > 0) ??
+        [];
+      const normalizedSisters =
+        adminInput.sisters?.map((name) => name.trim()).filter((name) => name.length > 0) ??
+        [];
+      const brothersCount = Math.max(
+        adminInput.familyMembers?.brother ?? 0,
+        normalizedBrothers.length,
+      );
+      const sistersCount = Math.max(
+        adminInput.familyMembers?.sister ?? 0,
+        normalizedSisters.length,
+      );
       requestSummary = {
         action,
         age: adminInput.age,
@@ -359,10 +365,17 @@ export const createApp = (options?: CreateAppOptions) => {
         storyLength: adminInput.length,
         complexity: adminInput.complexity,
         creativity: adminInput.creativity,
-        heroType: adminInput.heroType,
-        genre: adminInput.genre,
-        location: trimForSummary(adminInput.location, 64),
-        ideaSample: trimForSummary(adminInput.storyIdea, 180),
+        illustrationsEnabled: adminInput.illustrationsEnabled,
+        familyMembersCount: Object.keys(adminInput.familyMembers ?? {}).length,
+        hasFamilyNames: Object.keys(adminInput.familyNames ?? {}).length > 0,
+        brothersCount,
+        sistersCount,
+        parentalControls: {
+          safeMode: adminInput.parentalControls.safeMode,
+          disableScaryContent: adminInput.parentalControls.disableScaryContent,
+          requireParentConfirmationForOlder:
+            adminInput.parentalControls.requireParentConfirmationForOlder,
+        },
       };
 
       const effectiveBundle = await services.policyV1Service.resolveForStoryRequest(request);

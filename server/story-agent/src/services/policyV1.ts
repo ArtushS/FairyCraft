@@ -17,6 +17,7 @@ interface ContentRulesV1 {
   disallowReligiousPolitical: boolean;
   requireParentConfirmationForOlder: boolean;
   disallowScary: boolean;
+  allowPersonalNames: boolean;
   customBannedWords: string[];
 }
 
@@ -129,7 +130,7 @@ const asStringArray = (value: unknown): string[] => {
 };
 
 const defaultScope = (): PolicyScopeV1 => ({
-  ageMin: 6,
+  ageMin: 3,
   ageMax: 12,
   language: '*',
   tier: '*',
@@ -144,6 +145,7 @@ const defaultContentRules = (): ContentRulesV1 => ({
   disallowReligiousPolitical: true,
   requireParentConfirmationForOlder: true,
   disallowScary: true,
+  allowPersonalNames: true,
   customBannedWords: [],
 });
 
@@ -221,7 +223,7 @@ const defaultTier = (tierId: string): TierV1 => {
 const parseScope = (raw: unknown): PolicyScopeV1 => {
   const object = asObject(raw);
   return {
-    ageMin: Math.max(1, Math.min(18, Math.round(asNumber(object.ageMin, 6)))),
+    ageMin: Math.max(1, Math.min(18, Math.round(asNumber(object.ageMin, 3)))),
     ageMax: Math.max(1, Math.min(18, Math.round(asNumber(object.ageMax, 12)))),
     language: asString(object.language, '*'),
     tier: asString(object.tier, '*'),
@@ -239,6 +241,7 @@ const parseContentRules = (raw: unknown): ContentRulesV1 => {
     disallowReligiousPolitical: asBoolean(object.disallowReligiousPolitical, true),
     requireParentConfirmationForOlder: asBoolean(object.requireParentConfirmationForOlder, true),
     disallowScary: asBoolean(object.disallowScary, true),
+    allowPersonalNames: asBoolean(object.allowPersonalNames, true),
     customBannedWords: asStringArray(object.customBannedWords).map((word) => word.toLowerCase()),
   };
 };
@@ -387,6 +390,122 @@ const extractParentControlsFromAdminInput = (input: AdminTestInput): ParentContr
   };
 };
 
+const normalizeName = (value: unknown, maxLength = 80): string => {
+  if (typeof value !== 'string') {
+    return '';
+  }
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return '';
+  }
+  return trimmed.length > maxLength ? trimmed.slice(0, maxLength) : trimmed;
+};
+
+const normalizeNamesList = (value: unknown, maxItems = 10): string[] => {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+  return value
+    .map((item) => normalizeName(item))
+    .filter((item) => item.length > 0)
+    .slice(0, maxItems);
+};
+
+const normalizeFamilyNames = (value: unknown): Record<string, string> => {
+  const source = asObject(value);
+  const result: Record<string, string> = {};
+  for (const [rawKey, rawValue] of Object.entries(source)) {
+    const key = normalizeName(rawKey, 32).toLowerCase();
+    const name = normalizeName(rawValue, 80);
+    if (key && name) {
+      result[key] = name;
+    }
+  }
+  return result;
+};
+
+const normalizeFamilyMembers = (value: unknown): Record<string, number> => {
+  const source = asObject(value);
+  const result: Record<string, number> = {};
+  for (const [rawKey, rawCount] of Object.entries(source)) {
+    const key = normalizeName(rawKey, 32).toLowerCase();
+    const count = Math.max(0, Math.min(10, Math.round(asNumber(rawCount, 0))));
+    if (key && count > 0) {
+      result[key] = count;
+    }
+  }
+  return result;
+};
+
+const mapCreativityLevel = (value: number | undefined): 'low' | 'normal' | 'high' => {
+  if (typeof value !== 'number' || Number.isNaN(value)) {
+    return 'normal';
+  }
+  if (value <= 0.33) {
+    return 'low';
+  }
+  if (value >= 0.67) {
+    return 'high';
+  }
+  return 'normal';
+};
+
+const buildFamilySummaryLines = (
+  input: AdminTestInput,
+  allowPersonalNames: boolean,
+): {
+  lines: string[];
+  hasFamilyNames: boolean;
+  brothersCount: number;
+  sistersCount: number;
+} => {
+  const familyMembers = normalizeFamilyMembers(input.familyMembers);
+  const familyNames = normalizeFamilyNames(input.familyNames);
+  const brothers = normalizeNamesList(input.brothers);
+  const sisters = normalizeNamesList(input.sisters);
+
+  const roleKeys = ['mom', 'dad', 'grandma', 'grandpa'] as const;
+  const roles: string[] = [];
+  for (const role of roleKeys) {
+    if ((familyMembers[role] ?? 0) <= 0) {
+      continue;
+    }
+    const named = familyNames[role];
+    roles.push(allowPersonalNames && named ? `${role} ${named}` : role);
+  }
+
+  const brothersCount = Math.max(familyMembers.brother ?? 0, brothers.length);
+  const sistersCount = Math.max(familyMembers.sister ?? 0, sisters.length);
+
+  const lines: string[] = [];
+  if (roles.length > 0) {
+    lines.push(`Family roles: ${roles.join(', ')}`);
+  }
+
+  if (brothersCount > 0) {
+    if (allowPersonalNames && brothers.length > 0) {
+      lines.push(`Brothers: ${brothers.join(', ')}`);
+    } else {
+      lines.push(`Brothers count: ${brothersCount}`);
+    }
+  }
+
+  if (sistersCount > 0) {
+    if (allowPersonalNames && sisters.length > 0) {
+      lines.push(`Sisters: ${sisters.join(', ')}`);
+    } else {
+      lines.push(`Sisters count: ${sistersCount}`);
+    }
+  }
+
+  return {
+    lines,
+    hasFamilyNames: Object.keys(familyNames).length > 0,
+    brothersCount,
+    sistersCount,
+  };
+};
+
 export class PolicyV1Service {
   private cache: CachedPolicyData | null = null;
 
@@ -483,6 +602,11 @@ export class PolicyV1Service {
 export const mapStoryRequestToAdminInput = (request: StoryRequest): AdminTestInput => {
   const ageByGroup = request.ageGroup === '3_5' ? 4 : request.ageGroup === '6_8' ? 7 : request.ageGroup === '9_12' ? 10 : 8;
   const language = request.storyLang ?? 'en';
+  const normalizedFamilyMembers = normalizeFamilyMembers(request.familyMembers);
+  const normalizedFamilyNames = normalizeFamilyNames(request.familyNames);
+  const normalizedBrothers = normalizeNamesList(request.brothers);
+  const normalizedSisters = normalizeNamesList(request.sisters);
+
   return {
     age: request.age ?? ageByGroup,
     tier: request.tier ?? 'free',
@@ -495,8 +619,11 @@ export const mapStoryRequestToAdminInput = (request: StoryRequest): AdminTestInp
     length: request.storyLength ?? 'short',
     complexity: request.complexity ?? 'normal',
     illustrationsEnabled: request.illustrationsEnabled ?? request.image?.enabled ?? true,
-    familyMembers: request.familyMembers ?? {},
-    creativity: request.creativity ?? 'normal',
+    familyMembers: normalizedFamilyMembers,
+    familyNames: normalizedFamilyNames,
+    brothers: normalizedBrothers,
+    sisters: normalizedSisters,
+    creativity: request.creativity ?? mapCreativityLevel(request.creativityLevel),
     parentalControls: extractParentControlsFromStoryRequest(request),
   };
 };
@@ -577,6 +704,10 @@ export const buildComposedPayload = ({
     .filter((value): value is string => typeof value === 'string' && value.trim().length > 0)
     .join('\n')
     .trim();
+  const familySummary = buildFamilySummaryLines(
+    input,
+    resolution.policy.contentRules.allowPersonalNames,
+  );
 
   return {
     provider,
@@ -591,6 +722,11 @@ export const buildComposedPayload = ({
     },
     imageRules: resolution.policy.imageRules,
     tierLimits: resolution.tier.limits,
+    familyContext: {
+      hasFamilyNames: familySummary.hasFamilyNames,
+      brothersCount: familySummary.brothersCount,
+      sistersCount: familySummary.sistersCount,
+    },
     prompt: {
       system:
         storyTemplates
@@ -610,6 +746,7 @@ export const buildComposedPayload = ({
         `Creativity: ${input.creativity}`,
         `Location: ${input.location}`,
         `Idea: ${input.storyIdea}`,
+        ...familySummary.lines,
       ].join('\n'),
     },
   };

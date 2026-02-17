@@ -96,7 +96,7 @@ export class InMemoryStoryStore implements StoryStore {
     if (this.policiesV1.size === 0) {
       this.policiesV1.set('default_policy', {
         active: true,
-        scope: { ageMin: 6, ageMax: 12, language: '*', tier: '*' },
+        scope: { ageMin: 3, ageMax: 12, language: '*', tier: '*' },
         contentRules: {
           safeModeDefault: true,
           disallowViolence: true,
@@ -106,6 +106,7 @@ export class InMemoryStoryStore implements StoryStore {
           disallowReligiousPolitical: true,
           requireParentConfirmationForOlder: true,
           disallowScary: true,
+          allowPersonalNames: true,
           customBannedWords: [],
         },
         promptConstraints: {

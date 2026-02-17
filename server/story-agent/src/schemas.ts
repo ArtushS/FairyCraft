@@ -30,6 +30,9 @@ export const storyRequestSchema = z
     location: z.string().max(120).optional(),
     genre: z.string().max(120).optional(),
     familyMembers: z.record(z.string(), z.number().int().min(0).max(10)).optional(),
+    familyNames: z.record(z.string(), z.string().max(80)).optional(),
+    brothers: z.array(z.string().max(80)).max(10).optional(),
+    sisters: z.array(z.string().max(80)).max(10).optional(),
     parentalControls: z
       .object({
         safeMode: z.boolean().optional(),
@@ -78,6 +81,9 @@ export const adminTestInputSchema = z
     complexity: z.enum(['simple', 'normal']),
     illustrationsEnabled: z.boolean(),
     familyMembers: z.record(z.string(), z.number().int().min(0).max(10)),
+    familyNames: z.record(z.string(), z.string().max(80)).optional(),
+    brothers: z.array(z.string().max(80)).max(10).optional(),
+    sisters: z.array(z.string().max(80)).max(10).optional(),
     creativity: z.enum(['low', 'normal', 'high']),
     parentalControls: z
       .object({
