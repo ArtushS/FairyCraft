@@ -1,0 +1,201 @@
+{
+    "@@locale": "hy",
+    "policiesLanguageFilterLabel": "Լեզու՝ {value}",
+    "@policiesLanguageFilterLabel": {
+        "placeholders": {
+            "value": {
+                "type": "String"
+            }
+        }
+    },
+    "policiesTierFilterLabel": "Սեզոն: {value}",
+    "@policiesTierFilterLabel": {
+        "placeholders": {
+            "value": {
+                "type": "String"
+            }
+        }
+    },
+    "policiesAgeRangeFilter": "Տարիքի զտիչ",
+    "policiesNewPolicy": "Նոր քաղաքականություն",
+    "commonReload": "Թարմացնել",
+    "policiesBackfillInProgress": "Լցվում է...",
+    "policiesBackfillButton": "Լցնել allowPersonalNames",
+    "policiesBackfillSummary": "Ավելացված է։ Սքանավորված: {scanned}, թարմացված: {updated}, բաց թողնված: {skipped}.",
+    "@policiesBackfillSummary": {
+        "placeholders": {
+            "scanned": {
+                "type": "int"
+            },
+            "updated": {
+                "type": "int"
+            },
+            "skipped": {
+                "type": "int"
+            }
+        }
+    },
+    "policiesDeletePolicyTitle": "Ջնջել քաղաքականությունը",
+    "policiesDeletePolicyConfirm": "Ջնջել քաղաքականությունը «{id}»? Այս գործողությունը չի վերադարձվու։",
+    "@policiesDeletePolicyConfirm": {
+        "placeholders": {
+            "id": {
+                "type": "String"
+            }
+        }
+    },
+    "commonCancel": "Հաստատում",
+    "commonDelete": "Ջնջել",
+    "policiesColumnActive": "Ակտիվ",
+    "policiesColumnPolicyId": "Քաղաքականություն ID",
+    "policiesColumnScope": "Սկոպ",
+    "policiesColumnReadingLevel": "Կարդալու մակարդակ",
+    "policiesColumnVersionStamp": "Տողագրություն",
+    "policiesColumnActions": "Գործողություններ",
+    "commonEdit": "Խմբագրել",
+    "commonSave": "Պահպանել",
+    "commonAdd": "Ավելացնել",
+    "commonRemove": "Հեռացնել",
+    "testConsoleTitle": "Գործառնական կոնսոլ ինժեներ",
+    "testConsoleDescription": "Տեղային ստուգում, шлюз dry-run և test_runs_v1-ի պահպանություն.",
+    "tcAgeLabel": "Տարիք",
+    "tcTierLabel": "Ծառայության տեսակը",
+    "tcLanguageLabel": "Լեզու",
+    "tcHeroTypeLabel": "Դեմքի տեսակը",
+    "tcHeroAgeLabel": "Գլխավոր հերոսի տարիքը",
+    "tcStoryIdeaLabel": "Ստորի գաղափար",
+    "tcLocationLabel": "Գետկոց",
+    "tcGenreLabel": " janr",
+    "tcLengthLabel": "Երկարությունը",
+    "tcComplexityLabel": "Բարդությունը",
+    "tcCreativityLabel": "Էջարդյունք",
+    "tcFamilyMembersLabel": "Ընտանեկան անդամներ (dad:1,mom:1,grandma:1)",
+    "tcFamilyNamesTitle": "Ընտանեկան անուններ (ըստ ցանկության)",
+    "tcMomNameLabel": "Մայրիկի անունը",
+    "tcDadNameLabel": "Ասիկի անունը",
+    "tcGrandmaNameLabel": "Տատիկի անունը",
+    "tcGrandpaNameLabel": "ՓՓյակի անունը",
+    "tcBrothersNamesTitle": "Ուղղասերների անուններ (ըստ ցանկության)",
+    "tcSistersNamesTitle": "Քույրերի անուններ (ըստ ցանկության)",
+    "tcAddBrotherButton": "Ավելացնել եղբոր",
+    "tcAddSisterButton": "Ավելացնել քույր",
+    "tcBrotherLabel": "Եղբայր",
+    "tcSisterLabel": "Քույր",
+    "tcIndexedName": "{prefix} {index} անուն",
+    "@tcIndexedName": {
+        "placeholders": {
+            "prefix": {
+                "type": "String"
+            },
+            "index": {
+                "type": "int"
+            }
+        }
+    },
+    "tcRemoveTooltip": "Հեռացնել",
+    "tcIllustrationsEnabled": "Նկարագրություններ միացված են",
+    "tcSafeMode": "Ապահով ռեժիմ",
+    "tcDisableScary": "Արգելել վախկոտ բովանդակությունը",
+    "tcRequireParentConfirmation": "Պահանջել ծնողի հաստատում",
+    "tcRunButton": "Կատարել dry-run",
+    "tcRunning": "Աշխատում...",
+    "tcEffectivePolicyHeader": "Արդյունավետ քաղաքականություն: {id}",
+    "@tcEffectivePolicyHeader": {
+        "placeholders": {
+            "id": {
+                "type": "String"
+            }
+        }
+    },
+    "tcTemplatesMatched": "Պատասխանող տեմպլեյթներ: {count}",
+    "@tcTemplatesMatched": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "tcCardEffectivePolicy": "Արդյունավետ քաղաքականություն + ընտրություն",
+    "tcCardComposedPayload": "Սահմանված payload",
+    "tcCardGatewayResponse": "Շնորհի պատասխան",
+    "templatesSearchHint": "Փնտրեք անունով/թեգով/քննարկմամբ",
+    "templatesTypeFilterLabel": "Տեսակ: {value}",
+    "@templatesTypeFilterLabel": {
+        "placeholders": {
+            "value": {
+                "type": "String"
+            }
+        }
+    },
+    "templatesNewTemplate": "Նոր տեմպլեյթ",
+    "templatesColumnActive": "Ակտիվ",
+    "templatesColumnName": "Անուն",
+    "templatesColumnType": "Տեսակ",
+    "templatesColumnTags": "Թեգեր",
+    "templatesColumnScopes": "Հավաքածուներ",
+    "templatesColumnActions": "Գործողություններ",
+    "templatesEditorTitle": "Տեմպլեյթ: {id}",
+    "@templatesEditorTitle": {
+        "placeholders": {
+            "id": {
+                "type": "String"
+            }
+        }
+    },
+    "templatesTemplateTypeLabel": "Տեմպլեյթի տեսակ",
+    "templatesDescriptionLabel": "Նկարագրություն",
+    "templatesTagsLabel": "Թեգեր (կոմա/նոր տող)",
+    "templatesScopesHeader": "Հավաքածուներ",
+    "templatesAddScopeButton": "Ավելացնել հավաքածու",
+    "templatesTemplateBody": "Տեմպլեյթի մարմին",
+    "templatesSystemPromptLabel": "Համակարգային հուշում (ըստ ցանկության)",
+    "templatesInstructionsLabel": "Հրահանգներ",
+    "templatesNegativePromptLabel": "Բացասական հուշում (ըստ ցանկության)",
+    "policyAgeMinLabel": "Նվազ. տարիք",
+    "policyAgeMaxLabel": "Առավ. տարիք",
+    "policyScopeLanguageLabel": "Լեզու",
+    "policyScopeTierLabel": "Սեզոն",
+    "templatesArchiveTitle": "Արկիվացում",
+    "templatesArchiveConfirm": "Ջնջել տեմպլեյթը \"{name}\"? Սա անվերադարձ գործողություն է.",
+    "@templatesArchiveConfirm": {
+        "placeholders": {
+            "name": {
+                "type": "String"
+            }
+        }
+    },
+    "policyEditorTitle": "Խմբագրել քաղաքականությունը: {id}",
+    "@policyEditorTitle": {
+        "placeholders": {
+            "id": {
+                "type": "String"
+            }
+        }
+    },
+    "policyActive": "Ակտիվ",
+    "policyScope": "Սկոպ",
+    "policyContentRules": "Բովանդակության կանոններ",
+    "policySafeModeDefault": "Ամբողջական ռեժիմ ըստ լռության",
+    "policyDisallowViolence": "արգելել բռնությունը",
+    "policyDisallowDrugs": "արգելել թմրանյութերը",
+    "policyDisallowHate": "արգելել ատելությունը",
+    "policyDisallowSexualContent": "արգելել սեռական բովանդակությունը",
+    "policyDisallowReligiousPolitical": "արգելել կրոնական/քաղաքական",
+    "policyParentConfirmationForOlder": "Ծնողական հաստատում մեծերի համար",
+    "policyDisallowScary": "Արգելել վախենալու բովանդակությունը",
+    "policyAllowPersonalNames": "Թույլատրել անձնական անուններ",
+    "policyCustomBannedWords": "Անհրաժեշտ արգելված բառեր (կոմա/նոր տող)",
+    "policyPromptConstraints": "Պռոմտի սահմանափակումներ",
+    "policyMaxTokensHint": "Մաքս տոկենների ենթադրություն",
+    "policyMaxCharsHint": "Մաքս նիշերի ենթադրություն",
+    "policyReadingLevel": "Կարդալու մակարդակը (simple|normal)",
+    "policyEnforceStructure": "Պահանջել կառուցվածք",
+    "policyImageRules": "Նկարի կանոններ",
+    "policyAllowImages": "Թույլատրել նկարներ",
+    "policyAllowedImageStyles": "Թույլատրելի ոճեր (կոմա/նոր տող)",
+    "policyVersionStamp": "Տարբերակ",
+    "commonCancel": "Չեղարկել",
+    "commonDelete": "Ջնջել",
+    "commonReload": "Թարմացնել",
+    "commonEdit": "Խմբագրել"
+}

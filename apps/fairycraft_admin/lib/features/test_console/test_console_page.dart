@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/app_localizations.dart';
+
 import '../../auth/admin_auth_controller.dart';
 import '../../data/models/admin_policy_model.dart';
 import '../../data/models/admin_test_input.dart';
@@ -286,14 +288,24 @@ class _TestConsolePageState extends State<TestConsolePage> {
                       child: TextField(
                         controller: controllers[index],
                         decoration: InputDecoration(
-                          labelText: '$labelPrefix ${index + 1} name',
+                          labelText: AppLocalizations.of(context)!
+                              .tcIndexedName(
+                                labelPrefix == 'brother'
+                                    ? AppLocalizations.of(
+                                        context,
+                                      )!.tcBrotherLabel
+                                    : AppLocalizations.of(
+                                        context,
+                                      )!.tcSisterLabel,
+                                index + 1,
+                              ),
                         ),
                       ),
                     ),
                     IconButton(
                       onPressed: () => onRemove(index),
                       icon: const Icon(Icons.remove_circle_outline),
-                      tooltip: 'Remove',
+                      tooltip: AppLocalizations.of(context)!.tcRemoveTooltip,
                     ),
                   ],
                 ),
@@ -302,7 +314,11 @@ class _TestConsolePageState extends State<TestConsolePage> {
             OutlinedButton.icon(
               onPressed: onAdd,
               icon: const Icon(Icons.add),
-              label: Text('Add $labelPrefix'),
+              label: Text(
+                labelPrefix == 'brother'
+                    ? AppLocalizations.of(context)!.tcAddBrotherButton
+                    : AppLocalizations.of(context)!.tcAddSisterButton,
+              ),
             ),
           ],
         ),
@@ -316,13 +332,11 @@ class _TestConsolePageState extends State<TestConsolePage> {
       padding: const EdgeInsets.all(16),
       children: <Widget>[
         Text(
-          'Agent Test Console',
+          AppLocalizations.of(context)!.testConsoleTitle,
           style: Theme.of(context).textTheme.titleLarge,
         ),
         const SizedBox(height: 8),
-        const Text(
-          'Runs local effective policy resolution, calls gateway dry-run, and stores test_runs_v1.',
-        ),
+        Text(AppLocalizations.of(context)!.testConsoleDescription),
         const SizedBox(height: 12),
         Wrap(
           spacing: 12,
@@ -333,14 +347,18 @@ class _TestConsolePageState extends State<TestConsolePage> {
               child: TextField(
                 controller: _ageController,
                 keyboardType: TextInputType.number,
-                decoration: const InputDecoration(labelText: 'Age'),
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.tcAgeLabel,
+                ),
               ),
             ),
             SizedBox(
               width: 180,
               child: DropdownButtonFormField<String>(
                 initialValue: _tier,
-                decoration: const InputDecoration(labelText: 'Tier'),
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.tcTierLabel,
+                ),
                 items: const <String>['free', 'pro', 'premium']
                     .map(
                       (value) => DropdownMenuItem<String>(
@@ -363,7 +381,9 @@ class _TestConsolePageState extends State<TestConsolePage> {
               width: 180,
               child: DropdownButtonFormField<String>(
                 initialValue: _language,
-                decoration: const InputDecoration(labelText: 'Language'),
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.tcLanguageLabel,
+                ),
                 items: const <String>['en', 'ru', 'hy']
                     .map(
                       (value) => DropdownMenuItem<String>(
@@ -386,7 +406,9 @@ class _TestConsolePageState extends State<TestConsolePage> {
               width: 180,
               child: DropdownButtonFormField<String>(
                 initialValue: _heroType,
-                decoration: const InputDecoration(labelText: 'Hero type'),
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.tcHeroTypeLabel,
+                ),
                 items: const <String>['boy', 'girl', 'dog', 'cat', 'custom']
                     .map(
                       (value) => DropdownMenuItem<String>(
@@ -410,7 +432,9 @@ class _TestConsolePageState extends State<TestConsolePage> {
               child: TextField(
                 controller: _heroAgeController,
                 keyboardType: TextInputType.number,
-                decoration: const InputDecoration(labelText: 'Hero age'),
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.tcHeroAgeLabel,
+                ),
               ),
             ),
           ],
@@ -420,7 +444,9 @@ class _TestConsolePageState extends State<TestConsolePage> {
           controller: _storyIdeaController,
           minLines: 2,
           maxLines: 5,
-          decoration: const InputDecoration(labelText: 'Story idea'),
+          decoration: InputDecoration(
+            labelText: AppLocalizations.of(context)!.tcStoryIdeaLabel,
+          ),
         ),
         const SizedBox(height: 8),
         Wrap(
@@ -431,21 +457,27 @@ class _TestConsolePageState extends State<TestConsolePage> {
               width: 220,
               child: TextField(
                 controller: _locationController,
-                decoration: const InputDecoration(labelText: 'Location'),
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.tcLocationLabel,
+                ),
               ),
             ),
             SizedBox(
               width: 220,
               child: TextField(
                 controller: _genreController,
-                decoration: const InputDecoration(labelText: 'Genre'),
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.tcGenreLabel,
+                ),
               ),
             ),
             SizedBox(
               width: 200,
               child: DropdownButtonFormField<String>(
                 initialValue: _length,
-                decoration: const InputDecoration(labelText: 'Length'),
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.tcLengthLabel,
+                ),
                 items: const <String>['short', 'medium', 'long']
                     .map(
                       (value) => DropdownMenuItem<String>(
@@ -468,7 +500,9 @@ class _TestConsolePageState extends State<TestConsolePage> {
               width: 200,
               child: DropdownButtonFormField<String>(
                 initialValue: _complexity,
-                decoration: const InputDecoration(labelText: 'Complexity'),
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.tcComplexityLabel,
+                ),
                 items: const <String>['simple', 'normal']
                     .map(
                       (value) => DropdownMenuItem<String>(
@@ -491,7 +525,9 @@ class _TestConsolePageState extends State<TestConsolePage> {
               width: 200,
               child: DropdownButtonFormField<String>(
                 initialValue: _creativity,
-                decoration: const InputDecoration(labelText: 'Creativity'),
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.tcCreativityLabel,
+                ),
                 items: const <String>['low', 'normal', 'high']
                     .map(
                       (value) => DropdownMenuItem<String>(
@@ -515,8 +551,8 @@ class _TestConsolePageState extends State<TestConsolePage> {
         const SizedBox(height: 8),
         TextField(
           controller: _familyMembersController,
-          decoration: const InputDecoration(
-            labelText: 'Family members (dad:1,mom:1,grandma:1)',
+          decoration: InputDecoration(
+            labelText: AppLocalizations.of(context)!.tcFamilyMembersLabel,
           ),
         ),
         const SizedBox(height: 8),
@@ -527,7 +563,7 @@ class _TestConsolePageState extends State<TestConsolePage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 Text(
-                  'Family names (optional)',
+                  AppLocalizations.of(context)!.tcFamilyNamesTitle,
                   style: Theme.of(context).textTheme.titleSmall,
                 ),
                 const SizedBox(height: 8),
@@ -539,8 +575,10 @@ class _TestConsolePageState extends State<TestConsolePage> {
                       width: 220,
                       child: TextField(
                         controller: _momNameController,
-                        decoration: const InputDecoration(
-                          labelText: 'Mom name',
+                        decoration: InputDecoration(
+                          labelText: AppLocalizations.of(
+                            context,
+                          )!.tcMomNameLabel,
                         ),
                       ),
                     ),
@@ -548,8 +586,10 @@ class _TestConsolePageState extends State<TestConsolePage> {
                       width: 220,
                       child: TextField(
                         controller: _dadNameController,
-                        decoration: const InputDecoration(
-                          labelText: 'Dad name',
+                        decoration: InputDecoration(
+                          labelText: AppLocalizations.of(
+                            context,
+                          )!.tcDadNameLabel,
                         ),
                       ),
                     ),
@@ -557,8 +597,10 @@ class _TestConsolePageState extends State<TestConsolePage> {
                       width: 220,
                       child: TextField(
                         controller: _grandmaNameController,
-                        decoration: const InputDecoration(
-                          labelText: 'Grandma name',
+                        decoration: InputDecoration(
+                          labelText: AppLocalizations.of(
+                            context,
+                          )!.tcGrandmaNameLabel,
                         ),
                       ),
                     ),
@@ -566,8 +608,10 @@ class _TestConsolePageState extends State<TestConsolePage> {
                       width: 220,
                       child: TextField(
                         controller: _grandpaNameController,
-                        decoration: const InputDecoration(
-                          labelText: 'Grandpa name',
+                        decoration: InputDecoration(
+                          labelText: AppLocalizations.of(
+                            context,
+                          )!.tcGrandpaNameLabel,
                         ),
                       ),
                     ),
@@ -578,14 +622,14 @@ class _TestConsolePageState extends State<TestConsolePage> {
           ),
         ),
         _nameListSection(
-          title: 'Brothers names (optional)',
+          title: AppLocalizations.of(context)!.tcBrothersNamesTitle,
           labelPrefix: 'brother',
           controllers: _brotherNameControllers,
           onAdd: _addBrotherField,
           onRemove: _removeBrotherField,
         ),
         _nameListSection(
-          title: 'Sisters names (optional)',
+          title: AppLocalizations.of(context)!.tcSistersNamesTitle,
           labelPrefix: 'sister',
           controllers: _sisterNameControllers,
           onAdd: _addSisterField,
@@ -598,23 +642,25 @@ class _TestConsolePageState extends State<TestConsolePage> {
           children: <Widget>[
             FilterChip(
               selected: _illustrationsEnabled,
-              label: const Text('Illustrations enabled'),
+              label: Text(AppLocalizations.of(context)!.tcIllustrationsEnabled),
               onSelected: (value) =>
                   setState(() => _illustrationsEnabled = value),
             ),
             FilterChip(
               selected: _safeMode,
-              label: const Text('Safe mode'),
+              label: Text(AppLocalizations.of(context)!.tcSafeMode),
               onSelected: (value) => setState(() => _safeMode = value),
             ),
             FilterChip(
               selected: _disableScary,
-              label: const Text('Disable scary content'),
+              label: Text(AppLocalizations.of(context)!.tcDisableScary),
               onSelected: (value) => setState(() => _disableScary = value),
             ),
             FilterChip(
               selected: _requireParentConfirmationForOlder,
-              label: const Text('Require parent confirmation for older'),
+              label: Text(
+                AppLocalizations.of(context)!.tcRequireParentConfirmation,
+              ),
               onSelected: (value) =>
                   setState(() => _requireParentConfirmationForOlder = value),
             ),
@@ -625,8 +671,8 @@ class _TestConsolePageState extends State<TestConsolePage> {
           onPressed: _running ? null : _run,
           icon: const Icon(Icons.play_arrow),
           label: _running
-              ? const Text('Running...')
-              : const Text('Run dry-run through gateway'),
+              ? Text(AppLocalizations.of(context)!.tcRunning)
+              : Text(AppLocalizations.of(context)!.tcRunButton),
         ),
         if (_running) ...<Widget>[
           const SizedBox(height: 12),
@@ -639,13 +685,19 @@ class _TestConsolePageState extends State<TestConsolePage> {
         if (_effectivePolicy != null) ...<Widget>[
           const SizedBox(height: 16),
           Text(
-            'Effective Policy: ${_effectivePolicy!.id}',
+            AppLocalizations.of(
+              context,
+            )!.tcEffectivePolicyHeader(_effectivePolicy!.id),
             style: Theme.of(context).textTheme.titleMedium,
           ),
-          Text('Templates matched: ${_effectiveTemplates.length}'),
+          Text(
+            AppLocalizations.of(
+              context,
+            )!.tcTemplatesMatched(_effectiveTemplates.length),
+          ),
           const SizedBox(height: 8),
           _jsonCard(
-            title: 'Effective Policy + Template Selection',
+            title: AppLocalizations.of(context)!.tcCardEffectivePolicy,
             body: <String, dynamic>{
               'policy': _effectivePolicy!.toJson(),
               'templateIds': _effectiveTemplates
@@ -656,11 +708,17 @@ class _TestConsolePageState extends State<TestConsolePage> {
         ],
         if (_composedPayload != null) ...<Widget>[
           const SizedBox(height: 12),
-          _jsonCard(title: 'Composed Payload', body: _composedPayload!),
+          _jsonCard(
+            title: AppLocalizations.of(context)!.tcCardComposedPayload,
+            body: _sanitizeForDisplay(_composedPayload!),
+          ),
         ],
         if (_gatewayResponse != null) ...<Widget>[
           const SizedBox(height: 12),
-          _jsonCard(title: 'Gateway Response', body: _gatewayResponse!),
+          _jsonCard(
+            title: AppLocalizations.of(context)!.tcCardGatewayResponse,
+            body: _sanitizeForDisplay(_gatewayResponse!),
+          ),
         ],
       ],
     );
@@ -680,13 +738,41 @@ class _TestConsolePageState extends State<TestConsolePage> {
             const SizedBox(height: 8),
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
-              child: SelectableText(
-                const JsonEncoder.withIndent('  ').convert(body),
-              ),
+              child: SelectableText(JsonEncoder.withIndent('  ').convert(body)),
             ),
           ],
         ),
       ),
     );
+  }
+
+  // Sanitize a payload for display to avoid leaking personal names/PII.
+  // This is intentionally conservative: any top-level keys that commonly
+  // contain names are redacted. The raw payload is still stored in DB/test
+  // runs, but UI surfaces should not show raw names.
+  Map<String, dynamic> _sanitizeForDisplay(Map<String, dynamic> src) {
+    Map<String, dynamic> clone = <String, dynamic>{};
+    src.forEach((k, v) {
+      if (k == 'familyNames' && v is Map<String, dynamic>) {
+        clone[k] = v.map((key, value) => MapEntry(key, 'REDACTED'));
+      } else if ((k == 'brothers' || k == 'sisters') && v is List) {
+        // replace list of names with counts and redacted entries
+        clone[k] = v.map((e) => 'REDACTED').toList(growable: false);
+      } else if (v is Map<String, dynamic>) {
+        clone[k] = _sanitizeForDisplay(v);
+      } else if (v is List) {
+        clone[k] = v
+            .map((item) {
+              if (item is Map<String, dynamic>) {
+                return _sanitizeForDisplay(item);
+              }
+              return item;
+            })
+            .toList(growable: false);
+      } else {
+        clone[k] = v;
+      }
+    });
+    return clone;
   }
 }

@@ -1,0 +1,201 @@
+{
+    "@@locale": "ru",
+    "policiesLanguageFilterLabel": "Язык: {value}",
+    "@policiesLanguageFilterLabel": {
+        "placeholders": {
+            "value": {
+                "type": "String"
+            }
+        }
+    },
+    "policiesTierFilterLabel": "Тариф: {value}",
+    "@policiesTierFilterLabel": {
+        "placeholders": {
+            "value": {
+                "type": "String"
+            }
+        }
+    },
+    "policiesAgeRangeFilter": "Фильтр по возрасту",
+    "policiesNewPolicy": "Новая политика",
+    "commonReload": "Перезагрузить",
+    "policiesBackfillInProgress": "Заполнение...",
+    "policiesBackfillButton": "Заполнить allowPersonalNames",
+    "policiesBackfillSummary": "Готово. Просканировано: {scanned}, обновлено: {updated}, пропущено: {skipped}.",
+    "@policiesBackfillSummary": {
+        "placeholders": {
+            "scanned": {
+                "type": "int"
+            },
+            "updated": {
+                "type": "int"
+            },
+            "skipped": {
+                "type": "int"
+            }
+        }
+    },
+    "policiesDeletePolicyTitle": "Удалить политику",
+    "policiesDeletePolicyConfirm": "Удалить политику \"{id}\"? Это действие необратимо.",
+    "@policiesDeletePolicyConfirm": {
+        "placeholders": {
+            "id": {
+                "type": "String"
+            }
+        }
+    },
+    "commonCancel": "Отмена",
+    "commonDelete": "Удалить",
+    "policiesColumnActive": "Активна",
+    "policiesColumnPolicyId": "ID политики",
+    "policiesColumnScope": "Область",
+    "policiesColumnReadingLevel": "Уровень чтения",
+    "policiesColumnVersionStamp": "Версия",
+    "policiesColumnActions": "Действия",
+    "commonEdit": "Редактировать",
+    "commonSave": "Сохранить",
+    "commonAdd": "Добавить",
+    "commonRemove": "Удалить",
+    "testConsoleTitle": "Тестовая консоль агента",
+    "testConsoleDescription": "Выполняет локальное разрешение эффективной политики, вызывает dry-run шлюза и сохраняет test_runs_v1.",
+    "tcAgeLabel": "Возраст",
+    "tcTierLabel": "Тариф",
+    "tcLanguageLabel": "Язык",
+    "tcHeroTypeLabel": "Тип героя",
+    "tcHeroAgeLabel": "Возраст героя",
+    "tcStoryIdeaLabel": "Идея истории",
+    "tcLocationLabel": "Место",
+    "tcGenreLabel": "Жанр",
+    "tcLengthLabel": "Длина",
+    "tcComplexityLabel": "Сложность",
+    "tcCreativityLabel": "Креативность",
+    "tcFamilyMembersLabel": "Члены семьи (dad:1,mom:1,grandma:1)",
+    "tcFamilyNamesTitle": "Имена семьи (опционально)",
+    "tcMomNameLabel": "Имя мамы",
+    "tcDadNameLabel": "Имя папы",
+    "tcGrandmaNameLabel": "Имя бабушки",
+    "tcGrandpaNameLabel": "Имя дедушки",
+    "tcBrothersNamesTitle": "Имена братьев (опционально)",
+    "tcSistersNamesTitle": "Имена сестер (опционально)",
+    "tcAddBrotherButton": "Добавить брата",
+    "tcAddSisterButton": "Добавить сестру",
+    "tcBrotherLabel": "Брат",
+    "tcSisterLabel": "Сестра",
+    "tcIndexedName": "{prefix} {index} имя",
+    "@tcIndexedName": {
+        "placeholders": {
+            "prefix": {
+                "type": "String"
+            },
+            "index": {
+                "type": "int"
+            }
+        }
+    },
+    "tcRemoveTooltip": "Удалить",
+    "tcIllustrationsEnabled": "Иллюстрации включены",
+    "tcSafeMode": "Режим безопасности",
+    "tcDisableScary": "Отключить страшный контент",
+    "tcRequireParentConfirmation": "Требовать подтверждение родителя для старших",
+    "tcRunButton": "Запустить dry-run через шлюз",
+    "tcRunning": "Запуск...",
+    "tcEffectivePolicyHeader": "Эффективная политика: {id}",
+    "@tcEffectivePolicyHeader": {
+        "placeholders": {
+            "id": {
+                "type": "String"
+            }
+        }
+    },
+    "tcTemplatesMatched": "Совпавшие шаблоны: {count}",
+    "@tcTemplatesMatched": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "tcCardEffectivePolicy": "Эффективная политика + выбор шаблонов",
+    "tcCardComposedPayload": "Составленный payload",
+    "tcCardGatewayResponse": "Ответ шлюза",
+    "templatesSearchHint": "Поиск по имени/тегу/описанию",
+    "templatesTypeFilterLabel": "Тип: {value}",
+    "@templatesTypeFilterLabel": {
+        "placeholders": {
+            "value": {
+                "type": "String"
+            }
+        }
+    },
+    "templatesNewTemplate": "Новый шаблон",
+    "templatesColumnActive": "Активен",
+    "templatesColumnName": "Имя",
+    "templatesColumnType": "Тип",
+    "templatesColumnTags": "Теги",
+    "templatesColumnScopes": "Области",
+    "templatesColumnActions": "Действия",
+    "templatesEditorTitle": "Шаблон: {id}",
+    "@templatesEditorTitle": {
+        "placeholders": {
+            "id": {
+                "type": "String"
+            }
+        }
+    },
+    "templatesTemplateTypeLabel": "Тип шаблона",
+    "templatesDescriptionLabel": "Описание",
+    "templatesTagsLabel": "Теги (запятые/новая строка)",
+    "templatesScopesHeader": "Области",
+    "templatesAddScopeButton": "Добавить область",
+    "templatesTemplateBody": "Тело шаблона",
+    "templatesSystemPromptLabel": "Системная подсказка (опционально)",
+    "templatesInstructionsLabel": "Инструкции",
+    "templatesNegativePromptLabel": "Негативная подсказка (опционально)",
+    "policyAgeMinLabel": "Мин. возраст",
+    "policyAgeMaxLabel": "Макс. возраст",
+    "policyScopeLanguageLabel": "Язык",
+    "policyScopeTierLabel": "Тариф",
+    "templatesArchiveTitle": "Архивировать шаблон",
+    "templatesArchiveConfirm": "Удалить шаблон \"{name}\"? Это действие необратимо.",
+    "@templatesArchiveConfirm": {
+        "placeholders": {
+            "name": {
+                "type": "String"
+            }
+        }
+    },
+    "policyEditorTitle": "Редактировать политику: {id}",
+    "@policyEditorTitle": {
+        "placeholders": {
+            "id": {
+                "type": "String"
+            }
+        }
+    },
+    "policyActive": "Активна",
+    "policyScope": "Область",
+    "policyContentRules": "Правила контента",
+    "policySafeModeDefault": "Режим безопасности по умолчанию",
+    "policyDisallowViolence": "Запретить насилие",
+    "policyDisallowDrugs": "Запретить наркотики",
+    "policyDisallowHate": "Запретить ненависть",
+    "policyDisallowSexualContent": "Запретить сексуальный контент",
+    "policyDisallowReligiousPolitical": "Запретить религиозный/политический",
+    "policyParentConfirmationForOlder": "Подтверждение родителя для старших",
+    "policyDisallowScary": "Запретить страшный контент",
+    "policyAllowPersonalNames": "Разрешить личные имена",
+    "policyCustomBannedWords": "Пользовательские запрещенные слова (запятые/новая строка)",
+    "policyPromptConstraints": "Ограничения подсказки",
+    "policyMaxTokensHint": "Подсказка макс токенов",
+    "policyMaxCharsHint": "Подсказка макс символов",
+    "policyReadingLevel": "Уровень чтения (simple|normal)",
+    "policyEnforceStructure": "Принудить структуру",
+    "policyImageRules": "Правила изображений",
+    "policyAllowImages": "Разрешить изображения",
+    "policyAllowedImageStyles": "Разрешенные стили изображений (запятые/новая строка)",
+    "policyVersionStamp": "Версия",
+    "commonCancel": "Отмена",
+    "commonDelete": "Удалить",
+    "commonReload": "Перезагрузить",
+    "commonEdit": "Редактировать"
+}

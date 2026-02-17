@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
+
+import '../l10n/app_localizations.dart';
 
 import '../auth/admin_auth_controller.dart';
 import 'admin_router.dart';
@@ -23,6 +26,13 @@ class _FairyCraftAdminAppState extends State<FairyCraftAdminApp> {
         colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF01579B)),
         useMaterial3: true,
       ),
+      localizationsDelegates: [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: AppLocalizations.supportedLocales,
       routerConfig: _router,
     );
   }

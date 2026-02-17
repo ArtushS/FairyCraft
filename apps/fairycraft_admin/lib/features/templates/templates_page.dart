@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/app_localizations.dart';
 import '../../data/models/policy_scope.dart';
 import '../../data/models/style_template_model.dart';
 import '../../data/repositories/templates_repository.dart';
@@ -153,9 +154,9 @@ class _TemplatesPageState extends State<TemplatesPage> {
             SizedBox(
               width: 280,
               child: TextField(
-                decoration: const InputDecoration(
-                  labelText: 'Search by name/tag/description',
-                  prefixIcon: Icon(Icons.search),
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.templatesSearchHint,
+                  prefixIcon: const Icon(Icons.search),
                 ),
                 onChanged: (value) {
                   setState(() {
@@ -170,7 +171,11 @@ class _TemplatesPageState extends State<TemplatesPage> {
                   .map(
                     (type) => DropdownMenuItem<String>(
                       value: type,
-                      child: Text('Type: $type'),
+                      child: Text(
+                        AppLocalizations.of(
+                          context,
+                        )!.templatesTypeFilterLabel(type),
+                      ),
                     ),
                   )
                   .toList(growable: false),
@@ -186,12 +191,12 @@ class _TemplatesPageState extends State<TemplatesPage> {
             FilledButton.icon(
               onPressed: _createTemplate,
               icon: const Icon(Icons.add),
-              label: const Text('New Template'),
+              label: Text(AppLocalizations.of(context)!.templatesNewTemplate),
             ),
             OutlinedButton.icon(
               onPressed: _load,
               icon: const Icon(Icons.refresh),
-              label: const Text('Reload'),
+              label: Text(AppLocalizations.of(context)!.commonReload),
             ),
           ],
         ),
@@ -204,13 +209,37 @@ class _TemplatesPageState extends State<TemplatesPage> {
           child: SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: DataTable(
-              columns: const <DataColumn>[
-                DataColumn(label: Text('Active')),
-                DataColumn(label: Text('Name')),
-                DataColumn(label: Text('Type')),
-                DataColumn(label: Text('Tags')),
-                DataColumn(label: Text('Scopes')),
-                DataColumn(label: Text('Actions')),
+              columns: <DataColumn>[
+                DataColumn(
+                  label: Text(
+                    AppLocalizations.of(context)!.templatesColumnActive,
+                  ),
+                ),
+                DataColumn(
+                  label: Text(
+                    AppLocalizations.of(context)!.templatesColumnName,
+                  ),
+                ),
+                DataColumn(
+                  label: Text(
+                    AppLocalizations.of(context)!.templatesColumnType,
+                  ),
+                ),
+                DataColumn(
+                  label: Text(
+                    AppLocalizations.of(context)!.templatesColumnTags,
+                  ),
+                ),
+                DataColumn(
+                  label: Text(
+                    AppLocalizations.of(context)!.templatesColumnScopes,
+                  ),
+                ),
+                DataColumn(
+                  label: Text(
+                    AppLocalizations.of(context)!.templatesColumnActions,
+                  ),
+                ),
               ],
               rows: _filteredTemplates
                   .map(
@@ -235,11 +264,15 @@ class _TemplatesPageState extends State<TemplatesPage> {
                             children: <Widget>[
                               OutlinedButton(
                                 onPressed: () => _editTemplate(template),
-                                child: const Text('Edit'),
+                                child: Text(
+                                  AppLocalizations.of(context)!.commonEdit,
+                                ),
                               ),
                               TextButton(
                                 onPressed: () => _deleteTemplate(template),
-                                child: const Text('Delete'),
+                                child: Text(
+                                  AppLocalizations.of(context)!.commonDelete,
+                                ),
                               ),
                             ],
                           ),
@@ -368,7 +401,9 @@ class _TemplateEditorDialogState extends State<_TemplateEditorDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text('Template: ${widget.template.id}'),
+      title: Text(
+        AppLocalizations.of(context)!.templatesEditorTitle(widget.template.id),
+      ),
       content: SizedBox(
         width: 820,
         child: SingleChildScrollView(
@@ -376,7 +411,9 @@ class _TemplateEditorDialogState extends State<_TemplateEditorDialog> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               SwitchListTile(
-                title: const Text('Active'),
+                title: Text(
+                  AppLocalizations.of(context)!.templatesColumnActive,
+                ),
                 value: _active,
                 onChanged: (value) {
                   setState(() {
@@ -386,7 +423,11 @@ class _TemplateEditorDialogState extends State<_TemplateEditorDialog> {
               ),
               DropdownButtonFormField<String>(
                 initialValue: _type,
-                decoration: const InputDecoration(labelText: 'Template type'),
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(
+                    context,
+                  )!.templatesTemplateTypeLabel,
+                ),
                 items: const <String>['story', 'image']
                     .map(
                       (type) => DropdownMenuItem<String>(
@@ -407,31 +448,42 @@ class _TemplateEditorDialogState extends State<_TemplateEditorDialog> {
               const SizedBox(height: 8),
               TextField(
                 controller: _nameController,
-                decoration: const InputDecoration(labelText: 'Name'),
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.templatesColumnName,
+                ),
               ),
               const SizedBox(height: 8),
               TextField(
                 controller: _descriptionController,
                 minLines: 2,
                 maxLines: 4,
-                decoration: const InputDecoration(labelText: 'Description'),
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(
+                    context,
+                  )!.templatesDescriptionLabel,
+                ),
               ),
               const SizedBox(height: 8),
               TextField(
                 controller: _tagsController,
-                decoration: const InputDecoration(
-                  labelText: 'Tags (comma/newline separated)',
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.templatesTagsLabel,
                 ),
               ),
               const SizedBox(height: 16),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
-                  Text('Scopes', style: Theme.of(context).textTheme.titleSmall),
+                  Text(
+                    AppLocalizations.of(context)!.templatesScopesHeader,
+                    style: Theme.of(context).textTheme.titleSmall,
+                  ),
                   TextButton.icon(
                     onPressed: _addScope,
                     icon: const Icon(Icons.add),
-                    label: const Text('Add scope'),
+                    label: Text(
+                      AppLocalizations.of(context)!.templatesAddScopeButton,
+                    ),
                   ),
                 ],
               ),
@@ -447,7 +499,7 @@ class _TemplateEditorDialogState extends State<_TemplateEditorDialog> {
               ),
               const SizedBox(height: 16),
               Text(
-                'Template Body',
+                AppLocalizations.of(context)!.templatesTemplateBody,
                 style: Theme.of(context).textTheme.titleSmall,
               ),
               const SizedBox(height: 8),
@@ -455,8 +507,10 @@ class _TemplateEditorDialogState extends State<_TemplateEditorDialog> {
                 controller: _systemController,
                 minLines: 2,
                 maxLines: 4,
-                decoration: const InputDecoration(
-                  labelText: 'System prompt (optional)',
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(
+                    context,
+                  )!.templatesSystemPromptLabel,
                 ),
               ),
               const SizedBox(height: 8),
@@ -464,15 +518,21 @@ class _TemplateEditorDialogState extends State<_TemplateEditorDialog> {
                 controller: _instructionsController,
                 minLines: 4,
                 maxLines: 8,
-                decoration: const InputDecoration(labelText: 'Instructions'),
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(
+                    context,
+                  )!.templatesInstructionsLabel,
+                ),
               ),
               const SizedBox(height: 8),
               TextField(
                 controller: _negativeController,
                 minLines: 2,
                 maxLines: 4,
-                decoration: const InputDecoration(
-                  labelText: 'Negative prompt (optional)',
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(
+                    context,
+                  )!.templatesNegativePromptLabel,
                 ),
               ),
             ],
@@ -482,9 +542,12 @@ class _TemplateEditorDialogState extends State<_TemplateEditorDialog> {
       actions: <Widget>[
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
+          child: Text(AppLocalizations.of(context)!.commonCancel),
         ),
-        FilledButton(onPressed: _save, child: const Text('Save')),
+        FilledButton(
+          onPressed: _save,
+          child: Text(AppLocalizations.of(context)!.commonSave),
+        ),
       ],
     );
   }
@@ -562,7 +625,9 @@ class _ScopeRowState extends State<_ScopeRow> {
               child: TextField(
                 controller: _ageMinController,
                 keyboardType: TextInputType.number,
-                decoration: const InputDecoration(labelText: 'Age min'),
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.policyAgeMinLabel,
+                ),
                 onChanged: (_) => _emit(),
               ),
             ),
@@ -571,7 +636,9 @@ class _ScopeRowState extends State<_ScopeRow> {
               child: TextField(
                 controller: _ageMaxController,
                 keyboardType: TextInputType.number,
-                decoration: const InputDecoration(labelText: 'Age max'),
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.policyAgeMaxLabel,
+                ),
                 onChanged: (_) => _emit(),
               ),
             ),
@@ -579,7 +646,11 @@ class _ScopeRowState extends State<_ScopeRow> {
             Expanded(
               child: TextField(
                 controller: _languageController,
-                decoration: const InputDecoration(labelText: 'Language'),
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(
+                    context,
+                  )!.policyScopeLanguageLabel,
+                ),
                 onChanged: (_) => _emit(),
               ),
             ),
@@ -587,7 +658,9 @@ class _ScopeRowState extends State<_ScopeRow> {
             Expanded(
               child: TextField(
                 controller: _tierController,
-                decoration: const InputDecoration(labelText: 'Tier'),
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.policyScopeTierLabel,
+                ),
                 onChanged: (_) => _emit(),
               ),
             ),

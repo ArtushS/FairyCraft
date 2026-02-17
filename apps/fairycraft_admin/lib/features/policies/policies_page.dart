@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/app_localizations.dart';
 import '../../data/models/admin_policy_model.dart';
 import '../../data/models/policy_scope.dart';
 import '../../data/repositories/policies_repository.dart';
@@ -99,22 +100,21 @@ class _PoliciesPageState extends State<PoliciesPage> {
   }
 
   Future<void> _deletePolicy(AdminPolicyModel policy) async {
+    final l10n = AppLocalizations.of(context)!;
     final repository = context.read<PoliciesRepository>();
     final shouldDelete = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Policy'),
-        content: Text(
-          'Delete policy "${policy.id}"? This action cannot be undone.',
-        ),
+        title: Text(l10n.policiesDeletePolicyTitle),
+        content: Text(l10n.policiesDeletePolicyConfirm(policy.id)),
         actions: <Widget>[
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
+            child: Text(l10n.commonCancel),
           ),
           FilledButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Delete'),
+            child: Text(l10n.commonDelete),
           ),
         ],
       ),
@@ -202,7 +202,11 @@ class _PoliciesPageState extends State<PoliciesPage> {
                   .map(
                     (value) => DropdownMenuItem<String>(
                       value: value,
-                      child: Text('Language: $value'),
+                      child: Text(
+                        AppLocalizations.of(
+                          context,
+                        )!.policiesLanguageFilterLabel(value),
+                      ),
                     ),
                   )
                   .toList(growable: false),
@@ -221,7 +225,11 @@ class _PoliciesPageState extends State<PoliciesPage> {
                   .map(
                     (value) => DropdownMenuItem<String>(
                       value: value,
-                      child: Text('Tier: $value'),
+                      child: Text(
+                        AppLocalizations.of(
+                          context,
+                        )!.policiesTierFilterLabel(value),
+                      ),
                     ),
                   )
                   .toList(growable: false),
@@ -234,7 +242,7 @@ class _PoliciesPageState extends State<PoliciesPage> {
                 });
               },
             ),
-            const Text('Age range filter'),
+            Text(AppLocalizations.of(context)!.policiesAgeRangeFilter),
             SizedBox(
               width: 240,
               child: RangeSlider(
@@ -256,12 +264,12 @@ class _PoliciesPageState extends State<PoliciesPage> {
             FilledButton.icon(
               onPressed: _createPolicy,
               icon: const Icon(Icons.add),
-              label: const Text('New Policy'),
+              label: Text(AppLocalizations.of(context)!.policiesNewPolicy),
             ),
             OutlinedButton.icon(
               onPressed: _load,
               icon: const Icon(Icons.refresh),
-              label: const Text('Reload'),
+              label: Text(AppLocalizations.of(context)!.commonReload),
             ),
             FilledButton.tonalIcon(
               onPressed: _backfilling ? null : _backfillAllowPersonalNames,
@@ -273,7 +281,9 @@ class _PoliciesPageState extends State<PoliciesPage> {
                     )
                   : const Icon(Icons.build_circle_outlined),
               label: Text(
-                _backfilling ? 'Backfilling...' : 'Backfill allowPersonalNames',
+                _backfilling
+                    ? AppLocalizations.of(context)!.policiesBackfillInProgress
+                    : AppLocalizations.of(context)!.policiesBackfillButton,
               ),
             ),
           ],
@@ -291,13 +301,37 @@ class _PoliciesPageState extends State<PoliciesPage> {
           child: SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: DataTable(
-              columns: const <DataColumn>[
-                DataColumn(label: Text('Active')),
-                DataColumn(label: Text('Policy ID')),
-                DataColumn(label: Text('Scope')),
-                DataColumn(label: Text('Reading Level')),
-                DataColumn(label: Text('Version Stamp')),
-                DataColumn(label: Text('Actions')),
+              columns: <DataColumn>[
+                DataColumn(
+                  label: Text(
+                    AppLocalizations.of(context)!.policiesColumnActive,
+                  ),
+                ),
+                DataColumn(
+                  label: Text(
+                    AppLocalizations.of(context)!.policiesColumnPolicyId,
+                  ),
+                ),
+                DataColumn(
+                  label: Text(
+                    AppLocalizations.of(context)!.policiesColumnScope,
+                  ),
+                ),
+                DataColumn(
+                  label: Text(
+                    AppLocalizations.of(context)!.policiesColumnReadingLevel,
+                  ),
+                ),
+                DataColumn(
+                  label: Text(
+                    AppLocalizations.of(context)!.policiesColumnVersionStamp,
+                  ),
+                ),
+                DataColumn(
+                  label: Text(
+                    AppLocalizations.of(context)!.policiesColumnActions,
+                  ),
+                ),
               ],
               rows: _filteredPolicies
                   .map(
@@ -319,11 +353,15 @@ class _PoliciesPageState extends State<PoliciesPage> {
                             children: <Widget>[
                               OutlinedButton(
                                 onPressed: () => _editPolicy(policy),
-                                child: const Text('Edit'),
+                                child: Text(
+                                  AppLocalizations.of(context)!.commonEdit,
+                                ),
                               ),
                               TextButton(
                                 onPressed: () => _deletePolicy(policy),
-                                child: const Text('Delete'),
+                                child: Text(
+                                  AppLocalizations.of(context)!.commonDelete,
+                                ),
                               ),
                             ],
                           ),

@@ -1,0 +1,201 @@
+{
+    "@@locale": "en",
+    "policiesLanguageFilterLabel": "Language: {value}",
+    "@policiesLanguageFilterLabel": {
+        "placeholders": {
+            "value": {
+                "type": "String"
+            }
+        }
+    },
+    "policiesTierFilterLabel": "Tier: {value}",
+    "@policiesTierFilterLabel": {
+        "placeholders": {
+            "value": {
+                "type": "String"
+            }
+        }
+    },
+    "policiesAgeRangeFilter": "Age range filter",
+    "policiesNewPolicy": "New Policy",
+    "commonReload": "Reload",
+    "policiesBackfillInProgress": "Backfilling...",
+    "policiesBackfillButton": "Backfill allowPersonalNames",
+    "policiesBackfillSummary": "Backfill completed. Scanned: {scanned}, updated: {updated}, skipped: {skipped}.",
+    "@policiesBackfillSummary": {
+        "placeholders": {
+            "scanned": {
+                "type": "int"
+            },
+            "updated": {
+                "type": "int"
+            },
+            "skipped": {
+                "type": "int"
+            }
+        }
+    },
+    "policiesDeletePolicyTitle": "Delete Policy",
+    "policiesDeletePolicyConfirm": "Delete policy \"{id}\"? This action cannot be undone.",
+    "@policiesDeletePolicyConfirm": {
+        "placeholders": {
+            "id": {
+                "type": "String"
+            }
+        }
+    },
+    "commonCancel": "Cancel",
+    "commonDelete": "Delete",
+    "policiesColumnActive": "Active",
+    "policiesColumnPolicyId": "Policy ID",
+    "policiesColumnScope": "Scope",
+    "policiesColumnReadingLevel": "Reading Level",
+    "policiesColumnVersionStamp": "Version Stamp",
+    "policiesColumnActions": "Actions",
+    "commonEdit": "Edit",
+    "commonSave": "Save",
+    "commonAdd": "Add",
+    "commonRemove": "Remove",
+    "testConsoleTitle": "Agent Test Console",
+    "testConsoleDescription": "Runs local effective policy resolution, calls gateway dry-run, and stores test_runs_v1.",
+    "tcAgeLabel": "Age",
+    "tcTierLabel": "Tier",
+    "tcLanguageLabel": "Language",
+    "tcHeroTypeLabel": "Hero type",
+    "tcHeroAgeLabel": "Hero age",
+    "tcStoryIdeaLabel": "Story idea",
+    "tcLocationLabel": "Location",
+    "tcGenreLabel": "Genre",
+    "tcLengthLabel": "Length",
+    "tcComplexityLabel": "Complexity",
+    "tcCreativityLabel": "Creativity",
+    "tcFamilyMembersLabel": "Family members (dad:1,mom:1,grandma:1)",
+    "tcFamilyNamesTitle": "Family names (optional)",
+    "tcMomNameLabel": "Mom name",
+    "tcDadNameLabel": "Dad name",
+    "tcGrandmaNameLabel": "Grandma name",
+    "tcGrandpaNameLabel": "Grandpa name",
+    "tcBrothersNamesTitle": "Brothers names (optional)",
+    "tcSistersNamesTitle": "Sisters names (optional)",
+    "tcAddBrotherButton": "Add brother",
+    "tcAddSisterButton": "Add sister",
+    "tcBrotherLabel": "Brother",
+    "tcSisterLabel": "Sister",
+    "tcIndexedName": "{prefix} {index} name",
+    "@tcIndexedName": {
+        "placeholders": {
+            "prefix": {
+                "type": "String"
+            },
+            "index": {
+                "type": "int"
+            }
+        }
+    },
+    "tcRemoveTooltip": "Remove",
+    "tcIllustrationsEnabled": "Illustrations enabled",
+    "tcSafeMode": "Safe mode",
+    "tcDisableScary": "Disable scary content",
+    "tcRequireParentConfirmation": "Require parent confirmation for older",
+    "tcRunButton": "Run dry-run through gateway",
+    "tcRunning": "Running...",
+    "tcEffectivePolicyHeader": "Effective Policy: {id}",
+    "@tcEffectivePolicyHeader": {
+        "placeholders": {
+            "id": {
+                "type": "String"
+            }
+        }
+    },
+    "tcTemplatesMatched": "Templates matched: {count}",
+    "@tcTemplatesMatched": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "tcCardEffectivePolicy": "Effective Policy + Template Selection",
+    "tcCardComposedPayload": "Composed Payload",
+    "tcCardGatewayResponse": "Gateway Response",
+    "templatesSearchHint": "Search by name/tag/description",
+    "templatesTypeFilterLabel": "Type: {value}",
+    "@templatesTypeFilterLabel": {
+        "placeholders": {
+            "value": {
+                "type": "String"
+            }
+        }
+    },
+    "templatesNewTemplate": "New Template",
+    "templatesColumnActive": "Active",
+    "templatesColumnName": "Name",
+    "templatesColumnType": "Type",
+    "templatesColumnTags": "Tags",
+    "templatesColumnScopes": "Scopes",
+    "templatesColumnActions": "Actions",
+    "templatesEditorTitle": "Template: {id}",
+    "@templatesEditorTitle": {
+        "placeholders": {
+            "id": {
+                "type": "String"
+            }
+        }
+    },
+    "templatesTemplateTypeLabel": "Template type",
+    "templatesDescriptionLabel": "Description",
+    "templatesTagsLabel": "Tags (comma/newline separated)",
+    "templatesScopesHeader": "Scopes",
+    "templatesAddScopeButton": "Add scope",
+    "templatesTemplateBody": "Template Body",
+    "templatesSystemPromptLabel": "System prompt (optional)",
+    "templatesInstructionsLabel": "Instructions",
+    "templatesNegativePromptLabel": "Negative prompt (optional)",
+    "policyAgeMinLabel": "Age min",
+    "policyAgeMaxLabel": "Age max",
+    "policyScopeLanguageLabel": "Language",
+    "policyScopeTierLabel": "Tier",
+    "templatesArchiveTitle": "Archive Template",
+    "templatesArchiveConfirm": "Delete template \"{name}\"? This action cannot be undone.",
+    "@templatesArchiveConfirm": {
+        "placeholders": {
+            "name": {
+                "type": "String"
+            }
+        }
+    },
+    "policyEditorTitle": "Edit Policy: {id}",
+    "@policyEditorTitle": {
+        "placeholders": {
+            "id": {
+                "type": "String"
+            }
+        }
+    },
+    "policyActive": "Active",
+    "policyScope": "Scope",
+    "policyContentRules": "Content Rules",
+    "policySafeModeDefault": "Safe mode default",
+    "policyDisallowViolence": "Disallow violence",
+    "policyDisallowDrugs": "Disallow drugs",
+    "policyDisallowHate": "Disallow hate",
+    "policyDisallowSexualContent": "Disallow sexual content",
+    "policyDisallowReligiousPolitical": "Disallow religious/political",
+    "policyParentConfirmationForOlder": "Parent confirmation for older",
+    "policyDisallowScary": "Disallow scary content",
+    "policyAllowPersonalNames": "Allow personal names",
+    "policyCustomBannedWords": "Custom banned words (comma/newline separated)",
+    "policyPromptConstraints": "Prompt Constraints",
+    "policyMaxTokensHint": "Max tokens hint",
+    "policyMaxCharsHint": "Max chars hint",
+    "policyReadingLevel": "Reading level (simple|normal)",
+    "policyEnforceStructure": "Enforce structure",
+    "policyImageRules": "Image Rules",
+    "policyAllowImages": "Allow images",
+    "policyAllowedImageStyles": "Allowed image styles (comma/newline separated)",
+    "policyVersionStamp": "Version stamp",
+    "commonCancel": "Cancel",
+    "commonDelete": "Delete",
+    "commonReload": "Reload",
+    "commonEdit": "Edit"
+}
