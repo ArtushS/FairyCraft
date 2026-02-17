@@ -2,9 +2,20 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../models/admin_policy_model.dart';
 
+class PolicyBackfillSummary {
+  const PolicyBackfillSummary({
+    required this.scanned,
+    required this.updated,
+    required this.skipped,
+  });
+
+  final int scanned;
+  final int updated;
+  final int skipped;
+}
+
 class PoliciesRepository {
-  PoliciesRepository({FirebaseFirestore? firestore})
-      : _firestore = firestore;
+  PoliciesRepository({FirebaseFirestore? firestore}) : _firestore = firestore;
 
   final FirebaseFirestore? _firestore;
   final Map<String, AdminPolicyModel> _local = <String, AdminPolicyModel>{};
@@ -27,9 +38,9 @@ class PoliciesRepository {
 
     final snapshot = await _firestore.collection('policies_v1').get();
     if (snapshot.docs.isEmpty) {
-      final seed = AdminPolicyModel.fallback(id: 'default_policy').copyWith(
-        updatedAt: DateTime.now().toUtc(),
-      );
+      final seed = AdminPolicyModel.fallback(
+        id: 'default_policy',
+      ).copyWith(updatedAt: DateTime.now().toUtc());
       await save(seed);
       return <AdminPolicyModel>[seed];
     }
@@ -48,10 +59,10 @@ class PoliciesRepository {
       return;
     }
 
-    await _firestore.collection('policies_v1').doc(prepared.id).set(
-          prepared.toJson(),
-          SetOptions(merge: true),
-        );
+    await _firestore
+        .collection('policies_v1')
+        .doc(prepared.id)
+        .set(prepared.toJson(), SetOptions(merge: true));
   }
 
   Future<void> delete(String id) async {
@@ -60,6 +71,57 @@ class PoliciesRepository {
       return;
     }
     await _firestore.collection('policies_v1').doc(id).delete();
+  }
+
+  Future<PolicyBackfillSummary> backfillAllowPersonalNames() async {
+    if (_firestore == null) {
+      if (_local.isEmpty) {
+        await fetchAll();
+      }
+      final scanned = _local.length;
+      return PolicyBackfillSummary(
+        scanned: scanned,
+        updated: 0,
+        skipped: scanned,
+      );
+    }
+
+    final snapshot = await _firestore.collection('policies_v1').get();
+    var scanned = 0;
+    var updated = 0;
+    var skipped = 0;
+    final batch = _firestore.batch();
+
+    for (final doc in snapshot.docs) {
+      scanned++;
+      final data = doc.data();
+      final contentRulesDynamic = data['contentRules'];
+      final contentRules = contentRulesDynamic is Map<String, dynamic>
+          ? contentRulesDynamic
+          : contentRulesDynamic is Map
+          ? Map<String, dynamic>.from(contentRulesDynamic)
+          : <String, dynamic>{};
+      if (contentRules.containsKey('allowPersonalNames')) {
+        skipped++;
+        continue;
+      }
+
+      updated++;
+      batch.set(doc.reference, <String, dynamic>{
+        'contentRules': <String, dynamic>{'allowPersonalNames': true},
+        'updatedAt': DateTime.now().toUtc().toIso8601String(),
+      }, SetOptions(merge: true));
+    }
+
+    if (updated > 0) {
+      await batch.commit();
+    }
+
+    return PolicyBackfillSummary(
+      scanned: scanned,
+      updated: updated,
+      skipped: skipped,
+    );
   }
 
   List<AdminPolicyModel> _sorted(List<AdminPolicyModel> values) {

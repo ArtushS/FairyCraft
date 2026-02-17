@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../config/app_environment.dart';
 import '../../data/models/admin_policy_model.dart';
 import '../../data/models/policy_scope.dart';
 import '../../data/repositories/policies_repository.dart';
@@ -14,7 +15,9 @@ class PoliciesPage extends StatefulWidget {
 
 class _PoliciesPageState extends State<PoliciesPage> {
   bool _loading = true;
+  bool _backfilling = false;
   String? _error;
+  String? _maintenanceMessage;
   List<AdminPolicyModel> _policies = <AdminPolicyModel>[];
   String _languageFilter = '*';
   String _tierFilter = '*';
@@ -129,6 +132,41 @@ class _PoliciesPageState extends State<PoliciesPage> {
     await _load();
   }
 
+  Future<void> _backfillAllowPersonalNames() async {
+    setState(() {
+      _backfilling = true;
+      _maintenanceMessage = null;
+    });
+
+    try {
+      final summary = await context
+          .read<PoliciesRepository>()
+          .backfillAllowPersonalNames();
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _maintenanceMessage =
+            'Backfill completed. Scanned: ${summary.scanned}, '
+            'updated: ${summary.updated}, skipped: ${summary.skipped}.';
+      });
+      await _load();
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _maintenanceMessage = 'Backfill failed: $error';
+      });
+    } finally {
+      if (mounted) {
+        setState(() {
+          _backfilling = false;
+        });
+      }
+    }
+  }
+
   List<AdminPolicyModel> get _filteredPolicies {
     return _policies
         .where((policy) {
@@ -147,6 +185,8 @@ class _PoliciesPageState extends State<PoliciesPage> {
 
   @override
   Widget build(BuildContext context) {
+    final isDev = context.watch<AppEnvironment>().isDevelopment;
+
     if (_loading) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -226,11 +266,31 @@ class _PoliciesPageState extends State<PoliciesPage> {
               icon: const Icon(Icons.refresh),
               label: const Text('Reload'),
             ),
+            if (isDev)
+              FilledButton.tonalIcon(
+                onPressed: _backfilling ? null : _backfillAllowPersonalNames,
+                icon: _backfilling
+                    ? const SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.build_circle_outlined),
+                label: Text(
+                  _backfilling
+                      ? 'Backfilling...'
+                      : 'Backfill allowPersonalNames',
+                ),
+              ),
           ],
         ),
         if (_error != null) ...<Widget>[
           const SizedBox(height: 12),
           Text(_error!, style: const TextStyle(color: Colors.red)),
+        ],
+        if (_maintenanceMessage != null) ...<Widget>[
+          const SizedBox(height: 12),
+          Text(_maintenanceMessage!),
         ],
         const SizedBox(height: 16),
         Card(
