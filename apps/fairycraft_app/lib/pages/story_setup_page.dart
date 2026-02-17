@@ -66,11 +66,26 @@ class _StorySetupPageState extends State<StorySetupPage> {
     final repository = context.read<SharedPreferencesStoryRepository>();
 
     try {
+      final familyMembers = prefs.familyMode
+          ? prefs.familyMemberCounts
+          : const <String, int>{};
+      final familyNames = prefs.familyMode
+          ? prefs.nonEmptyFamilyNames
+          : const <String, String>{};
+      final brothers = prefs.familyMode
+          ? prefs.nonEmptyBrothersNames
+          : const <String>[];
+      final sisters = prefs.familyMode
+          ? prefs.nonEmptySistersNames
+          : const <String>[];
+
       final story = await storyService.generateStory(
         storyLang: settings.defaultLanguageCode,
+        age: prefs.targetAge,
         ageGroup: prefs.ageGroupCode,
         storyLength: prefs.storyLengthCode,
-        creativityLevel: prefs.creativity,
+        complexity: _mapComplexity(prefs.storyComplexity),
+        creativity: _mapCreativity(prefs.creativity),
         hero: prefs.heroName.isNotEmpty
             ? prefs.heroName
             : _labelFromFile(_selectedHeroFile),
@@ -79,6 +94,17 @@ class _StorySetupPageState extends State<StorySetupPage> {
         idea: _ideaController.text.trim().isEmpty
             ? null
             : _ideaController.text.trim(),
+        familyMembers: familyMembers.isEmpty ? null : familyMembers,
+        familyNames: familyNames.isEmpty ? null : familyNames,
+        brothers: brothers.isEmpty ? null : brothers,
+        sisters: sisters.isEmpty ? null : sisters,
+        parentalControls: <String, bool>{
+          'safeMode': settings.safeMode,
+          'disableScaryContent': settings.disableScaryContent,
+          'requireParentConfirmationForOlder':
+              settings.requireParentConfirmationForOlder,
+        },
+        illustrationsEnabled: prefs.autoIllustrations,
         imageEnabled: prefs.autoIllustrations,
       );
 
@@ -189,6 +215,26 @@ class _StorySetupPageState extends State<StorySetupPage> {
 
   String _labelFromFile(String file) {
     return file.replaceAll('.png', '').replaceAll('_', ' ').trim();
+  }
+
+  String _mapComplexity(StoryComplexityPreference value) {
+    switch (value) {
+      case StoryComplexityPreference.simple:
+        return 'simple';
+      case StoryComplexityPreference.medium:
+      case StoryComplexityPreference.complex:
+        return 'normal';
+    }
+  }
+
+  String _mapCreativity(double value) {
+    if (value <= 0.33) {
+      return 'low';
+    }
+    if (value >= 0.67) {
+      return 'high';
+    }
+    return 'normal';
   }
 
   String _friendlyError(String raw, AppLocalizations l10n) {

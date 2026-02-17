@@ -1,4 +1,4 @@
-﻿import 'dart:convert';
+import 'dart:convert';
 
 class StoryChoice {
   StoryChoice({required this.id, required this.label});
@@ -6,10 +6,7 @@ class StoryChoice {
   final String id;
   final String label;
 
-  Map<String, dynamic> toJson() => {
-    'id': id,
-    'label': label,
-  };
+  Map<String, dynamic> toJson() => {'id': id, 'label': label};
 
   static StoryChoice fromJson(Map<String, dynamic> json) {
     return StoryChoice(
@@ -96,7 +93,9 @@ class StoryRecord {
     'storyId': storyId,
     'storyLang': storyLang,
     'title': title,
-    'chapters': chapters.map((chapter) => chapter.toJson()).toList(growable: false),
+    'chapters': chapters
+        .map((chapter) => chapter.toJson())
+        .toList(growable: false),
     'createdAt': createdAt.toIso8601String(),
     'lastImagePrompt': lastImagePrompt,
   };
@@ -119,7 +118,9 @@ class StoryRecord {
       storyLang: json['storyLang'] as String? ?? 'en',
       title: json['title'] as String? ?? 'FairyCraft Story',
       chapters: chapters,
-      createdAt: DateTime.tryParse(json['createdAt'] as String? ?? '') ?? DateTime.now(),
+      createdAt:
+          DateTime.tryParse(json['createdAt'] as String? ?? '') ??
+          DateTime.now(),
       lastImagePrompt: json['lastImagePrompt'] as String?,
     );
   }
@@ -130,13 +131,22 @@ class StoryRequestPayload {
     required this.action,
     required this.storyLang,
     this.storyId,
+    this.age,
     this.ageGroup,
     this.storyLength,
     this.creativityLevel,
+    this.complexity,
+    this.creativity,
     this.hero,
     this.location,
     this.storyType,
     this.idea,
+    this.familyMembers,
+    this.familyNames,
+    this.brothers,
+    this.sisters,
+    this.parentalControls,
+    this.illustrationsEnabled,
     this.choiceId,
     this.imageEnabled = false,
     this.prompt,
@@ -145,26 +155,43 @@ class StoryRequestPayload {
   final String action;
   final String storyLang;
   final String? storyId;
+  final int? age;
   final String? ageGroup;
   final String? storyLength;
   final double? creativityLevel;
+  final String? complexity;
+  final String? creativity;
   final String? hero;
   final String? location;
   final String? storyType;
   final String? idea;
+  final Map<String, int>? familyMembers;
+  final Map<String, String>? familyNames;
+  final List<String>? brothers;
+  final List<String>? sisters;
+  final Map<String, bool>? parentalControls;
+  final bool? illustrationsEnabled;
   final String? choiceId;
   final bool imageEnabled;
   final String? prompt;
 
   Map<String, dynamic> toJson(String requestId) {
+    final normalizedFamilyNames = _normalizedFamilyNames(familyNames);
+    final normalizedBrothers = _normalizedNamesList(brothers);
+    final normalizedSisters = _normalizedNamesList(sisters);
+    final normalizedFamilyMembers = _normalizedFamilyMembers(familyMembers);
+
     return {
       'requestId': requestId,
       'action': action,
       'storyLang': storyLang,
       'language': storyLang,
+      if (age != null) 'age': age,
       if (ageGroup != null) 'ageGroup': ageGroup,
       if (storyLength != null) 'storyLength': storyLength,
       if (creativityLevel != null) 'creativityLevel': creativityLevel,
+      if (complexity != null) 'complexity': complexity,
+      if (creativity != null) 'creativity': creativity,
       if (hero != null || location != null || storyType != null || idea != null)
         'selection': {
           if (hero != null) 'hero': hero,
@@ -172,16 +199,70 @@ class StoryRequestPayload {
           if (storyType != null) 'storyType': storyType,
           if (idea != null) 'idea': idea,
         },
-      if (storyId != null) 'storyId': storyId,
-      if (choiceId != null)
-        'choice': {
-          'id': choiceId,
+      if (normalizedFamilyMembers.isNotEmpty)
+        'familyMembers': normalizedFamilyMembers,
+      if (normalizedFamilyNames.isNotEmpty)
+        'familyNames': normalizedFamilyNames,
+      if (normalizedBrothers.isNotEmpty) 'brothers': normalizedBrothers,
+      if (normalizedSisters.isNotEmpty) 'sisters': normalizedSisters,
+      if (parentalControls != null)
+        'parentalControls': {
+          if (parentalControls!['safeMode'] != null)
+            'safeMode': parentalControls!['safeMode'],
+          if (parentalControls!['disableScaryContent'] != null)
+            'disableScaryContent': parentalControls!['disableScaryContent'],
+          if (parentalControls!['requireParentConfirmationForOlder'] != null)
+            'requireParentConfirmationForOlder':
+                parentalControls!['requireParentConfirmationForOlder'],
         },
+      if (storyId != null) 'storyId': storyId,
+      if (choiceId != null) 'choice': {'id': choiceId},
       if (prompt != null) 'prompt': prompt,
-      'image': {
-        'enabled': imageEnabled,
-      },
+      if (illustrationsEnabled != null)
+        'illustrationsEnabled': illustrationsEnabled,
+      'image': {'enabled': imageEnabled},
     };
+  }
+
+  static List<String> _normalizedNamesList(List<String>? values) {
+    if (values == null) {
+      return const <String>[];
+    }
+    return values
+        .map((item) => item.trim())
+        .where((item) => item.isNotEmpty)
+        .toList(growable: false);
+  }
+
+  static Map<String, String> _normalizedFamilyNames(
+    Map<String, String>? values,
+  ) {
+    if (values == null) {
+      return const <String, String>{};
+    }
+    final result = <String, String>{};
+    values.forEach((key, value) {
+      final normalizedKey = key.trim();
+      final normalizedValue = value.trim();
+      if (normalizedKey.isNotEmpty && normalizedValue.isNotEmpty) {
+        result[normalizedKey] = normalizedValue;
+      }
+    });
+    return result;
+  }
+
+  static Map<String, int> _normalizedFamilyMembers(Map<String, int>? values) {
+    if (values == null) {
+      return const <String, int>{};
+    }
+    final result = <String, int>{};
+    values.forEach((key, value) {
+      final normalizedKey = key.trim();
+      if (normalizedKey.isNotEmpty && value > 0) {
+        result[normalizedKey] = value;
+      }
+    });
+    return result;
   }
 }
 
@@ -216,7 +297,9 @@ class StoryResponsePayload {
     if (dynamicChapter is Map<String, dynamic>) {
       chapter = StoryChapter.fromJson(dynamicChapter);
     } else if (dynamicChapter is Map) {
-      chapter = StoryChapter.fromJson(Map<String, dynamic>.from(dynamicChapter));
+      chapter = StoryChapter.fromJson(
+        Map<String, dynamic>.from(dynamicChapter),
+      );
     }
 
     List<StoryChapter>? chapters;
@@ -256,7 +339,9 @@ class StoryResponsePayload {
 }
 
 String storyRecordsToJson(List<StoryRecord> records) {
-  return jsonEncode(records.map((record) => record.toJson()).toList(growable: false));
+  return jsonEncode(
+    records.map((record) => record.toJson()).toList(growable: false),
+  );
 }
 
 List<StoryRecord> storyRecordsFromJson(String raw) {

@@ -11,6 +11,8 @@ import '../../../settings/settings_controller.dart';
 import '../../../shared/ui/fairycraft_theme.dart';
 import 'settings_strings.dart';
 
+const _flavor = String.fromEnvironment('FLAVOR', defaultValue: 'dev');
+
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
 
@@ -218,6 +220,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final settings = context.watch<SettingsController>();
     final ttsController = context.watch<TtsController>();
     final strings = SettingsStrings.of(context);
+    final showDebugSection = _flavor.trim().toLowerCase() == 'dev';
     final narrationEnabled = settings.narrationEnabled;
     final selectedVoiceLabel = settings.preferredVoiceId == null
         ? strings.systemDefaultLabel
@@ -248,7 +251,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         child: ListView(
           padding: FairyCraftSpacing.page,
           children: <Widget>[
-            _SectionHeader(label: strings.generalAccessibilityHeader),
+            const _SectionHeader(label: 'Appearance'),
             Card(
               child: SwitchListTile(
                 contentPadding: const EdgeInsets.symmetric(horizontal: 12),
@@ -259,7 +262,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             ),
             const SizedBox(height: FairyCraftSpacing.section),
-            _SectionHeader(label: strings.languageHeader),
+            const _SectionHeader(label: 'Language'),
             Card(
               child: Column(
                 children: <Widget>[
@@ -312,7 +315,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             ),
             const SizedBox(height: FairyCraftSpacing.section),
-            _SectionHeader(label: strings.audioHeader),
+            const _SectionHeader(label: 'Audio'),
             Card(
               child: Column(
                 children: <Widget>[
@@ -321,6 +324,29 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     title: Text(strings.voiceNarrationTitle),
                     value: narrationEnabled,
                     onChanged: settings.setNarrationEnabled,
+                  ),
+                  const Divider(height: 1),
+                  SwitchListTile(
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+                    title: const Text('Autoplay narration'),
+                    value: settings.narrationAutoplayEnabled,
+                    onChanged: narrationEnabled
+                        ? settings.setNarrationAutoplayEnabled
+                        : null,
+                  ),
+                  const Divider(height: 1),
+                  SwitchListTile(
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+                    title: const Text('Music'),
+                    value: settings.musicEnabled,
+                    onChanged: settings.setMusicEnabled,
+                  ),
+                  const Divider(height: 1),
+                  SwitchListTile(
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+                    title: const Text('Sound effects'),
+                    value: settings.soundEffectsEnabled,
+                    onChanged: settings.setSoundEffectsEnabled,
                   ),
                   const Divider(height: 1),
                   _DropdownSetting(
@@ -438,6 +464,48 @@ class _SettingsScreenState extends State<SettingsScreen> {
               onPressed: narrationEnabled ? _testVoice : null,
               child: Text(strings.testVoiceButton),
             ),
+            const SizedBox(height: FairyCraftSpacing.section),
+            const _SectionHeader(label: 'Parental control'),
+            Card(
+              child: Column(
+                children: <Widget>[
+                  SwitchListTile(
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+                    title: const Text('Safe mode'),
+                    value: settings.safeMode,
+                    onChanged: settings.setSafeMode,
+                  ),
+                  const Divider(height: 1),
+                  SwitchListTile(
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+                    title: const Text('Disable scary content'),
+                    value: settings.disableScaryContent,
+                    onChanged: settings.setDisableScaryContent,
+                  ),
+                  const Divider(height: 1),
+                  SwitchListTile(
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+                    title: const Text('Require parent confirmation for older'),
+                    value: settings.requireParentConfirmationForOlder,
+                    onChanged: settings.setRequireParentConfirmationForOlder,
+                  ),
+                ],
+              ),
+            ),
+            if (showDebugSection) ...<Widget>[
+              const SizedBox(height: FairyCraftSpacing.section),
+              const _SectionHeader(label: 'Debug'),
+              Card(
+                child: ListTile(
+                  title: const Text('Firebase sanity check'),
+                  subtitle: const Text(
+                    'Inspect Firebase bootstrap, App Check and auth wiring.',
+                  ),
+                  trailing: const Icon(Icons.chevron_right_rounded),
+                  onTap: () => context.pushNamed(AppRouteName.debugFirebase),
+                ),
+              ),
+            ],
             if (ttsController.statusLabel.isNotEmpty) ...<Widget>[
               const SizedBox(height: FairyCraftSpacing.element),
               Text(

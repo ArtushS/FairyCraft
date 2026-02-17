@@ -9,6 +9,10 @@ class SettingsLocalDataSource {
   static const String keyReduceMotion = 'settings_reduce_motion';
   static const String keyLocale = 'settings_locale';
   static const String keyVoiceEnabled = 'settings_voice_enabled';
+  static const String keyNarrationAutoplayEnabled =
+      'settings_narration_autoplay_enabled';
+  static const String keyMusicEnabled = 'settings_music_enabled';
+  static const String keySoundEffectsEnabled = 'settings_sound_effects_enabled';
   static const String keyVoiceId = 'settings_voice_id';
   static const String keyVolume = 'settings_volume';
   static const String keySpeed = 'settings_speed';
@@ -17,6 +21,10 @@ class SettingsLocalDataSource {
   static const String keyTtsPreferredGender = 'settings_tts_preferred_gender';
   static const String keyTtsQualityPreset = 'settings_tts_quality_preset';
   static const String keyVoiceInputLanguage = 'settings_stt_voice_language';
+  static const String keySafeMode = 'settings_safe_mode';
+  static const String keyDisableScaryContent = 'settings_disable_scary_content';
+  static const String keyRequireParentConfirmationForOlder =
+      'settings_require_parent_confirmation_for_older';
 
   static const String _legacyThemeModeKey = 'themeMode';
   static const String _legacyFontScaleKey = 'fontScale';
@@ -34,6 +42,15 @@ class SettingsLocalDataSource {
       narrationEnabled:
           _prefs.getBool(keyVoiceEnabled) ??
           SettingsModel.defaults.narrationEnabled,
+      narrationAutoplayEnabled:
+          _prefs.getBool(keyNarrationAutoplayEnabled) ??
+          SettingsModel.defaults.narrationAutoplayEnabled,
+      musicEnabled:
+          _prefs.getBool(keyMusicEnabled) ??
+          SettingsModel.defaults.musicEnabled,
+      soundEffectsEnabled:
+          _prefs.getBool(keySoundEffectsEnabled) ??
+          SettingsModel.defaults.soundEffectsEnabled,
       voiceInputLanguageCode: _normalizedVoiceInputLanguage(
         _prefs.getString(keyVoiceInputLanguage),
       ),
@@ -56,6 +73,13 @@ class SettingsLocalDataSource {
       ttsOutputQualityPreset: _normalizedQualityPreset(
         _prefs.getString(keyTtsQualityPreset),
       ),
+      safeMode: _prefs.getBool(keySafeMode) ?? SettingsModel.defaults.safeMode,
+      disableScaryContent:
+          _prefs.getBool(keyDisableScaryContent) ??
+          SettingsModel.defaults.disableScaryContent,
+      requireParentConfirmationForOlder:
+          _prefs.getBool(keyRequireParentConfirmationForOlder) ??
+          SettingsModel.defaults.requireParentConfirmationForOlder,
     );
   }
 
@@ -67,6 +91,15 @@ class SettingsLocalDataSource {
 
   Future<void> writeNarrationEnabled(bool value) =>
       _prefs.setBool(keyVoiceEnabled, value);
+
+  Future<void> writeNarrationAutoplayEnabled(bool value) =>
+      _prefs.setBool(keyNarrationAutoplayEnabled, value);
+
+  Future<void> writeMusicEnabled(bool value) =>
+      _prefs.setBool(keyMusicEnabled, value);
+
+  Future<void> writeSoundEffectsEnabled(bool value) =>
+      _prefs.setBool(keySoundEffectsEnabled, value);
 
   Future<void> writeVoiceInputLanguageCode(String value) => _prefs.setString(
     keyVoiceInputLanguage,
@@ -100,6 +133,14 @@ class SettingsLocalDataSource {
 
   Future<void> writeTtsOutputQualityPreset(String value) =>
       _prefs.setString(keyTtsQualityPreset, _normalizedQualityPreset(value));
+
+  Future<void> writeSafeMode(bool value) => _prefs.setBool(keySafeMode, value);
+
+  Future<void> writeDisableScaryContent(bool value) =>
+      _prefs.setBool(keyDisableScaryContent, value);
+
+  Future<void> writeRequireParentConfirmationForOlder(bool value) =>
+      _prefs.setBool(keyRequireParentConfirmationForOlder, value);
 
   ThemeModePreference readThemeModePreference() {
     final raw =

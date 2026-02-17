@@ -34,6 +34,9 @@ class SettingsController extends ChangeNotifier {
 
   bool get narrationEnabled => _settings.narrationEnabled;
   bool get voiceNarrationEnabled => _settings.narrationEnabled;
+  bool get narrationAutoplayEnabled => _settings.narrationAutoplayEnabled;
+  bool get musicEnabled => _settings.musicEnabled;
+  bool get soundEffectsEnabled => _settings.soundEffectsEnabled;
   String get voiceInputLanguageCode => _settings.voiceInputLanguageCode;
   String get ttsLanguageMode => _settings.ttsLanguageMode;
   String get preferredGender => _settings.preferredGender;
@@ -46,6 +49,10 @@ class SettingsController extends ChangeNotifier {
   double get ttsIntensity => _settings.ttsIntensity;
   double get intensity => _settings.ttsIntensity;
   String get ttsOutputQualityPreset => _settings.ttsOutputQualityPreset;
+  bool get safeMode => _settings.safeMode;
+  bool get disableScaryContent => _settings.disableScaryContent;
+  bool get requireParentConfirmationForOlder =>
+      _settings.requireParentConfirmationForOlder;
 
   ThemeMode get themeMode => _themeMode;
   FontScale get fontScale => _fontScale;
@@ -101,6 +108,24 @@ class SettingsController extends ChangeNotifier {
 
   Future<void> setVoiceNarrationEnabled(bool value) =>
       setNarrationEnabled(value);
+
+  Future<void> setNarrationAutoplayEnabled(bool value) async {
+    _settings = _settings.copyWith(narrationAutoplayEnabled: value);
+    notifyListeners();
+    await _localDataSource.writeNarrationAutoplayEnabled(value);
+  }
+
+  Future<void> setMusicEnabled(bool value) async {
+    _settings = _settings.copyWith(musicEnabled: value);
+    notifyListeners();
+    await _localDataSource.writeMusicEnabled(value);
+  }
+
+  Future<void> setSoundEffectsEnabled(bool value) async {
+    _settings = _settings.copyWith(soundEffectsEnabled: value);
+    notifyListeners();
+    await _localDataSource.writeSoundEffectsEnabled(value);
+  }
 
   Future<void> setVoiceInputLanguageCode(String value) async {
     _settings = _settings.copyWith(voiceInputLanguageCode: value);
@@ -171,6 +196,24 @@ class SettingsController extends ChangeNotifier {
     _settings = _settings.copyWith(ttsOutputQualityPreset: value);
     notifyListeners();
     await _localDataSource.writeTtsOutputQualityPreset(value);
+  }
+
+  Future<void> setSafeMode(bool value) async {
+    _settings = _settings.copyWith(safeMode: value);
+    notifyListeners();
+    await _localDataSource.writeSafeMode(value);
+  }
+
+  Future<void> setDisableScaryContent(bool value) async {
+    _settings = _settings.copyWith(disableScaryContent: value);
+    notifyListeners();
+    await _localDataSource.writeDisableScaryContent(value);
+  }
+
+  Future<void> setRequireParentConfirmationForOlder(bool value) async {
+    _settings = _settings.copyWith(requireParentConfirmationForOlder: value);
+    notifyListeners();
+    await _localDataSource.writeRequireParentConfirmationForOlder(value);
   }
 
   Future<void> setThemeMode(ThemeMode mode) async {
