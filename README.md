@@ -66,12 +66,43 @@ flutter run -d chrome --dart-define=USE_MOCK_ADMIN=true
 - Storage rules: `firebase/storage.rules`
 - Firebase Tools config: `firebase/firebase.json`
 
-## 5) CI
+## 5) Story Request v0.0.1 Fields
+
+Client generate payload now includes:
+
+- `age` and `ageGroup`
+- `storyLength`
+- `complexity` (`simple|normal`)
+- `creativity` (`low|normal|high`)
+- `illustrationsEnabled` and `image.enabled`
+- `parentalControls`:
+  - `safeMode`
+  - `disableScaryContent`
+  - `requireParentConfirmationForOlder`
+- Family context:
+  - `familyMembers` counts
+  - optional `familyNames` for `mom|dad|grandma|grandpa`
+  - optional `brothers[]` and `sisters[]`
+
+Server validates these fields in `server/story-agent/src/schemas.ts` and maps them into policy `dry-run`/composition flow.
+
+### Admin dry-run quick test
+
+1. Open Admin -> `Test Console`.
+2. Fill required scenario inputs.
+3. Optionally fill family names and siblings lists.
+4. Click `Run dry-run through gateway`.
+5. Verify:
+   - `decision.status`
+   - `effectivePolicyId`
+   - `composedPayload.prompt.userSummary` includes family context.
+
+## 6) CI
 
 - GitHub Actions workflow: `.github/workflows/server-ci.yml`
 - Runs on changes in `server/story-agent/**`: `npm ci` + `npm test`
 
-## 6) Security notes
+## 7) Security notes
 
 - No real secrets are committed.
 - `.env*`, keystores, and Firebase config files are gitignored.

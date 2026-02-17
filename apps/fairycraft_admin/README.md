@@ -47,6 +47,19 @@ This override is enabled only in `FLAVOR=dev` and is disabled in `FLAVOR=prod`.
 - `/test-console`
 - `/settings`
 
+## Test Console (Dry-run)
+
+`/test-console` now supports:
+
+- Family counts via `familyMembers` map (`mom:1,dad:1,...`)
+- Optional personal names:
+  - mom, dad, grandma, grandpa
+- Optional sibling name lists:
+  - brothers
+  - sisters
+
+These fields are forwarded to `POST /v1/admin/dry-run` and reflected in composed payload output.
+
 ## Deploy later (placeholder)
 
 1. Ensure `FLAVOR=prod` Firebase options are configured locally with `flutterfire configure`.
