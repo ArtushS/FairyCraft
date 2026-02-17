@@ -92,6 +92,10 @@ export class InMemoryStoryStore implements StoryStore {
     return [...this.audits.values()];
   }
 
+  listGenerationLogs(): GenerationLogRecord[] {
+    return [...this.generationLogs.values()];
+  }
+
   private seedAdminCollections(): void {
     if (this.policiesV1.size === 0) {
       this.policiesV1.set('default_policy', {
