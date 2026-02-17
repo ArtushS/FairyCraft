@@ -83,9 +83,9 @@ class _TemplatesPageState extends State<TemplatesPage> {
   }
 
   Future<void> _toggleActive(StyleTemplateModel template, bool value) async {
-    await context
-        .read<TemplatesRepository>()
-        .save(template.copyWith(active: value));
+    await context.read<TemplatesRepository>().save(
+      template.copyWith(active: value),
+    );
     await _load();
   }
 
@@ -122,15 +122,19 @@ class _TemplatesPageState extends State<TemplatesPage> {
   }
 
   List<StyleTemplateModel> get _filteredTemplates {
-    return _templates.where((template) {
-      final search = _search.trim().toLowerCase();
-      final matchesSearch = search.isEmpty ||
-          template.name.toLowerCase().contains(search) ||
-          template.description.toLowerCase().contains(search) ||
-          template.tags.any((tag) => tag.toLowerCase().contains(search));
-      final typeMatches = _typeFilter == '*' || template.type == _typeFilter;
-      return matchesSearch && typeMatches;
-    }).toList(growable: false);
+    return _templates
+        .where((template) {
+          final search = _search.trim().toLowerCase();
+          final matchesSearch =
+              search.isEmpty ||
+              template.name.toLowerCase().contains(search) ||
+              template.description.toLowerCase().contains(search) ||
+              template.tags.any((tag) => tag.toLowerCase().contains(search));
+          final typeMatches =
+              _typeFilter == '*' || template.type == _typeFilter;
+          return matchesSearch && typeMatches;
+        })
+        .toList(growable: false);
   }
 
   @override
@@ -193,10 +197,7 @@ class _TemplatesPageState extends State<TemplatesPage> {
         ),
         if (_error != null) ...<Widget>[
           const SizedBox(height: 12),
-          Text(
-            _error!,
-            style: const TextStyle(color: Colors.red),
-          ),
+          Text(_error!, style: const TextStyle(color: Colors.red)),
         ],
         const SizedBox(height: 16),
         Card(
@@ -218,14 +219,12 @@ class _TemplatesPageState extends State<TemplatesPage> {
                         DataCell(
                           Switch(
                             value: template.active,
-                            onChanged: (value) => _toggleActive(template, value),
+                            onChanged: (value) =>
+                                _toggleActive(template, value),
                           ),
                         ),
                         DataCell(
-                          Text(
-                            template.name,
-                            overflow: TextOverflow.ellipsis,
-                          ),
+                          Text(template.name, overflow: TextOverflow.ellipsis),
                         ),
                         DataCell(Text(template.type)),
                         DataCell(Text(template.tags.join(', '))),
@@ -292,7 +291,9 @@ class _TemplateEditorDialogState extends State<_TemplateEditorDialog> {
     _instructionsController = TextEditingController(
       text: template.template.instructions,
     );
-    _negativeController = TextEditingController(text: template.template.negative);
+    _negativeController = TextEditingController(
+      text: template.template.negative,
+    );
   }
 
   @override
@@ -310,7 +311,7 @@ class _TemplateEditorDialogState extends State<_TemplateEditorDialog> {
     setState(() {
       _scopes = <PolicyScope>[
         ..._scopes,
-        const PolicyScope(ageMin: 6, ageMax: 12, language: '*', tier: '*'),
+        const PolicyScope(ageMin: 3, ageMax: 12, language: '*', tier: '*'),
       ];
     });
   }
@@ -426,10 +427,7 @@ class _TemplateEditorDialogState extends State<_TemplateEditorDialog> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
-                  Text(
-                    'Scopes',
-                    style: Theme.of(context).textTheme.titleSmall,
-                  ),
+                  Text('Scopes', style: Theme.of(context).textTheme.titleSmall),
                   TextButton.icon(
                     onPressed: _addScope,
                     icon: const Icon(Icons.add),
@@ -466,9 +464,7 @@ class _TemplateEditorDialogState extends State<_TemplateEditorDialog> {
                 controller: _instructionsController,
                 minLines: 4,
                 maxLines: 8,
-                decoration: const InputDecoration(
-                  labelText: 'Instructions',
-                ),
+                decoration: const InputDecoration(labelText: 'Instructions'),
               ),
               const SizedBox(height: 8),
               TextField(
@@ -488,10 +484,7 @@ class _TemplateEditorDialogState extends State<_TemplateEditorDialog> {
           onPressed: () => Navigator.of(context).pop(),
           child: const Text('Cancel'),
         ),
-        FilledButton(
-          onPressed: _save,
-          child: const Text('Save'),
-        ),
+        FilledButton(onPressed: _save, child: const Text('Save')),
       ],
     );
   }
@@ -545,13 +538,14 @@ class _ScopeRowState extends State<_ScopeRow> {
   void _emit() {
     widget.onChanged(
       PolicyScope(
-        ageMin: int.tryParse(_ageMinController.text.trim()) ?? 6,
+        ageMin: int.tryParse(_ageMinController.text.trim()) ?? 3,
         ageMax: int.tryParse(_ageMaxController.text.trim()) ?? 12,
         language: _languageController.text.trim().isEmpty
             ? '*'
             : _languageController.text.trim(),
-        tier:
-            _tierController.text.trim().isEmpty ? '*' : _tierController.text.trim(),
+        tier: _tierController.text.trim().isEmpty
+            ? '*'
+            : _tierController.text.trim(),
       ),
     );
   }

@@ -11,6 +11,7 @@ class ContentRules {
     required this.disallowReligiousPolitical,
     required this.requireParentConfirmationForOlder,
     required this.disallowScary,
+    required this.allowPersonalNames,
     required this.customBannedWords,
   });
 
@@ -22,6 +23,7 @@ class ContentRules {
   final bool disallowReligiousPolitical;
   final bool requireParentConfirmationForOlder;
   final bool disallowScary;
+  final bool allowPersonalNames;
   final List<String> customBannedWords;
 
   static const ContentRules fallback = ContentRules(
@@ -33,23 +35,30 @@ class ContentRules {
     disallowReligiousPolitical: true,
     requireParentConfirmationForOlder: true,
     disallowScary: true,
+    allowPersonalNames: true,
     customBannedWords: <String>[],
   );
 
   factory ContentRules.fromJson(Map<String, dynamic> json) {
     return ContentRules(
-      safeModeDefault: json['safeModeDefault'] as bool? ?? fallback.safeModeDefault,
-      disallowViolence: json['disallowViolence'] as bool? ?? fallback.disallowViolence,
+      safeModeDefault:
+          json['safeModeDefault'] as bool? ?? fallback.safeModeDefault,
+      disallowViolence:
+          json['disallowViolence'] as bool? ?? fallback.disallowViolence,
       disallowDrugs: json['disallowDrugs'] as bool? ?? fallback.disallowDrugs,
       disallowHate: json['disallowHate'] as bool? ?? fallback.disallowHate,
       disallowSexualContent:
-          json['disallowSexualContent'] as bool? ?? fallback.disallowSexualContent,
-      disallowReligiousPolitical: json['disallowReligiousPolitical'] as bool? ??
+          json['disallowSexualContent'] as bool? ??
+          fallback.disallowSexualContent,
+      disallowReligiousPolitical:
+          json['disallowReligiousPolitical'] as bool? ??
           fallback.disallowReligiousPolitical,
       requireParentConfirmationForOlder:
           json['requireParentConfirmationForOlder'] as bool? ??
-              fallback.requireParentConfirmationForOlder,
+          fallback.requireParentConfirmationForOlder,
       disallowScary: json['disallowScary'] as bool? ?? fallback.disallowScary,
+      allowPersonalNames:
+          json['allowPersonalNames'] as bool? ?? fallback.allowPersonalNames,
       customBannedWords: stringListFromDynamic(json['customBannedWords']),
     );
   }
@@ -64,6 +73,7 @@ class ContentRules {
       'disallowReligiousPolitical': disallowReligiousPolitical,
       'requireParentConfirmationForOlder': requireParentConfirmationForOlder,
       'disallowScary': disallowScary,
+      'allowPersonalNames': allowPersonalNames,
       'customBannedWords': customBannedWords,
     };
   }
@@ -77,6 +87,7 @@ class ContentRules {
     bool? disallowReligiousPolitical,
     bool? requireParentConfirmationForOlder,
     bool? disallowScary,
+    bool? allowPersonalNames,
     List<String>? customBannedWords,
   }) {
     return ContentRules(
@@ -84,12 +95,15 @@ class ContentRules {
       disallowViolence: disallowViolence ?? this.disallowViolence,
       disallowDrugs: disallowDrugs ?? this.disallowDrugs,
       disallowHate: disallowHate ?? this.disallowHate,
-      disallowSexualContent: disallowSexualContent ?? this.disallowSexualContent,
+      disallowSexualContent:
+          disallowSexualContent ?? this.disallowSexualContent,
       disallowReligiousPolitical:
           disallowReligiousPolitical ?? this.disallowReligiousPolitical,
-      requireParentConfirmationForOlder: requireParentConfirmationForOlder ??
+      requireParentConfirmationForOlder:
+          requireParentConfirmationForOlder ??
           this.requireParentConfirmationForOlder,
       disallowScary: disallowScary ?? this.disallowScary,
+      allowPersonalNames: allowPersonalNames ?? this.allowPersonalNames,
       customBannedWords: customBannedWords ?? this.customBannedWords,
     );
   }
@@ -117,8 +131,10 @@ class PromptConstraints {
 
   factory PromptConstraints.fromJson(Map<String, dynamic> json) {
     return PromptConstraints(
-      maxTokensHint: (json['maxTokensHint'] as num?)?.toInt() ?? fallback.maxTokensHint,
-      maxCharsHint: (json['maxCharsHint'] as num?)?.toInt() ?? fallback.maxCharsHint,
+      maxTokensHint:
+          (json['maxTokensHint'] as num?)?.toInt() ?? fallback.maxTokensHint,
+      maxCharsHint:
+          (json['maxCharsHint'] as num?)?.toInt() ?? fallback.maxCharsHint,
       enforceStructure:
           json['enforceStructure'] as bool? ?? fallback.enforceStructure,
       readingLevel: json['readingLevel']?.toString() ?? fallback.readingLevel,
@@ -177,10 +193,7 @@ class ImageRules {
     };
   }
 
-  ImageRules copyWith({
-    bool? allowImages,
-    List<String>? allowedImageStyles,
-  }) {
+  ImageRules copyWith({bool? allowImages, List<String>? allowedImageStyles}) {
     return ImageRules(
       allowImages: allowImages ?? this.allowImages,
       allowedImageStyles: allowedImageStyles ?? this.allowedImageStyles,
@@ -215,8 +228,9 @@ class AdminPolicyModel {
       active: json['active'] as bool? ?? true,
       scope: PolicyScope.fromJson(mapFromDynamic(json['scope'])),
       contentRules: ContentRules.fromJson(mapFromDynamic(json['contentRules'])),
-      promptConstraints:
-          PromptConstraints.fromJson(mapFromDynamic(json['promptConstraints'])),
+      promptConstraints: PromptConstraints.fromJson(
+        mapFromDynamic(json['promptConstraints']),
+      ),
       imageRules: ImageRules.fromJson(mapFromDynamic(json['imageRules'])),
       versionStamp: json['versionStamp']?.toString() ?? 'v1',
       updatedAt: dateTimeFromFirestore(json['updatedAt']),

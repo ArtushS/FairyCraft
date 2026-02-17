@@ -30,6 +30,14 @@ class _TestConsolePageState extends State<TestConsolePage> {
   final _locationController = TextEditingController(text: 'mountain village');
   final _genreController = TextEditingController(text: 'adventure');
   final _familyMembersController = TextEditingController(text: 'mom:1,dad:1');
+  final _momNameController = TextEditingController();
+  final _dadNameController = TextEditingController();
+  final _grandmaNameController = TextEditingController();
+  final _grandpaNameController = TextEditingController();
+  final List<TextEditingController> _brotherNameControllers =
+      <TextEditingController>[];
+  final List<TextEditingController> _sisterNameControllers =
+      <TextEditingController>[];
 
   String _tier = 'free';
   String _language = 'en';
@@ -50,6 +58,13 @@ class _TestConsolePageState extends State<TestConsolePage> {
   Map<String, dynamic>? _gatewayResponse;
 
   @override
+  void initState() {
+    super.initState();
+    _brotherNameControllers.add(TextEditingController());
+    _sisterNameControllers.add(TextEditingController());
+  }
+
+  @override
   void dispose() {
     _ageController.dispose();
     _storyIdeaController.dispose();
@@ -57,7 +72,20 @@ class _TestConsolePageState extends State<TestConsolePage> {
     _locationController.dispose();
     _genreController.dispose();
     _familyMembersController.dispose();
+    _momNameController.dispose();
+    _dadNameController.dispose();
+    _grandmaNameController.dispose();
+    _grandpaNameController.dispose();
+    _disposeNameControllers(_brotherNameControllers);
+    _disposeNameControllers(_sisterNameControllers);
     super.dispose();
+  }
+
+  void _disposeNameControllers(List<TextEditingController> values) {
+    for (final controller in values) {
+      controller.dispose();
+    }
+    values.clear();
   }
 
   Future<void> _run() async {
@@ -100,8 +128,8 @@ class _TestConsolePageState extends State<TestConsolePage> {
 
       final status = gatewayBody['decision'] is Map<String, dynamic>
           ? (gatewayBody['decision'] as Map<String, dynamic>)['status']
-                  ?.toString() ??
-              (dryRunResult.ok ? 'ok' : 'error')
+                    ?.toString() ??
+                (dryRunResult.ok ? 'ok' : 'error')
           : (dryRunResult.ok ? 'ok' : 'error');
 
       final testRun = TestRunModel(
@@ -139,6 +167,19 @@ class _TestConsolePageState extends State<TestConsolePage> {
   }
 
   AdminTestInput _buildInput() {
+    final familyNames = <String, String>{};
+    void addFamilyName(String role, String value) {
+      final normalized = value.trim();
+      if (normalized.isNotEmpty) {
+        familyNames[role] = normalized;
+      }
+    }
+
+    addFamilyName('mom', _momNameController.text);
+    addFamilyName('dad', _dadNameController.text);
+    addFamilyName('grandma', _grandmaNameController.text);
+    addFamilyName('grandpa', _grandpaNameController.text);
+
     return AdminTestInput(
       age: int.tryParse(_ageController.text.trim()) ?? 8,
       tier: _tier,
@@ -152,11 +193,21 @@ class _TestConsolePageState extends State<TestConsolePage> {
       complexity: _complexity,
       illustrationsEnabled: _illustrationsEnabled,
       familyMembers: _parseFamilyMembers(_familyMembersController.text),
+      familyNames: familyNames,
+      brothers: _collectNames(_brotherNameControllers),
+      sisters: _collectNames(_sisterNameControllers),
       creativity: _creativity,
       safeMode: _safeMode,
       disableScaryContent: _disableScary,
       requireParentConfirmationForOlder: _requireParentConfirmationForOlder,
     );
+  }
+
+  List<String> _collectNames(List<TextEditingController> controllers) {
+    return controllers
+        .map((controller) => controller.text.trim())
+        .where((name) => name.isNotEmpty)
+        .toList(growable: false);
   }
 
   Map<String, int> _parseFamilyMembers(String raw) {
@@ -174,6 +225,89 @@ class _TestConsolePageState extends State<TestConsolePage> {
       }
     }
     return result;
+  }
+
+  void _addBrotherField() {
+    setState(() {
+      _brotherNameControllers.add(TextEditingController());
+    });
+  }
+
+  void _addSisterField() {
+    setState(() {
+      _sisterNameControllers.add(TextEditingController());
+    });
+  }
+
+  void _removeBrotherField(int index) {
+    if (_brotherNameControllers.length <= 1) {
+      _brotherNameControllers[index].clear();
+      setState(() {});
+      return;
+    }
+    setState(() {
+      _brotherNameControllers.removeAt(index).dispose();
+    });
+  }
+
+  void _removeSisterField(int index) {
+    if (_sisterNameControllers.length <= 1) {
+      _sisterNameControllers[index].clear();
+      setState(() {});
+      return;
+    }
+    setState(() {
+      _sisterNameControllers.removeAt(index).dispose();
+    });
+  }
+
+  Widget _nameListSection({
+    required String title,
+    required String labelPrefix,
+    required List<TextEditingController> controllers,
+    required VoidCallback onAdd,
+    required ValueChanged<int> onRemove,
+  }) {
+    return Card(
+      margin: const EdgeInsets.only(top: 8),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Text(title, style: Theme.of(context).textTheme.titleSmall),
+            const SizedBox(height: 8),
+            ...List<Widget>.generate(controllers.length, (index) {
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Row(
+                  children: <Widget>[
+                    Expanded(
+                      child: TextField(
+                        controller: controllers[index],
+                        decoration: InputDecoration(
+                          labelText: '$labelPrefix ${index + 1} name',
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () => onRemove(index),
+                      icon: const Icon(Icons.remove_circle_outline),
+                      tooltip: 'Remove',
+                    ),
+                  ],
+                ),
+              );
+            }),
+            OutlinedButton.icon(
+              onPressed: onAdd,
+              icon: const Icon(Icons.add),
+              label: Text('Add $labelPrefix'),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
@@ -253,15 +387,14 @@ class _TestConsolePageState extends State<TestConsolePage> {
               child: DropdownButtonFormField<String>(
                 initialValue: _heroType,
                 decoration: const InputDecoration(labelText: 'Hero type'),
-                items:
-                    const <String>['boy', 'girl', 'dog', 'cat', 'custom']
-                        .map(
-                          (value) => DropdownMenuItem<String>(
-                            value: value,
-                            child: Text(value),
-                          ),
-                        )
-                        .toList(growable: false),
+                items: const <String>['boy', 'girl', 'dog', 'cat', 'custom']
+                    .map(
+                      (value) => DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      ),
+                    )
+                    .toList(growable: false),
                 onChanged: (value) {
                   if (value == null) {
                     return;
@@ -387,6 +520,78 @@ class _TestConsolePageState extends State<TestConsolePage> {
           ),
         ),
         const SizedBox(height: 8),
+        Card(
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text(
+                  'Family names (optional)',
+                  style: Theme.of(context).textTheme.titleSmall,
+                ),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 12,
+                  runSpacing: 8,
+                  children: <Widget>[
+                    SizedBox(
+                      width: 220,
+                      child: TextField(
+                        controller: _momNameController,
+                        decoration: const InputDecoration(
+                          labelText: 'Mom name',
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      width: 220,
+                      child: TextField(
+                        controller: _dadNameController,
+                        decoration: const InputDecoration(
+                          labelText: 'Dad name',
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      width: 220,
+                      child: TextField(
+                        controller: _grandmaNameController,
+                        decoration: const InputDecoration(
+                          labelText: 'Grandma name',
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      width: 220,
+                      child: TextField(
+                        controller: _grandpaNameController,
+                        decoration: const InputDecoration(
+                          labelText: 'Grandpa name',
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+        _nameListSection(
+          title: 'Brothers names (optional)',
+          labelPrefix: 'brother',
+          controllers: _brotherNameControllers,
+          onAdd: _addBrotherField,
+          onRemove: _removeBrotherField,
+        ),
+        _nameListSection(
+          title: 'Sisters names (optional)',
+          labelPrefix: 'sister',
+          controllers: _sisterNameControllers,
+          onAdd: _addSisterField,
+          onRemove: _removeSisterField,
+        ),
+        const SizedBox(height: 8),
         Wrap(
           spacing: 12,
           runSpacing: 8,
@@ -394,7 +599,8 @@ class _TestConsolePageState extends State<TestConsolePage> {
             FilterChip(
               selected: _illustrationsEnabled,
               label: const Text('Illustrations enabled'),
-              onSelected: (value) => setState(() => _illustrationsEnabled = value),
+              onSelected: (value) =>
+                  setState(() => _illustrationsEnabled = value),
             ),
             FilterChip(
               selected: _safeMode,
@@ -409,9 +615,8 @@ class _TestConsolePageState extends State<TestConsolePage> {
             FilterChip(
               selected: _requireParentConfirmationForOlder,
               label: const Text('Require parent confirmation for older'),
-              onSelected: (value) => setState(
-                () => _requireParentConfirmationForOlder = value,
-              ),
+              onSelected: (value) =>
+                  setState(() => _requireParentConfirmationForOlder = value),
             ),
           ],
         ),

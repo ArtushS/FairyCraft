@@ -14,7 +14,7 @@ class PolicyScope {
   final String tier;
 
   static const PolicyScope global = PolicyScope(
-    ageMin: 6,
+    ageMin: 3,
     ageMax: 12,
     language: '*',
     tier: '*',
@@ -22,7 +22,7 @@ class PolicyScope {
 
   factory PolicyScope.fromJson(Map<String, dynamic> json) {
     return PolicyScope(
-      ageMin: (json['ageMin'] as num?)?.toInt() ?? 6,
+      ageMin: (json['ageMin'] as num?)?.toInt() ?? 3,
       ageMax: (json['ageMax'] as num?)?.toInt() ?? 12,
       language: json['language']?.toString() ?? '*',
       tier: json['tier']?.toString() ?? '*',

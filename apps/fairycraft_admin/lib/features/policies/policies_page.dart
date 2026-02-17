@@ -18,7 +18,7 @@ class _PoliciesPageState extends State<PoliciesPage> {
   List<AdminPolicyModel> _policies = <AdminPolicyModel>[];
   String _languageFilter = '*';
   String _tierFilter = '*';
-  RangeValues _ageFilter = const RangeValues(6, 12);
+  RangeValues _ageFilter = const RangeValues(3, 12);
 
   @override
   void initState() {
@@ -56,9 +56,9 @@ class _PoliciesPageState extends State<PoliciesPage> {
 
   Future<void> _createPolicy() async {
     final repository = context.read<PoliciesRepository>();
-    final draft = AdminPolicyModel.fallback(id: repository.createId()).copyWith(
-      versionStamp: DateTime.now().toUtc().toIso8601String(),
-    );
+    final draft = AdminPolicyModel.fallback(
+      id: repository.createId(),
+    ).copyWith(versionStamp: DateTime.now().toUtc().toIso8601String());
     final result = await showDialog<AdminPolicyModel>(
       context: context,
       builder: (context) => _PolicyEditorDialog(policy: draft),
@@ -88,11 +88,11 @@ class _PoliciesPageState extends State<PoliciesPage> {
 
   Future<void> _toggleActive(AdminPolicyModel policy, bool value) async {
     await context.read<PoliciesRepository>().save(
-          policy.copyWith(
-            active: value,
-            versionStamp: DateTime.now().toUtc().toIso8601String(),
-          ),
-        );
+      policy.copyWith(
+        active: value,
+        versionStamp: DateTime.now().toUtc().toIso8601String(),
+      ),
+    );
     await _load();
   }
 
@@ -130,15 +130,19 @@ class _PoliciesPageState extends State<PoliciesPage> {
   }
 
   List<AdminPolicyModel> get _filteredPolicies {
-    return _policies.where((policy) {
-      final languageMatches =
-          _languageFilter == '*' || policy.scope.language == _languageFilter;
-      final tierMatches = _tierFilter == '*' || policy.scope.tier == _tierFilter;
-      final ageRangeOverlaps =
-          policy.scope.ageMax >= _ageFilter.start &&
-          policy.scope.ageMin <= _ageFilter.end;
-      return languageMatches && tierMatches && ageRangeOverlaps;
-    }).toList(growable: false);
+    return _policies
+        .where((policy) {
+          final languageMatches =
+              _languageFilter == '*' ||
+              policy.scope.language == _languageFilter;
+          final tierMatches =
+              _tierFilter == '*' || policy.scope.tier == _tierFilter;
+          final ageRangeOverlaps =
+              policy.scope.ageMax >= _ageFilter.start &&
+              policy.scope.ageMin <= _ageFilter.end;
+          return languageMatches && tierMatches && ageRangeOverlaps;
+        })
+        .toList(growable: false);
   }
 
   @override
@@ -197,9 +201,9 @@ class _PoliciesPageState extends State<PoliciesPage> {
             SizedBox(
               width: 240,
               child: RangeSlider(
-                min: 6,
+                min: 3,
                 max: 12,
-                divisions: 6,
+                divisions: 9,
                 labels: RangeLabels(
                   _ageFilter.start.round().toString(),
                   _ageFilter.end.round().toString(),
@@ -226,10 +230,7 @@ class _PoliciesPageState extends State<PoliciesPage> {
         ),
         if (_error != null) ...<Widget>[
           const SizedBox(height: 12),
-          Text(
-            _error!,
-            style: const TextStyle(color: Colors.red),
-          ),
+          Text(_error!, style: const TextStyle(color: Colors.red)),
         ],
         const SizedBox(height: 16),
         Card(
@@ -315,6 +316,7 @@ class _PolicyEditorDialogState extends State<_PolicyEditorDialog> {
   late bool _disallowReligiousPolitical;
   late bool _requireParentConfirmationForOlder;
   late bool _disallowScary;
+  late bool _allowPersonalNames;
   late bool _allowImages;
   late bool _enforceStructure;
 
@@ -322,10 +324,12 @@ class _PolicyEditorDialogState extends State<_PolicyEditorDialog> {
   void initState() {
     super.initState();
     final policy = widget.policy;
-    _ageMinController =
-        TextEditingController(text: policy.scope.ageMin.toString());
-    _ageMaxController =
-        TextEditingController(text: policy.scope.ageMax.toString());
+    _ageMinController = TextEditingController(
+      text: policy.scope.ageMin.toString(),
+    );
+    _ageMaxController = TextEditingController(
+      text: policy.scope.ageMax.toString(),
+    );
     _languageController = TextEditingController(text: policy.scope.language);
     _tierController = TextEditingController(text: policy.scope.tier);
     _maxTokensController = TextEditingController(
@@ -343,9 +347,7 @@ class _PolicyEditorDialogState extends State<_PolicyEditorDialog> {
     _imageStylesController = TextEditingController(
       text: policy.imageRules.allowedImageStyles.join(', '),
     );
-    _versionStampController = TextEditingController(
-      text: policy.versionStamp,
-    );
+    _versionStampController = TextEditingController(text: policy.versionStamp);
 
     _active = policy.active;
     _safeModeDefault = policy.contentRules.safeModeDefault;
@@ -353,10 +355,12 @@ class _PolicyEditorDialogState extends State<_PolicyEditorDialog> {
     _disallowDrugs = policy.contentRules.disallowDrugs;
     _disallowHate = policy.contentRules.disallowHate;
     _disallowSexualContent = policy.contentRules.disallowSexualContent;
-    _disallowReligiousPolitical = policy.contentRules.disallowReligiousPolitical;
+    _disallowReligiousPolitical =
+        policy.contentRules.disallowReligiousPolitical;
     _requireParentConfirmationForOlder =
         policy.contentRules.requireParentConfirmationForOlder;
     _disallowScary = policy.contentRules.disallowScary;
+    _allowPersonalNames = policy.contentRules.allowPersonalNames;
     _allowImages = policy.imageRules.allowImages;
     _enforceStructure = policy.promptConstraints.enforceStructure;
   }
@@ -377,7 +381,7 @@ class _PolicyEditorDialogState extends State<_PolicyEditorDialog> {
   }
 
   void _save() {
-    final ageMin = int.tryParse(_ageMinController.text.trim()) ?? 6;
+    final ageMin = int.tryParse(_ageMinController.text.trim()) ?? 3;
     final ageMax = int.tryParse(_ageMaxController.text.trim()) ?? 12;
     final maxTokens = int.tryParse(_maxTokensController.text.trim()) ?? 700;
     final maxChars = int.tryParse(_maxCharsController.text.trim()) ?? 4500;
@@ -421,6 +425,7 @@ class _PolicyEditorDialogState extends State<_PolicyEditorDialog> {
           disallowReligiousPolitical: _disallowReligiousPolitical,
           requireParentConfirmationForOlder: _requireParentConfirmationForOlder,
           disallowScary: _disallowScary,
+          allowPersonalNames: _allowPersonalNames,
           customBannedWords: bannedWords,
         ),
         promptConstraints: widget.policy.promptConstraints.copyWith(
@@ -458,10 +463,7 @@ class _PolicyEditorDialogState extends State<_PolicyEditorDialog> {
                 },
               ),
               const SizedBox(height: 8),
-              Text(
-                'Scope',
-                style: Theme.of(context).textTheme.titleSmall,
-              ),
+              Text('Scope', style: Theme.of(context).textTheme.titleSmall),
               const SizedBox(height: 8),
               Row(
                 children: <Widget>[
@@ -553,6 +555,11 @@ class _PolicyEditorDialogState extends State<_PolicyEditorDialog> {
                     _disallowScary,
                     (value) => setState(() => _disallowScary = value),
                   ),
+                  _booleanChip(
+                    'Allow personal names',
+                    _allowPersonalNames,
+                    (value) => setState(() => _allowPersonalNames = value),
+                  ),
                 ],
               ),
               const SizedBox(height: 8),
@@ -576,7 +583,9 @@ class _PolicyEditorDialogState extends State<_PolicyEditorDialog> {
                     child: TextField(
                       controller: _maxTokensController,
                       keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(labelText: 'Max tokens hint'),
+                      decoration: const InputDecoration(
+                        labelText: 'Max tokens hint',
+                      ),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -584,7 +593,9 @@ class _PolicyEditorDialogState extends State<_PolicyEditorDialog> {
                     child: TextField(
                       controller: _maxCharsController,
                       keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(labelText: 'Max chars hint'),
+                      decoration: const InputDecoration(
+                        labelText: 'Max chars hint',
+                      ),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -641,19 +652,12 @@ class _PolicyEditorDialogState extends State<_PolicyEditorDialog> {
           onPressed: () => Navigator.of(context).pop(),
           child: const Text('Cancel'),
         ),
-        FilledButton(
-          onPressed: _save,
-          child: const Text('Save'),
-        ),
+        FilledButton(onPressed: _save, child: const Text('Save')),
       ],
     );
   }
 
-  Widget _booleanChip(
-    String label,
-    bool value,
-    ValueChanged<bool> onChanged,
-  ) {
+  Widget _booleanChip(String label, bool value, ValueChanged<bool> onChanged) {
     return FilterChip(
       selected: value,
       label: Text(label),

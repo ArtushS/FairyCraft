@@ -36,12 +36,13 @@ class GenerationLogModel {
   factory GenerationLogModel.fromJson(String id, Map<String, dynamic> json) {
     return GenerationLogModel(
       id: id,
-      createdAt: dateTimeFromFirestore(json['createdAt']) ??
+      createdAt:
+          dateTimeFromFirestore(json['createdAt']) ??
           DateTime.fromMillisecondsSinceEpoch(0, isUtc: true),
       userIdHash: json['userIdHash']?.toString() ?? '',
       tier: json['tier']?.toString() ?? 'free',
       language: json['language']?.toString() ?? 'en',
-      age: (json['age'] as num?)?.toInt() ?? 6,
+      age: (json['age'] as num?)?.toInt() ?? 3,
       requestSummary: mapFromDynamic(json['requestSummary']),
       effectivePolicyId: json['effectivePolicyId']?.toString() ?? '',
       templateIdsUsed: stringListFromDynamic(json['templateIdsUsed']),

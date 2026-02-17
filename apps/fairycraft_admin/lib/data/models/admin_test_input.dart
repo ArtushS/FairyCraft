@@ -12,6 +12,9 @@ class AdminTestInput {
     required this.complexity,
     required this.illustrationsEnabled,
     required this.familyMembers,
+    this.familyNames = const <String, String>{},
+    this.brothers = const <String>[],
+    this.sisters = const <String>[],
     required this.creativity,
     required this.safeMode,
     required this.disableScaryContent,
@@ -30,12 +33,32 @@ class AdminTestInput {
   final String complexity;
   final bool illustrationsEnabled;
   final Map<String, int> familyMembers;
+  final Map<String, String> familyNames;
+  final List<String> brothers;
+  final List<String> sisters;
   final String creativity;
   final bool safeMode;
   final bool disableScaryContent;
   final bool requireParentConfirmationForOlder;
 
   Map<String, dynamic> toJson() {
+    final normalizedFamilyNames = <String, String>{};
+    familyNames.forEach((key, value) {
+      final normalizedKey = key.trim();
+      final normalizedValue = value.trim();
+      if (normalizedKey.isNotEmpty && normalizedValue.isNotEmpty) {
+        normalizedFamilyNames[normalizedKey] = normalizedValue;
+      }
+    });
+    final normalizedBrothers = brothers
+        .map((name) => name.trim())
+        .where((name) => name.isNotEmpty)
+        .toList(growable: false);
+    final normalizedSisters = sisters
+        .map((name) => name.trim())
+        .where((name) => name.isNotEmpty)
+        .toList(growable: false);
+
     return <String, dynamic>{
       'age': age,
       'tier': tier,
@@ -49,12 +72,15 @@ class AdminTestInput {
       'complexity': complexity,
       'illustrationsEnabled': illustrationsEnabled,
       'familyMembers': familyMembers,
+      if (normalizedFamilyNames.isNotEmpty)
+        'familyNames': normalizedFamilyNames,
+      if (normalizedBrothers.isNotEmpty) 'brothers': normalizedBrothers,
+      if (normalizedSisters.isNotEmpty) 'sisters': normalizedSisters,
       'creativity': creativity,
       'parentalControls': <String, dynamic>{
         'safeMode': safeMode,
         'disableScaryContent': disableScaryContent,
-        'requireParentConfirmationForOlder':
-            requireParentConfirmationForOlder,
+        'requireParentConfirmationForOlder': requireParentConfirmationForOlder,
       },
     };
   }
@@ -69,6 +95,17 @@ class AdminTestInput {
       'complexity': complexity,
       'heroType': heroType,
       'illustrationsEnabled': illustrationsEnabled,
+      'hasFamilyNames': familyNames.values
+          .map((name) => name.trim())
+          .any((name) => name.isNotEmpty),
+      'brothersCount': brothers
+          .map((name) => name.trim())
+          .where((name) => name.isNotEmpty)
+          .length,
+      'sistersCount': sisters
+          .map((name) => name.trim())
+          .where((name) => name.isNotEmpty)
+          .length,
     };
   }
 }
