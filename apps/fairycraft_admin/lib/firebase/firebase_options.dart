@@ -8,6 +8,12 @@ const _flavor = String.fromEnvironment('FLAVOR', defaultValue: 'dev');
 
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
+    if (kIsWeb) {
+      return _flavor == 'prod'
+          ? prod_options.DefaultFirebaseOptions.web
+          : dev_options.DefaultFirebaseOptions.web;
+    }
+
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
         return _flavor == 'prod'
@@ -30,9 +36,9 @@ class DefaultFirebaseOptions {
             ? prod_options.DefaultFirebaseOptions.linux
             : dev_options.DefaultFirebaseOptions.linux;
       default:
-        return _flavor == 'prod'
-            ? prod_options.DefaultFirebaseOptions.web
-            : dev_options.DefaultFirebaseOptions.web;
+        throw UnsupportedError(
+          'DefaultFirebaseOptions are not supported for this platform.',
+        );
     }
   }
 }

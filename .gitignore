@@ -16,6 +16,7 @@ server/story-agent/.env.*
 **/dist/
 
 # Flutter / Dart
+/build/
 **/.dart_tool/
 **/.packages
 **/build/
@@ -32,6 +33,10 @@ server/story-agent/.env.*
 **/android/app/google-services.json
 **/ios/Runner/GoogleService-Info.plist
 **/macos/Runner/GoogleService-Info.plist
+# Firebase Admin service-account keys (keep outside repo)
+/Secrets/
+**/firebase-adminsdk-*.json
+**/*adminsdk*.json
 apps/fairycraft_admin/web/local_admin_uids.json
 
 # IDE

@@ -1,0 +1,22 @@
+{
+  "name": "fairycraft-firebase-admin-tools",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Firebase Admin helper scripts for FairyCraft",
+  "type": "commonjs",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "set-admin": "node src/setAdminClaim.js",
+    "set-admin:dev": "node src/setAdminClaim.js --env dev --email artushs@gmail.com",
+    "set-admin:prod": "node src/setAdminClaim.js --env prod --email artushs@gmail.com",
+    "set-admin:dev:dry": "node src/setAdminClaim.js --env dev --email artushs@gmail.com --dry-run",
+    "set-admin:prod:dry": "node src/setAdminClaim.js --env prod --email artushs@gmail.com --dry-run"
+  },
+  "dependencies": {
+    "dotenv": "^17.3.1",
+    "firebase-admin": "^13.6.1",
+    "minimist": "^1.2.8"
+  }
+}
