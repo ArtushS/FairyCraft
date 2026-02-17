@@ -11,6 +11,7 @@
   "commonDone": "Done",
   "commonSkip": "Skip",
   "commonNotAvailable": "Not available",
+  "commonRemove": "Remove",
   "commonLink": "Link",
   "commonUnlink": "Unlink",
   "commonStop": "Stop",
@@ -192,6 +193,36 @@
   "storyPreferencesInteractiveChoices": "Use interactive choices",
   "storyPreferencesFamilySection": "Family",
   "storyPreferencesIncludeFamilyMembers": "Include family members in stories",
+  "storyPreferencesFamilyMemberNameOptionalLabel": "{member} name (optional)",
+  "@storyPreferencesFamilyMemberNameOptionalLabel": {
+    "placeholders": {
+      "member": {
+        "type": "String"
+      }
+    }
+  },
+  "storyPreferencesBrothersTitle": "Brothers",
+  "storyPreferencesSistersTitle": "Sisters",
+  "storyPreferencesNoBrothersAddedYet": "No brothers added yet",
+  "storyPreferencesNoSistersAddedYet": "No sisters added yet",
+  "storyPreferencesBrotherNameOptionalLabel": "Brother {index} name (optional)",
+  "@storyPreferencesBrotherNameOptionalLabel": {
+    "placeholders": {
+      "index": {
+        "type": "int"
+      }
+    }
+  },
+  "storyPreferencesSisterNameOptionalLabel": "Sister {index} name (optional)",
+  "@storyPreferencesSisterNameOptionalLabel": {
+    "placeholders": {
+      "index": {
+        "type": "int"
+      }
+    }
+  },
+  "storyPreferencesAddBrotherButton": "Add brother",
+  "storyPreferencesAddSisterButton": "Add sister",
   "storyPreferencesIllustrationsSection": "Illustrations",
   "storyPreferencesAddIllustrations": "Add illustrations automatically",
   "storyPreferencesCreativitySection": "Creativity",
@@ -358,6 +389,19 @@
   "settingsVoiceQualityTurbo": "ProPlus Turbo",
   "settingsVoiceQualityPro2": "Pro2",
   "settingsVoiceQualityPro1": "Pro1",
+  "settingsSectionAppearance": "Appearance",
+  "settingsSectionLanguage": "Language",
+  "settingsSectionAudio": "Audio",
+  "settingsSectionParentalControl": "Parental control",
+  "settingsSectionDebug": "Debug",
+  "settingsToggleAutoplayNarration": "Autoplay narration",
+  "settingsToggleMusic": "Music",
+  "settingsToggleSoundEffects": "Sound effects",
+  "settingsToggleSafeMode": "Safe mode",
+  "settingsToggleDisableScaryContent": "Disable scary content",
+  "settingsToggleRequireParentConfirmationForOlder": "Require parent confirmation for older",
+  "settingsDebugFirebaseSanityCheckTitle": "Firebase sanity check",
+  "settingsDebugFirebaseSanityCheckSubtitle": "Inspect Firebase bootstrap, App Check and auth wiring.",
 
   "ttsListenButton": "Listen",
   "ttsNarrationTitle": "Narration",

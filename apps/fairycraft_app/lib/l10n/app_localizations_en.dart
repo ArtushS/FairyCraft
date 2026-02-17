@@ -42,6 +42,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get commonNotAvailable => 'Not available';
 
   @override
+  String get commonRemove => 'Remove';
+
+  @override
   String get commonLink => 'Link';
 
   @override
@@ -342,6 +345,39 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get storyPreferencesIncludeFamilyMembers =>
       'Include family members in stories';
+
+  @override
+  String storyPreferencesFamilyMemberNameOptionalLabel(String member) {
+    return '$member name (optional)';
+  }
+
+  @override
+  String get storyPreferencesBrothersTitle => 'Brothers';
+
+  @override
+  String get storyPreferencesSistersTitle => 'Sisters';
+
+  @override
+  String get storyPreferencesNoBrothersAddedYet => 'No brothers added yet';
+
+  @override
+  String get storyPreferencesNoSistersAddedYet => 'No sisters added yet';
+
+  @override
+  String storyPreferencesBrotherNameOptionalLabel(int index) {
+    return 'Brother $index name (optional)';
+  }
+
+  @override
+  String storyPreferencesSisterNameOptionalLabel(int index) {
+    return 'Sister $index name (optional)';
+  }
+
+  @override
+  String get storyPreferencesAddBrotherButton => 'Add brother';
+
+  @override
+  String get storyPreferencesAddSisterButton => 'Add sister';
 
   @override
   String get storyPreferencesIllustrationsSection => 'Illustrations';
@@ -671,6 +707,47 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsVoiceQualityPro1 => 'Pro1';
+
+  @override
+  String get settingsSectionAppearance => 'Appearance';
+
+  @override
+  String get settingsSectionLanguage => 'Language';
+
+  @override
+  String get settingsSectionAudio => 'Audio';
+
+  @override
+  String get settingsSectionParentalControl => 'Parental control';
+
+  @override
+  String get settingsSectionDebug => 'Debug';
+
+  @override
+  String get settingsToggleAutoplayNarration => 'Autoplay narration';
+
+  @override
+  String get settingsToggleMusic => 'Music';
+
+  @override
+  String get settingsToggleSoundEffects => 'Sound effects';
+
+  @override
+  String get settingsToggleSafeMode => 'Safe mode';
+
+  @override
+  String get settingsToggleDisableScaryContent => 'Disable scary content';
+
+  @override
+  String get settingsToggleRequireParentConfirmationForOlder =>
+      'Require parent confirmation for older';
+
+  @override
+  String get settingsDebugFirebaseSanityCheckTitle => 'Firebase sanity check';
+
+  @override
+  String get settingsDebugFirebaseSanityCheckSubtitle =>
+      'Inspect Firebase bootstrap, App Check and auth wiring.';
 
   @override
   String get ttsListenButton => 'Listen';

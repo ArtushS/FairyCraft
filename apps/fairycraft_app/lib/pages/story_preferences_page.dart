@@ -252,7 +252,10 @@ class _StoryPreferencesPageState extends State<StoryPreferencesPage> {
                   TextField(
                     controller: _momNameController,
                     decoration: InputDecoration(
-                      labelText: '${l10n.familyMom} name (optional)',
+                      labelText: l10n
+                          .storyPreferencesFamilyMemberNameOptionalLabel(
+                            l10n.familyMom,
+                          ),
                     ),
                     onChanged: prefs.setFamilyNameMom,
                   ),
@@ -260,7 +263,10 @@ class _StoryPreferencesPageState extends State<StoryPreferencesPage> {
                   TextField(
                     controller: _dadNameController,
                     decoration: InputDecoration(
-                      labelText: '${l10n.familyDad} name (optional)',
+                      labelText: l10n
+                          .storyPreferencesFamilyMemberNameOptionalLabel(
+                            l10n.familyDad,
+                          ),
                     ),
                     onChanged: prefs.setFamilyNameDad,
                   ),
@@ -268,7 +274,10 @@ class _StoryPreferencesPageState extends State<StoryPreferencesPage> {
                   TextField(
                     controller: _grandmaNameController,
                     decoration: InputDecoration(
-                      labelText: '${l10n.familyGrandma} name (optional)',
+                      labelText: l10n
+                          .storyPreferencesFamilyMemberNameOptionalLabel(
+                            l10n.familyGrandma,
+                          ),
                     ),
                     onChanged: prefs.setFamilyNameGrandma,
                   ),
@@ -276,16 +285,20 @@ class _StoryPreferencesPageState extends State<StoryPreferencesPage> {
                   TextField(
                     controller: _grandpaNameController,
                     decoration: InputDecoration(
-                      labelText: '${l10n.familyGrandpa} name (optional)',
+                      labelText: l10n
+                          .storyPreferencesFamilyMemberNameOptionalLabel(
+                            l10n.familyGrandpa,
+                          ),
                     ),
                     onChanged: prefs.setFamilyNameGrandpa,
                   ),
                   const SizedBox(height: FairyCraftSpacing.section),
                   _SiblingNamesSection(
-                    title: 'Brothers',
-                    emptyHint: 'No brothers added yet',
+                    title: l10n.storyPreferencesBrothersTitle,
+                    emptyHint: l10n.storyPreferencesNoBrothersAddedYet,
                     controllers: _brotherNameControllers,
-                    fieldLabelBuilder: (index) => 'Brother ${index + 1} name',
+                    fieldLabelBuilder: (index) => l10n
+                        .storyPreferencesBrotherNameOptionalLabel(index + 1),
                     onChanged: (index, value) {
                       prefs.setBrotherNameAt(index, value);
                     },
@@ -293,14 +306,16 @@ class _StoryPreferencesPageState extends State<StoryPreferencesPage> {
                       prefs.removeBrotherNameAt(index);
                     },
                     onAdd: prefs.addBrotherName,
-                    addButtonLabel: 'Add brother',
+                    addButtonLabel: l10n.storyPreferencesAddBrotherButton,
+                    removeButtonTooltip: l10n.commonRemove,
                   ),
                   const SizedBox(height: FairyCraftSpacing.section),
                   _SiblingNamesSection(
-                    title: 'Sisters',
-                    emptyHint: 'No sisters added yet',
+                    title: l10n.storyPreferencesSistersTitle,
+                    emptyHint: l10n.storyPreferencesNoSistersAddedYet,
                     controllers: _sisterNameControllers,
-                    fieldLabelBuilder: (index) => 'Sister ${index + 1} name',
+                    fieldLabelBuilder: (index) =>
+                        l10n.storyPreferencesSisterNameOptionalLabel(index + 1),
                     onChanged: (index, value) {
                       prefs.setSisterNameAt(index, value);
                     },
@@ -308,7 +323,8 @@ class _StoryPreferencesPageState extends State<StoryPreferencesPage> {
                       prefs.removeSisterNameAt(index);
                     },
                     onAdd: prefs.addSisterName,
-                    addButtonLabel: 'Add sister',
+                    addButtonLabel: l10n.storyPreferencesAddSisterButton,
+                    removeButtonTooltip: l10n.commonRemove,
                   ),
                 ],
               ],
@@ -448,6 +464,7 @@ class _SiblingNamesSection extends StatelessWidget {
     required this.onRemove,
     required this.onAdd,
     required this.addButtonLabel,
+    required this.removeButtonTooltip,
   });
 
   final String title;
@@ -458,6 +475,7 @@ class _SiblingNamesSection extends StatelessWidget {
   final ValueChanged<int> onRemove;
   final Future<void> Function([String value]) onAdd;
   final String addButtonLabel;
+  final String removeButtonTooltip;
 
   @override
   Widget build(BuildContext context) {
@@ -484,7 +502,7 @@ class _SiblingNamesSection extends StatelessWidget {
                     child: TextField(
                       controller: controllers[index],
                       decoration: InputDecoration(
-                        labelText: '${fieldLabelBuilder(index)} (optional)',
+                        labelText: fieldLabelBuilder(index),
                       ),
                       onChanged: (value) => onChanged(index, value),
                     ),
@@ -492,7 +510,7 @@ class _SiblingNamesSection extends StatelessWidget {
                   const SizedBox(width: 8),
                   IconButton(
                     onPressed: () => onRemove(index),
-                    tooltip: 'Remove',
+                    tooltip: removeButtonTooltip,
                     icon: const Icon(Icons.remove_circle_outline_rounded),
                   ),
                 ],

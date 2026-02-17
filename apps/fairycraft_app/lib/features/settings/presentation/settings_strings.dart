@@ -58,6 +58,19 @@ class SettingsStrings {
     required this.voiceQualityTurbo,
     required this.voiceQualityPro2,
     required this.voiceQualityPro1,
+    required this.sectionAppearance,
+    required this.sectionLanguage,
+    required this.sectionAudio,
+    required this.sectionParentalControl,
+    required this.sectionDebug,
+    required this.toggleAutoplayNarration,
+    required this.toggleMusic,
+    required this.toggleSoundEffects,
+    required this.toggleSafeMode,
+    required this.toggleDisableScaryContent,
+    required this.toggleRequireParentConfirmationForOlder,
+    required this.debugFirebaseSanityCheckTitle,
+    required this.debugFirebaseSanityCheckSubtitle,
   });
 
   final String settingsTitle;
@@ -114,6 +127,19 @@ class SettingsStrings {
   final String voiceQualityTurbo;
   final String voiceQualityPro2;
   final String voiceQualityPro1;
+  final String sectionAppearance;
+  final String sectionLanguage;
+  final String sectionAudio;
+  final String sectionParentalControl;
+  final String sectionDebug;
+  final String toggleAutoplayNarration;
+  final String toggleMusic;
+  final String toggleSoundEffects;
+  final String toggleSafeMode;
+  final String toggleDisableScaryContent;
+  final String toggleRequireParentConfirmationForOlder;
+  final String debugFirebaseSanityCheckTitle;
+  final String debugFirebaseSanityCheckSubtitle;
 
   static SettingsStrings of(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -175,6 +201,21 @@ class SettingsStrings {
       voiceQualityTurbo: l10n.settingsVoiceQualityTurbo,
       voiceQualityPro2: l10n.settingsVoiceQualityPro2,
       voiceQualityPro1: l10n.settingsVoiceQualityPro1,
+      sectionAppearance: l10n.settingsSectionAppearance,
+      sectionLanguage: l10n.settingsSectionLanguage,
+      sectionAudio: l10n.settingsSectionAudio,
+      sectionParentalControl: l10n.settingsSectionParentalControl,
+      sectionDebug: l10n.settingsSectionDebug,
+      toggleAutoplayNarration: l10n.settingsToggleAutoplayNarration,
+      toggleMusic: l10n.settingsToggleMusic,
+      toggleSoundEffects: l10n.settingsToggleSoundEffects,
+      toggleSafeMode: l10n.settingsToggleSafeMode,
+      toggleDisableScaryContent: l10n.settingsToggleDisableScaryContent,
+      toggleRequireParentConfirmationForOlder:
+          l10n.settingsToggleRequireParentConfirmationForOlder,
+      debugFirebaseSanityCheckTitle: l10n.settingsDebugFirebaseSanityCheckTitle,
+      debugFirebaseSanityCheckSubtitle:
+          l10n.settingsDebugFirebaseSanityCheckSubtitle,
     );
   }
 }

@@ -166,6 +166,12 @@ abstract class AppLocalizations {
   /// **'Not available'**
   String get commonNotAvailable;
 
+  /// No description provided for @commonRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get commonRemove;
+
   /// No description provided for @commonLink.
   ///
   /// In en, this message translates to:
@@ -705,6 +711,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Include family members in stories'**
   String get storyPreferencesIncludeFamilyMembers;
+
+  /// No description provided for @storyPreferencesFamilyMemberNameOptionalLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'{member} name (optional)'**
+  String storyPreferencesFamilyMemberNameOptionalLabel(String member);
+
+  /// No description provided for @storyPreferencesBrothersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Brothers'**
+  String get storyPreferencesBrothersTitle;
+
+  /// No description provided for @storyPreferencesSistersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sisters'**
+  String get storyPreferencesSistersTitle;
+
+  /// No description provided for @storyPreferencesNoBrothersAddedYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No brothers added yet'**
+  String get storyPreferencesNoBrothersAddedYet;
+
+  /// No description provided for @storyPreferencesNoSistersAddedYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No sisters added yet'**
+  String get storyPreferencesNoSistersAddedYet;
+
+  /// No description provided for @storyPreferencesBrotherNameOptionalLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Brother {index} name (optional)'**
+  String storyPreferencesBrotherNameOptionalLabel(int index);
+
+  /// No description provided for @storyPreferencesSisterNameOptionalLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Sister {index} name (optional)'**
+  String storyPreferencesSisterNameOptionalLabel(int index);
+
+  /// No description provided for @storyPreferencesAddBrotherButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Add brother'**
+  String get storyPreferencesAddBrotherButton;
+
+  /// No description provided for @storyPreferencesAddSisterButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Add sister'**
+  String get storyPreferencesAddSisterButton;
 
   /// No description provided for @storyPreferencesIllustrationsSection.
   ///
@@ -1293,6 +1353,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Pro1'**
   String get settingsVoiceQualityPro1;
+
+  /// No description provided for @settingsSectionAppearance.
+  ///
+  /// In en, this message translates to:
+  /// **'Appearance'**
+  String get settingsSectionAppearance;
+
+  /// No description provided for @settingsSectionLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get settingsSectionLanguage;
+
+  /// No description provided for @settingsSectionAudio.
+  ///
+  /// In en, this message translates to:
+  /// **'Audio'**
+  String get settingsSectionAudio;
+
+  /// No description provided for @settingsSectionParentalControl.
+  ///
+  /// In en, this message translates to:
+  /// **'Parental control'**
+  String get settingsSectionParentalControl;
+
+  /// No description provided for @settingsSectionDebug.
+  ///
+  /// In en, this message translates to:
+  /// **'Debug'**
+  String get settingsSectionDebug;
+
+  /// No description provided for @settingsToggleAutoplayNarration.
+  ///
+  /// In en, this message translates to:
+  /// **'Autoplay narration'**
+  String get settingsToggleAutoplayNarration;
+
+  /// No description provided for @settingsToggleMusic.
+  ///
+  /// In en, this message translates to:
+  /// **'Music'**
+  String get settingsToggleMusic;
+
+  /// No description provided for @settingsToggleSoundEffects.
+  ///
+  /// In en, this message translates to:
+  /// **'Sound effects'**
+  String get settingsToggleSoundEffects;
+
+  /// No description provided for @settingsToggleSafeMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Safe mode'**
+  String get settingsToggleSafeMode;
+
+  /// No description provided for @settingsToggleDisableScaryContent.
+  ///
+  /// In en, this message translates to:
+  /// **'Disable scary content'**
+  String get settingsToggleDisableScaryContent;
+
+  /// No description provided for @settingsToggleRequireParentConfirmationForOlder.
+  ///
+  /// In en, this message translates to:
+  /// **'Require parent confirmation for older'**
+  String get settingsToggleRequireParentConfirmationForOlder;
+
+  /// No description provided for @settingsDebugFirebaseSanityCheckTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Firebase sanity check'**
+  String get settingsDebugFirebaseSanityCheckTitle;
+
+  /// No description provided for @settingsDebugFirebaseSanityCheckSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Inspect Firebase bootstrap, App Check and auth wiring.'**
+  String get settingsDebugFirebaseSanityCheckSubtitle;
 
   /// No description provided for @ttsListenButton.
   ///
