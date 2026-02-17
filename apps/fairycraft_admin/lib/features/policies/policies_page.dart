@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../config/app_environment.dart';
 import '../../data/models/admin_policy_model.dart';
 import '../../data/models/policy_scope.dart';
 import '../../data/repositories/policies_repository.dart';
@@ -185,8 +184,6 @@ class _PoliciesPageState extends State<PoliciesPage> {
 
   @override
   Widget build(BuildContext context) {
-    final isDev = context.watch<AppEnvironment>().isDevelopment;
-
     if (_loading) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -266,22 +263,19 @@ class _PoliciesPageState extends State<PoliciesPage> {
               icon: const Icon(Icons.refresh),
               label: const Text('Reload'),
             ),
-            if (isDev)
-              FilledButton.tonalIcon(
-                onPressed: _backfilling ? null : _backfillAllowPersonalNames,
-                icon: _backfilling
-                    ? const SizedBox(
-                        width: 16,
-                        height: 16,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Icon(Icons.build_circle_outlined),
-                label: Text(
-                  _backfilling
-                      ? 'Backfilling...'
-                      : 'Backfill allowPersonalNames',
-                ),
+            FilledButton.tonalIcon(
+              onPressed: _backfilling ? null : _backfillAllowPersonalNames,
+              icon: _backfilling
+                  ? const SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.build_circle_outlined),
+              label: Text(
+                _backfilling ? 'Backfilling...' : 'Backfill allowPersonalNames',
               ),
+            ),
           ],
         ),
         if (_error != null) ...<Widget>[
