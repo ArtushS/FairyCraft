@@ -31,6 +31,12 @@ class StoryPreferencesController extends ChangeNotifier {
   static const String _interactiveKey = 'story_pref_interactive';
   static const String _familyModeKey = 'story_pref_family_mode';
   static const String _familyMembersKey = 'story_pref_family_members';
+  static const String _familyNameMomKey = 'story_pref_family_name_mom';
+  static const String _familyNameDadKey = 'story_pref_family_name_dad';
+  static const String _familyNameGrandmaKey = 'story_pref_family_name_grandma';
+  static const String _familyNameGrandpaKey = 'story_pref_family_name_grandpa';
+  static const String _familyBrothersKey = 'story_pref_family_brothers';
+  static const String _familySistersKey = 'story_pref_family_sisters';
   static const String _illustrationsKey = 'story_pref_auto_illustrations';
   static const String _creativityKey = 'story_pref_creativity';
 
@@ -43,6 +49,12 @@ class StoryPreferencesController extends ChangeNotifier {
   bool _interactiveChoices = true;
   bool _familyMode = true;
   List<String> _familyMembers = <String>[memberMom, memberDad];
+  String _familyNameMom = '';
+  String _familyNameDad = '';
+  String _familyNameGrandma = '';
+  String _familyNameGrandpa = '';
+  List<String> _brothersNames = <String>[];
+  List<String> _sistersNames = <String>[];
   bool _autoIllustrations = true;
   double _creativity = 0.6;
 
@@ -53,8 +65,61 @@ class StoryPreferencesController extends ChangeNotifier {
   bool get interactiveChoices => _interactiveChoices;
   bool get familyMode => _familyMode;
   List<String> get familyMembers => List<String>.unmodifiable(_familyMembers);
+  String get familyNameMom => _familyNameMom;
+  String get familyNameDad => _familyNameDad;
+  String get familyNameGrandma => _familyNameGrandma;
+  String get familyNameGrandpa => _familyNameGrandpa;
+  List<String> get brothersNames => List<String>.unmodifiable(_brothersNames);
+  List<String> get sistersNames => List<String>.unmodifiable(_sistersNames);
   bool get autoIllustrations => _autoIllustrations;
   double get creativity => _creativity;
+
+  List<String> get nonEmptyBrothersNames => _nonEmptyNames(_brothersNames);
+  List<String> get nonEmptySistersNames => _nonEmptyNames(_sistersNames);
+
+  Map<String, String> get nonEmptyFamilyNames {
+    final values = <String, String>{
+      memberMom: _familyNameMom,
+      memberDad: _familyNameDad,
+      memberGrandma: _familyNameGrandma,
+      memberGrandpa: _familyNameGrandpa,
+    };
+    final result = <String, String>{};
+    values.forEach((key, value) {
+      if (value.isNotEmpty) {
+        result[key] = value;
+      }
+    });
+    return result;
+  }
+
+  Map<String, int> get familyMemberCounts {
+    if (!_familyMode) {
+      return const <String, int>{};
+    }
+
+    final counts = <String, int>{
+      for (final member in _familyMembers) member: 1,
+    };
+
+    final brothersCount = nonEmptyBrothersNames.length;
+    final sistersCount = nonEmptySistersNames.length;
+
+    if (brothersCount > 0) {
+      counts[memberBrother] = brothersCount;
+    } else if (counts.containsKey(memberBrother)) {
+      counts[memberBrother] = 1;
+    }
+
+    if (sistersCount > 0) {
+      counts[memberSister] = sistersCount;
+    } else if (counts.containsKey(memberSister)) {
+      counts[memberSister] = 1;
+    }
+
+    counts.removeWhere((_, value) => value <= 0);
+    return counts;
+  }
 
   String get ageGroupCode {
     if (_targetAge <= 5) {
@@ -112,6 +177,24 @@ class StoryPreferencesController extends ChangeNotifier {
         prefs.getStringList(_familyMembersKey) ??
         <String>[memberMom, memberDad];
     controller._familyMembers = _normalizeFamilyMembers(storedFamilyMembers);
+    controller._familyNameMom = _normalizeName(
+      prefs.getString(_familyNameMomKey) ?? '',
+    );
+    controller._familyNameDad = _normalizeName(
+      prefs.getString(_familyNameDadKey) ?? '',
+    );
+    controller._familyNameGrandma = _normalizeName(
+      prefs.getString(_familyNameGrandmaKey) ?? '',
+    );
+    controller._familyNameGrandpa = _normalizeName(
+      prefs.getString(_familyNameGrandpaKey) ?? '',
+    );
+    controller._brothersNames = _normalizeNameList(
+      prefs.getStringList(_familyBrothersKey) ?? const <String>[],
+    );
+    controller._sistersNames = _normalizeNameList(
+      prefs.getStringList(_familySistersKey) ?? const <String>[],
+    );
     controller._autoIllustrations = prefs.getBool(_illustrationsKey) ?? true;
     controller._creativity = (prefs.getDouble(_creativityKey) ?? 0.6).clamp(
       0.0,
@@ -162,6 +245,84 @@ class StoryPreferencesController extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> setFamilyNameMom(String value) async {
+    _familyNameMom = _normalizeName(value);
+    await _prefs.setString(_familyNameMomKey, _familyNameMom);
+    notifyListeners();
+  }
+
+  Future<void> setFamilyNameDad(String value) async {
+    _familyNameDad = _normalizeName(value);
+    await _prefs.setString(_familyNameDadKey, _familyNameDad);
+    notifyListeners();
+  }
+
+  Future<void> setFamilyNameGrandma(String value) async {
+    _familyNameGrandma = _normalizeName(value);
+    await _prefs.setString(_familyNameGrandmaKey, _familyNameGrandma);
+    notifyListeners();
+  }
+
+  Future<void> setFamilyNameGrandpa(String value) async {
+    _familyNameGrandpa = _normalizeName(value);
+    await _prefs.setString(_familyNameGrandpaKey, _familyNameGrandpa);
+    notifyListeners();
+  }
+
+  Future<void> setBrothersNames(List<String> values) async {
+    _brothersNames = _normalizeNameList(values);
+    await _prefs.setStringList(_familyBrothersKey, _brothersNames);
+    notifyListeners();
+  }
+
+  Future<void> setSistersNames(List<String> values) async {
+    _sistersNames = _normalizeNameList(values);
+    await _prefs.setStringList(_familySistersKey, _sistersNames);
+    notifyListeners();
+  }
+
+  Future<void> addBrotherName([String value = '']) async {
+    await setBrothersNames(<String>[..._brothersNames, _normalizeName(value)]);
+  }
+
+  Future<void> addSisterName([String value = '']) async {
+    await setSistersNames(<String>[..._sistersNames, _normalizeName(value)]);
+  }
+
+  Future<void> setBrotherNameAt(int index, String value) async {
+    if (index < 0 || index >= _brothersNames.length) {
+      return;
+    }
+    final next = List<String>.from(_brothersNames);
+    next[index] = _normalizeName(value);
+    await setBrothersNames(next);
+  }
+
+  Future<void> setSisterNameAt(int index, String value) async {
+    if (index < 0 || index >= _sistersNames.length) {
+      return;
+    }
+    final next = List<String>.from(_sistersNames);
+    next[index] = _normalizeName(value);
+    await setSistersNames(next);
+  }
+
+  Future<void> removeBrotherNameAt(int index) async {
+    if (index < 0 || index >= _brothersNames.length) {
+      return;
+    }
+    final next = List<String>.from(_brothersNames)..removeAt(index);
+    await setBrothersNames(next);
+  }
+
+  Future<void> removeSisterNameAt(int index) async {
+    if (index < 0 || index >= _sistersNames.length) {
+      return;
+    }
+    final next = List<String>.from(_sistersNames)..removeAt(index);
+    await setSistersNames(next);
+  }
+
   Future<void> setAutoIllustrations(bool value) async {
     _autoIllustrations = value;
     await _prefs.setBool(_illustrationsKey, value);
@@ -182,6 +343,12 @@ class StoryPreferencesController extends ChangeNotifier {
     _interactiveChoices = true;
     _familyMode = true;
     _familyMembers = <String>[memberMom, memberDad];
+    _familyNameMom = '';
+    _familyNameDad = '';
+    _familyNameGrandma = '';
+    _familyNameGrandpa = '';
+    _brothersNames = <String>[];
+    _sistersNames = <String>[];
     _autoIllustrations = true;
     _creativity = 0.6;
 
@@ -192,6 +359,12 @@ class StoryPreferencesController extends ChangeNotifier {
     await _prefs.setBool(_interactiveKey, _interactiveChoices);
     await _prefs.setBool(_familyModeKey, _familyMode);
     await _prefs.setStringList(_familyMembersKey, _familyMembers);
+    await _prefs.setString(_familyNameMomKey, _familyNameMom);
+    await _prefs.setString(_familyNameDadKey, _familyNameDad);
+    await _prefs.setString(_familyNameGrandmaKey, _familyNameGrandma);
+    await _prefs.setString(_familyNameGrandpaKey, _familyNameGrandpa);
+    await _prefs.setStringList(_familyBrothersKey, _brothersNames);
+    await _prefs.setStringList(_familySistersKey, _sistersNames);
     await _prefs.setBool(_illustrationsKey, _autoIllustrations);
     await _prefs.setDouble(_creativityKey, _creativity);
     notifyListeners();
@@ -227,5 +400,20 @@ class StoryPreferencesController extends ChangeNotifier {
       normalized.addAll(<String>[memberMom, memberDad]);
     }
     return normalized.toList(growable: false);
+  }
+
+  static String _normalizeName(String rawValue) {
+    return rawValue.trim();
+  }
+
+  static List<String> _normalizeNameList(List<String> rawValues) {
+    return rawValues.map(_normalizeName).toList(growable: false);
+  }
+
+  static List<String> _nonEmptyNames(List<String> values) {
+    return values
+        .map(_normalizeName)
+        .where((item) => item.isNotEmpty)
+        .toList(growable: false);
   }
 }

@@ -14,19 +14,88 @@ class StoryPreferencesPage extends StatefulWidget {
 }
 
 class _StoryPreferencesPageState extends State<StoryPreferencesPage> {
+  late final StoryPreferencesController _prefs;
   late final TextEditingController _heroNameController;
+  late final TextEditingController _momNameController;
+  late final TextEditingController _dadNameController;
+  late final TextEditingController _grandmaNameController;
+  late final TextEditingController _grandpaNameController;
+  final List<TextEditingController> _brotherNameControllers =
+      <TextEditingController>[];
+  final List<TextEditingController> _sisterNameControllers =
+      <TextEditingController>[];
 
   @override
   void initState() {
     super.initState();
-    final prefs = context.read<StoryPreferencesController>();
-    _heroNameController = TextEditingController(text: prefs.heroName);
+    _prefs = context.read<StoryPreferencesController>();
+    _heroNameController = TextEditingController(text: _prefs.heroName);
+    _momNameController = TextEditingController(text: _prefs.familyNameMom);
+    _dadNameController = TextEditingController(text: _prefs.familyNameDad);
+    _grandmaNameController = TextEditingController(
+      text: _prefs.familyNameGrandma,
+    );
+    _grandpaNameController = TextEditingController(
+      text: _prefs.familyNameGrandpa,
+    );
+    _syncSiblingControllers(_brotherNameControllers, _prefs.brothersNames);
+    _syncSiblingControllers(_sisterNameControllers, _prefs.sistersNames);
+    _prefs.addListener(_onPreferencesChanged);
   }
 
   @override
   void dispose() {
+    _prefs.removeListener(_onPreferencesChanged);
     _heroNameController.dispose();
+    _momNameController.dispose();
+    _dadNameController.dispose();
+    _grandmaNameController.dispose();
+    _grandpaNameController.dispose();
+    _disposeControllers(_brotherNameControllers);
+    _disposeControllers(_sisterNameControllers);
     super.dispose();
+  }
+
+  void _disposeControllers(List<TextEditingController> values) {
+    for (final controller in values) {
+      controller.dispose();
+    }
+    values.clear();
+  }
+
+  void _onPreferencesChanged() {
+    _syncControllerValue(_heroNameController, _prefs.heroName);
+    _syncControllerValue(_momNameController, _prefs.familyNameMom);
+    _syncControllerValue(_dadNameController, _prefs.familyNameDad);
+    _syncControllerValue(_grandmaNameController, _prefs.familyNameGrandma);
+    _syncControllerValue(_grandpaNameController, _prefs.familyNameGrandpa);
+    _syncSiblingControllers(_brotherNameControllers, _prefs.brothersNames);
+    _syncSiblingControllers(_sisterNameControllers, _prefs.sistersNames);
+  }
+
+  void _syncSiblingControllers(
+    List<TextEditingController> controllers,
+    List<String> values,
+  ) {
+    while (controllers.length < values.length) {
+      controllers.add(TextEditingController());
+    }
+    while (controllers.length > values.length) {
+      controllers.removeLast().dispose();
+    }
+    for (var index = 0; index < values.length; index++) {
+      _syncControllerValue(controllers[index], values[index]);
+    }
+  }
+
+  void _syncControllerValue(TextEditingController controller, String value) {
+    if (controller.text == value) {
+      return;
+    }
+    controller.value = TextEditingValue(
+      text: value,
+      selection: TextSelection.collapsed(offset: value.length),
+    );
   }
 
   @override
@@ -58,9 +127,7 @@ class _StoryPreferencesPageState extends State<StoryPreferencesPage> {
                 labelText: l10n.storyPreferencesHeroNameLabel,
                 hintText: l10n.storyPreferencesHeroNameHint,
               ),
-              onChanged: (value) {
-                prefs.setHeroName(value);
-              },
+              onChanged: prefs.setHeroName,
             ),
           ),
           const SizedBox(height: FairyCraftSpacing.section),
@@ -151,35 +218,99 @@ class _StoryPreferencesPageState extends State<StoryPreferencesPage> {
                   title: Text(l10n.storyPreferencesIncludeFamilyMembers),
                   onChanged: prefs.setFamilyMode,
                 ),
-                const SizedBox(height: FairyCraftSpacing.element),
-                Wrap(
-                  spacing: FairyCraftSpacing.element,
-                  runSpacing: FairyCraftSpacing.element,
-                  children: StoryPreferencesController.familyMemberIds
-                      .map((memberId) {
-                        final selected = prefs.familyMembers.contains(memberId);
-                        return FilterChip(
-                          selected: selected,
-                          label: Text(_familyLabel(l10n, memberId)),
-                          onSelected: prefs.familyMode
-                              ? (isSelected) {
-                                  final next = List<String>.from(
-                                    prefs.familyMembers,
-                                  );
-                                  if (isSelected) {
-                                    if (!next.contains(memberId)) {
-                                      next.add(memberId);
-                                    }
-                                  } else {
-                                    next.remove(memberId);
-                                  }
-                                  prefs.setFamilyMembers(next);
+                if (prefs.familyMode) ...<Widget>[
+                  const SizedBox(height: FairyCraftSpacing.element),
+                  Wrap(
+                    spacing: FairyCraftSpacing.element,
+                    runSpacing: FairyCraftSpacing.element,
+                    children: StoryPreferencesController.familyMemberIds
+                        .map((memberId) {
+                          final selected = prefs.familyMembers.contains(
+                            memberId,
+                          );
+                          return FilterChip(
+                            selected: selected,
+                            label: Text(_familyLabel(l10n, memberId)),
+                            onSelected: (isSelected) {
+                              final next = List<String>.from(
+                                prefs.familyMembers,
+                              );
+                              if (isSelected) {
+                                if (!next.contains(memberId)) {
+                                  next.add(memberId);
                                 }
-                              : null,
-                        );
-                      })
-                      .toList(growable: false),
-                ),
+                              } else {
+                                next.remove(memberId);
+                              }
+                              prefs.setFamilyMembers(next);
+                            },
+                          );
+                        })
+                        .toList(growable: false),
+                  ),
+                  const SizedBox(height: FairyCraftSpacing.section),
+                  TextField(
+                    controller: _momNameController,
+                    decoration: InputDecoration(
+                      labelText: '${l10n.familyMom} name (optional)',
+                    ),
+                    onChanged: prefs.setFamilyNameMom,
+                  ),
+                  const SizedBox(height: FairyCraftSpacing.element),
+                  TextField(
+                    controller: _dadNameController,
+                    decoration: InputDecoration(
+                      labelText: '${l10n.familyDad} name (optional)',
+                    ),
+                    onChanged: prefs.setFamilyNameDad,
+                  ),
+                  const SizedBox(height: FairyCraftSpacing.element),
+                  TextField(
+                    controller: _grandmaNameController,
+                    decoration: InputDecoration(
+                      labelText: '${l10n.familyGrandma} name (optional)',
+                    ),
+                    onChanged: prefs.setFamilyNameGrandma,
+                  ),
+                  const SizedBox(height: FairyCraftSpacing.element),
+                  TextField(
+                    controller: _grandpaNameController,
+                    decoration: InputDecoration(
+                      labelText: '${l10n.familyGrandpa} name (optional)',
+                    ),
+                    onChanged: prefs.setFamilyNameGrandpa,
+                  ),
+                  const SizedBox(height: FairyCraftSpacing.section),
+                  _SiblingNamesSection(
+                    title: 'Brothers',
+                    emptyHint: 'No brothers added yet',
+                    controllers: _brotherNameControllers,
+                    fieldLabelBuilder: (index) => 'Brother ${index + 1} name',
+                    onChanged: (index, value) {
+                      prefs.setBrotherNameAt(index, value);
+                    },
+                    onRemove: (index) {
+                      prefs.removeBrotherNameAt(index);
+                    },
+                    onAdd: prefs.addBrotherName,
+                    addButtonLabel: 'Add brother',
+                  ),
+                  const SizedBox(height: FairyCraftSpacing.section),
+                  _SiblingNamesSection(
+                    title: 'Sisters',
+                    emptyHint: 'No sisters added yet',
+                    controllers: _sisterNameControllers,
+                    fieldLabelBuilder: (index) => 'Sister ${index + 1} name',
+                    onChanged: (index, value) {
+                      prefs.setSisterNameAt(index, value);
+                    },
+                    onRemove: (index) {
+                      prefs.removeSisterNameAt(index);
+                    },
+                    onAdd: prefs.addSisterName,
+                    addButtonLabel: 'Add sister',
+                  ),
+                ],
               ],
             ),
           ),
@@ -303,6 +434,77 @@ class _SegmentedButtons<T> extends StatelessWidget {
             );
           })
           .toList(growable: false),
+    );
+  }
+}
+
+class _SiblingNamesSection extends StatelessWidget {
+  const _SiblingNamesSection({
+    required this.title,
+    required this.emptyHint,
+    required this.controllers,
+    required this.fieldLabelBuilder,
+    required this.onChanged,
+    required this.onRemove,
+    required this.onAdd,
+    required this.addButtonLabel,
+  });
+
+  final String title;
+  final String emptyHint;
+  final List<TextEditingController> controllers;
+  final String Function(int index) fieldLabelBuilder;
+  final void Function(int index, String value) onChanged;
+  final ValueChanged<int> onRemove;
+  final Future<void> Function([String value]) onAdd;
+  final String addButtonLabel;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Text(title, style: Theme.of(context).textTheme.titleSmall),
+        const SizedBox(height: FairyCraftSpacing.element),
+        if (controllers.isEmpty)
+          Text(
+            emptyHint,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: FairyCraftPalette.textSecondary,
+            ),
+          )
+        else
+          ...List<Widget>.generate(controllers.length, (index) {
+            return Padding(
+              padding: const EdgeInsets.only(bottom: FairyCraftSpacing.element),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Expanded(
+                    child: TextField(
+                      controller: controllers[index],
+                      decoration: InputDecoration(
+                        labelText: '${fieldLabelBuilder(index)} (optional)',
+                      ),
+                      onChanged: (value) => onChanged(index, value),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  IconButton(
+                    onPressed: () => onRemove(index),
+                    tooltip: 'Remove',
+                    icon: const Icon(Icons.remove_circle_outline_rounded),
+                  ),
+                ],
+              ),
+            );
+          }),
+        OutlinedButton.icon(
+          onPressed: () => onAdd(),
+          icon: const Icon(Icons.add),
+          label: Text(addButtonLabel),
+        ),
+      ],
     );
   }
 }
